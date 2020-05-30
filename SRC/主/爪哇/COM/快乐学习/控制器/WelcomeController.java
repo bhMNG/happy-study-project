@@ -18,7 +18,6 @@ public class WelcomeController {
 	@GetMapping("getMenu")
 	@ResponseBody
 	public JSONObject getMenu() {
-		System.out.println("========ljs");
 		return null;
 	}
 }
