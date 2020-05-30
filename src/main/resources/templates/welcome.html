@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>${sysTitle}</title>
+    <link rel="stylesheet" href="${ctxPath}/adminlte/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="${ctxPath}/adminlte/font-awesome/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="${ctxPath}/adminlte/Ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="${ctxPath}/adminlte/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="${ctxPath}/adminlte/css/skins/skin-blue.css">
+    <!-- jQuery 3 -->
+    <script type="text/javascript" src="${ctxPath}/js/jquery-3.4.1.js"></script>
+    <!-- vue -->
+    <script type="text/javascript" src="${ctxPath}/js/vue.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="${ctxPath}/adminlte/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="${ctxPath}/adminlte/js/adminlte.min.js"></script>
+    <script src="${ctxPath}/adminlte/js/fastclick.js"></script>
+    <script src="${ctxPath}/adminlte/js/app.min.js"></script>
+</head>
+
+<body class="skin-blue sidebar-mini" >
+    <div class="wrapper" id="bodydiv">
+        <header class="main-header">
+            <!-- Logo -->
+            <a  href="javacript://" class="logo">
+                <span class="logo-mini">
+                </span>
+                <span class="logo-lg">${sysTitle}</span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="javascript://" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">切换导航</span>
+                </a>
+                <!-- Navbar Right Menu -->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- Messages: style can be found in dropdown.less-->
+                        <!-- Notifications: style can be found in dropdown.less -->
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="javascript://" class="dropdown-toggle" data-toggle="dropdown" />
+                                <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'"  class="user-image" alt="User Image">
+                                <span class="hidden-xs">${currentUser.u_name}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" >
+                                    <p>
+                                        ${currentUser.u_name}
+                                        <small>${currentUser.u_idcard}</small>
+                                    </p>
+                                </li>
+                                <!-- Menu Body -->
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <a href="javascript://" class="btn btn-default btn-flat">个人档案</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="${ctxPath}/happy-study/loginout" class="btn btn-default btn-flat">退出</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Control Sidebar Toggle Button -->
+                    </ul>
+                </div>
+
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar" style="height: auto;">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" />
+                    </div>
+                    <div class="pull-left info">
+                        <p>${currentUser.u_name}</p>
+                        <a href="javascript://">
+                            <i class="fa fa-circle text-success"></i> 在线
+                        </a>
+                    </div>
+                </div>
+
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                    <li class="header">主导航</li>
+                    <li class="treeview" >
+                        <a href="javascript://">
+                            <i class="fa fa-amazon"></i>
+                            <span>数据管理</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                         <ul class="treeview-menu">
+                            <li>
+                                <a href="javascript://" >学生管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript://" >班级管理</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper" style="min-height: 916px">
+            <!-- Content Header (Page header) -->
+            <section class="content-header" style="height: 50px; background: #fff; border-bottom: 1px solid">
+                <h4 style="margin-top: 0px" id="maintitle"></h4>
+                <ol class="breadcrumb" id="breadcrumb" style="float: left">
+                </ol>
+                <br />
+            </section>
+            <!-- Main content -->
+            <div id="maindiv">
+            
+            </div>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> 1.0
+            </div>
+            <strong>Copyright © 2020 SCUJCC.</strong> All rights reserved.四川大学锦城学院版权所有
+        </footer>
+        <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
+    </div>
+
+</body>
+</html>
+
+<script>
+	var vue = new Vue({
+		el : "bodydiv",
+		data : {
+			left-nav : {
+				menus : [],
+			},
+		},
+		methods : {
+			getMenu : function(){
+				$.post("${ctxPath}/happy-study/getMenu", {},  response=>{
+					console.log(response);
+				});
+				$.ajax({
+					url : "${ctxPath}/happy-study/getMenu",
+					async : false,
+					type : "get",
+					success : function(ret){
+						console.log(ret)
+					},
+					error : function(err){
+						alert("error " + error);
+					}
+				})
+			},
+		},
+		mounted : function(){
+			getMenu();
+		}
+	})
+</script>

@@ -90,6 +90,8 @@
             vertical-align: bottom;
         }
     </style>
+    <script src="${ctxPath}/js/jquery-3.4.1.js"></script>
+    <script src="${ctxPath}/js/vue.min.js"></script>
 </head>
 <body>
 
@@ -107,7 +109,7 @@
                             fill="#ffffff" p-id="3809"></path></svg>
                 </span>
                 <span>用户名</span>
-                <input maxlength="16" placeholder="   UserName" type="text">
+                <input maxlength="16" placeholder="   UserName" type="text" v-model="login.username">
             </label>
         </div>
         <div class="password">
@@ -121,7 +123,7 @@
                             fill="#ffffff" p-id="4679"></path></svg>
                 </span>
                 <span>密码</span>
-                <input maxlength="16" placeholder="   Password" type="password">
+                <input maxlength="16" placeholder="   Password" type="password" v-model="login.password">
             </label>
         </div>
         <div class="enterBut">
@@ -133,3 +135,67 @@
 </div>
 </body>
 </html>
+
+<script>
+	var vue = new Vue({
+		el : "main",
+		data : {
+			login : {
+				username : "",
+				password : "",
+				usernameError : false,
+				passwordError : false,
+			},
+		},
+		methods : {
+			validate : function(){
+				vue.clearLoginError();
+				var username = vue.login.username;
+				var password = vue.login.password;
+				//验证码代做. . .
+				
+				if (username == "" || password == ""){
+					if (username == ""){
+						vue.login.usernameError = true;
+					}
+					if (password == ""){
+						vue.login.passwordError = true;
+					}
+					alert("用户名或密码不能为空!");
+					return ;
+				}
+				
+				$.post("${ctxPath}/user/validate", {username : username, password : password}, response=>{
+					if (response.status == 0){
+						//登录成功
+						failLoginCount = 0;
+						$(location).attr("href", "${ctxPath}/student");
+						return ;
+					}else{
+						if (response.status == 100){
+							alert("登录失败：系统错误 " + ret.status);
+						}else if(response.status == 2){
+							vue.login.passwordError = true;
+							alert("密码错误");
+							vue.login.password = "";
+						}else if(response.status == 1){
+							vue.login.usernameError = true;
+							alert("用户名不存在");
+							vue.login.username = "";
+							vue.login.password = "";
+						}
+					}
+				});
+				
+			},
+			clearLoginError : function(){
+				vue.login.usernameError = false;
+				vue.login.passwordError = false;
+			}
+		},
+		mounted : function(){
+			
+		}
+	})
+
+</script>

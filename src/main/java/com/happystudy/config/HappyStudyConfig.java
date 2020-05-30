@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.happystudy.interceptor.HappyStudyInterceptor;
+import com.happystudy.interceptor.UserInterceptor;
 
 
 
@@ -14,9 +15,12 @@ import com.happystudy.interceptor.HappyStudyInterceptor;
 public class HappyStudyConfig implements WebMvcConfigurer{
 	@Autowired
 	private HappyStudyInterceptor happyStudyInterceptor;
+	@Autowired
+	private UserInterceptor userInterceptor;
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(happyStudyInterceptor).addPathPatterns("/**");
+		registry.addInterceptor(userInterceptor).addPathPatterns("/happy-study/**");
 	}
 	
 	@Override
