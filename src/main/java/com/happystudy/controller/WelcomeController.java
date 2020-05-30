@@ -20,6 +20,7 @@ public class WelcomeController {
 	public JSONObject getMenu() {
 		System.out.println("=========");
 		System.out.println("======ywh");
+		System.out.println("=====ljs");
 		return null;
 	}
 }
