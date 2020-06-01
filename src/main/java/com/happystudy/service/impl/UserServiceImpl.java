@@ -234,7 +234,7 @@ public class UserServiceImpl implements UserService {
         return json;
     }
 
-    //查询用户角色名称
+    //查询用户角色
     @Override
     public JSONObject queryUserRole(String username) {
         JSONObject json=new JSONObject();
