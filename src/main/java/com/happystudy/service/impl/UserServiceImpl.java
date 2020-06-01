@@ -73,8 +73,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject registUser(String username, String password) {
         JSONObject json=new JSONObject();
-        String exitsUser=userMapper.findUserbyName(username);
-        if (exitsUser==null){//新用户不存在
+        List<User> userList=userMapper.findUserByName(username);
+        if (userList.size()<0){//新用户不存在
             try{
                 String pass=CipherMachine.encryption(password);
                 User user=userMapper.registUser(username,pass);
@@ -96,8 +96,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject bindPhone(String username, String phonenum) {
         JSONObject json=new JSONObject();
-        User exitsUser=userMapper.findUserbyName(username);
-        if (exitsUser==null) {//新用户不存在
+        List<User> userList=userMapper.findUserByName(username);
+        if (userList.size()>0) {//新用户不存在
             json.set("status",Constants.NULL_USER);
             return json;
         }else {
@@ -122,11 +122,10 @@ public class UserServiceImpl implements UserService {
     public JSONObject updateUserInfo(Map<String,Object> param) {
         JSONObject json=new JSONObject();
         try{
-            User existUser=userMapper.findUserByname(param.get("u_username"));
-            if (existUser!=null){//用户存在
-                User user=userMapper.updateUserInfo(param);
+            List<User> userList=userMapper.findUserByName((String) param.get("u_username"));
+            if (userList.size()>0){//用户存在
+                userMapper.updateUserInfo(param);
                 json.set("status",Constants.SUCCESS);
-                json.set("user",user);
                 return json;
             }else {
                 json.set("status",Constants.NULL_USER);
@@ -155,7 +154,7 @@ public class UserServiceImpl implements UserService {
         //查询结果并分页
         List<User> userList=userMapper.queryUser(param);
         //查询总条数
-        int recCount=userMapper.queryCount(keyword);
+        int recCount=userMapper.queryUserCount(keyword);
         //总页数
         int pageCount=recCount/pageSize;
         if (recCount%pageSize>0){
@@ -172,9 +171,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-        User user=userMapper.findUserByName(username);
+        List<User> userList=userMapper.findUserByName(username);
         json.set("status",Constants.SUCCESS);
-        json.set("user",user);
+        json.set("userList",userList);
         return json;
     }
 
@@ -182,11 +181,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserRole(String username) {
         JSONObject json=new JSONObject();
-        User existUser=userMapper.findUserByName(username);
-        if (existUser!=null){//用户存在
-            User user=userMapper.queryUserRole(username);
+        List<User> userList=userMapper.findUserByName(username);
+        if (userList.size()>0){//用户存在
+            List<User> users=userMapper.queryUserRole(username);
             json.set("status",Constants.SUCCESS);
-            json.set("user",user);
+            json.set("users",users);
             return json;
         }else {
          json.set("status",Constants.NULL_USER);
@@ -202,7 +201,7 @@ public class UserServiceImpl implements UserService {
         String[] userNameArrray=username.split(",");
         for (String name:userNameArrray
              ) {
-            UserMapper.delUserByName(name);
+            userMapper.delUserByName(name);
         }
         json.set("status",Constants.SUCCESS);
         return json;
