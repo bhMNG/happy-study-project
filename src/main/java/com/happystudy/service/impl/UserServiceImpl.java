@@ -110,9 +110,8 @@ public class UserServiceImpl implements UserService {
             String password2=exitsuser.getuUserpass();
             //对密码进行判断
             if (password1.equalsIgnoreCase(password2)){//密码相同
-                User user=userMapper.updateUser(username,newPassword);
+                userMapper.updateUser(username,newPassword);
                 json.set("status",Constants.SUCCESS);
-                json.set("user",user);
                 return json;
             }else {//密码不相同
                 json.set("status",Constants.PASSWORD_ERROR);
@@ -128,7 +127,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject registUser(String username, String password) {
         JSONObject json=new JSONObject();
-        String exitsUser=userMapper.findUserbyName(username);
+        User exitsUser=userMapper.findUserByName(username);
         if (exitsUser==null){//新用户不存在
             try{
                 User user=new User();
@@ -153,7 +152,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject bindPhone(String username, String phonenum) {
         JSONObject json=new JSONObject();
-        User exitsUser=userMapper.findUserbyName(username);
+        User exitsUser=userMapper.findUserByName(username);
         if (exitsUser==null) {//新用户不存在
             json.set("status",Constants.NULL_USER);
             return json;
@@ -210,16 +209,16 @@ public class UserServiceImpl implements UserService {
         param.put("pageNo",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
-        List<User> userList=userMapper.queryUser(param);
+        List<Map<String, Object>> mapList = userMapper.queryUser(param);
         //查询总条数
-        int recCount=userMapper.queryUserCount(keyword);
+        int recCount=userMapper.queryUserCount(param);
         //总页数
         int pageCount=recCount/pageSize;
         if (recCount%pageSize>0){
             pageCount++;
         }
         json.set("status",Constants.SUCCESS);
-        json.set("userArray", JSONUtil.parseArray(userList));
+        json.set("userArray", JSONUtil.parseArray(mapList));
         json.set("recCount",recCount);
         json.set("pageCount",pageCount);
         return json;
@@ -241,9 +240,9 @@ public class UserServiceImpl implements UserService {
         JSONObject json=new JSONObject();
         User existUser=userMapper.findUserByName(username);
         if (existUser!=null){//用户存在
-            List<User> userList = userMapper.queryUserRole(username);
+            User user = userMapper.queryUserRole(username);
             json.set("status",Constants.SUCCESS);
-            json.set("userArray",JSONUtil.parseArray(userList));
+            json.set("userArray",user);
             return json;
         }else {
          json.set("status",Constants.NULL_USER);
