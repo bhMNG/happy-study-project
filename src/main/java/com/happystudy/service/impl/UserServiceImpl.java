@@ -1,11 +1,13 @@
 package com.happystudy.service.impl;
 
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.happystudy.constants.Constants;
 import com.happystudy.dao.UserMapper;
 import com.happystudy.model.User;
 import com.happystudy.service.UserService;
 import com.happystudy.util.CipherMachine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,25 +21,78 @@ import java.util.Map;
  */
 @Service
 public class UserServiceImpl implements UserService {
+    @Autowired
     private UserMapper userMapper;
+
+    //手机号码验证登录
+    private JSONObject loginByPhone(String phone,String password){
+        JSONObject json=new JSONObject();
+        try{
+            User user=userMapper.findUserByPhone(phone);
+            //对密码进行加密处理
+            String pass1=CipherMachine.encryption(password);
+            if (user==null){//电话号码不存在
+                json.set("isSuccess",false);
+                return json;
+            }else {
+                //得到用户名
+                String username = user.getuUsername();
+                //得到用户密码
+                String pass2=user.getuUserpass();
+                if (pass1.equalsIgnoreCase(pass2)){
+                    json.set("isSuccess",true);
+                    json.set("username",username);
+                    return json;
+                }else {
+                    json.set("isSuccess",false);
+                    return json;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            json.set("error",e.getMessage());
+            return json;
+        }
+    }
+
     //登录方法
     @Override
     public JSONObject login(String username, String password) {
         JSONObject json=new JSONObject();
-        if (userMapper.findUserByName(username)==null){//根据用户名查询用户是否存在
-            json.set("status", Constants.NULL_USER);
-            return json;
-        }else{
+        User existUser=userMapper.findUserByName(username);
+        if (existUser==null){//根据用户名查询用户不存在
+            JSONObject result = loginByPhone(username, password);
+            //现在查找用户名不存在的情况下，手机号是否存在
+            if (result.getBool("isSuccess")){//手机号验证成功
+                json.set("phonenum",username);
+                json.set("username",result.getStr("username"));
+                json.set("password",password);
+                //todo 缓存操作
+                json.set("status",Constants.SUCCESS);
+                json.remove("password");
+                return json;
+            }else {//手机号验证失败
+                json.set("status", Constants.NULL_USER);
+                return json;
+            }
+        }else{//用户名存在，则不是手机号，走用户名登录逻辑
             try{
+                //获取该用户的数据库里面的密码
+                String pass=existUser.getuUserpass();
                 //加密处理
                 String newPass = CipherMachine.encryption(password);
-                User user=userMapper.validate(username,newPass);
-                json.set("status",Constants.SUCCESS);
-                json.set("user",user);
-                return json;
+                if (pass.equalsIgnoreCase(newPass)){//密码正确
+                    json.set("status",Constants.SUCCESS);
+                    json.set("user",existUser);
+                    return json;
+                }else {
+                    json.set("status",Constants.PASSWORD_ERROR);
+                    return json;
+                }
             }catch (Exception e){
                 e.printStackTrace();
-                return null;
+                json.set("error",e.getMessage());
+                return json;
             }
         }
     }
@@ -76,10 +131,12 @@ public class UserServiceImpl implements UserService {
         String exitsUser=userMapper.findUserbyName(username);
         if (exitsUser==null){//新用户不存在
             try{
+                User user=new User();
                 String pass=CipherMachine.encryption(password);
-                User user=userMapper.registUser(username,pass);
+                user.setuUsername(username);
+                user.setuUserpass(pass);
+                userMapper.addUser(user);
                 json.set("status",Constants.SUCCESS);
-                json.set("user",user);
                 return json;
             }catch (Exception e){
                 e.printStackTrace();
@@ -118,15 +175,15 @@ public class UserServiceImpl implements UserService {
     }
 
     //修改用户个人信息
+    @Transactional
     @Override
     public JSONObject updateUserInfo(Map<String,Object> param) {
         JSONObject json=new JSONObject();
         try{
             User existUser=userMapper.findUserByName((String)param.get("u_username"));
             if (existUser!=null){//用户存在
-                User user=userMapper.updateUserInfo(param);
+                userMapper.updateUserInfo(param);
                 json.set("status",Constants.SUCCESS);
-                json.set("user",user);
                 return json;
             }else {
                 json.set("status",Constants.NULL_USER);
@@ -162,7 +219,7 @@ public class UserServiceImpl implements UserService {
             pageCount++;
         }
         json.set("status",Constants.SUCCESS);
-        json.set("user",userList);
+        json.set("userArray", JSONUtil.parseArray(userList));
         json.set("recCount",recCount);
         json.set("pageCount",pageCount);
         return json;
@@ -172,7 +229,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-         user=userMapper.findUserByName(username);
+         User user=userMapper.findUserByName(username);
         json.set("status",Constants.SUCCESS);
         json.set("user",user);
         return json;
@@ -184,9 +241,9 @@ public class UserServiceImpl implements UserService {
         JSONObject json=new JSONObject();
         User existUser=userMapper.findUserByName(username);
         if (existUser!=null){//用户存在
-            User user=userMapper.queryUserRole(username);
+            List<User> userList = userMapper.queryUserRole(username);
             json.set("status",Constants.SUCCESS);
-            json.set("user",user);
+            json.set("userArray",JSONUtil.parseArray(userList));
             return json;
         }else {
          json.set("status",Constants.NULL_USER);
