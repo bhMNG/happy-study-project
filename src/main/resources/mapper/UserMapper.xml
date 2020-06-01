@@ -1,5 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.happystudy.dao.UserMapper">
-
+	<sql id="BASE_TABLE">
+		t_user
+	</sql>
+	<sql id="BASE_COL">
+		t_user.id, u_username, u_userpass, u_phone,u_role_fk
+	</sql>
+	<!-- 修改密码 -->
+	<update id="updateUser">
+		update t_user
+		set t_user.u_userpass=#{password}
+		where t_user.id=#{id}
+	</update>
+	<!-- 修改用户个人信息 -->
+	<update id="updateUserInfo">
+		update t_user_info
+		set t_user_info.i_name=#{iName},
+		t_user_info.i_sex=#{iSex},
+		t_user_info.i_photo=#{iPhoto},
+		t_user_info.i_address=#{iAddress},
+		t_user_info.i_brithday=#{iBrithday},
+		t_user_info.i_idcard=#{iIdcard}
+		from t_user join t_user_info on t_user.u_username=t_user_info.i_username
+		where t_user_info.id=#{id}
+	</update>
+	<!-- 查询已存在用户(5个参数) -->
+	<select id="queryUser" resultType="map">
+		select t_user.*,r_property,r_name from t_user left join t_role on t_user.t_role_fk=t_role.id
+		<if test="roleId !='' or keyword !=''">
+			where
+		</if>
+		<if test="roleId !=''">t_role_fk=${roleId}</if>
+		<if test="keyword !=''">(u_username like '%${keyword}')</if>
+		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
+	</select>
+	<!-- 查询用户个人信息 -->
+	<select id="queryUserInfo" resultType="com.happystudy.model.User">
+		select i_name,i_sex,i_photo,i_address,i_brithday,i_idcard from <include refid="BASE_TABLE" />
+		left join t_user_info on t_user.id=i_username_fk
+		where t_user.u_username=#{username}
+	</select>
+	<!-- 查询用户角色名称 -->
+	<select id="queryUserRole" resultType="com.happystudy.model.User">
+		select r_name from <include refid="BASE_TABLE" />
+		left join t_role on t_role.id=u_role_fk
+		where t_user.u_username=#{username}
+	</select>
+	<!-- 删除用户 -->
+	<delete id="delUserByName">
+		delete * from t_user where u_username=#{username} 
+	</delete>
+	<!-- 通过用户名查询用户信息 -->
+	<select id="findUserByName" resultType="com.happystudy.model.User">
+		select t_user.id,u_username,u_userpass,u_phone from <include refid="BASE_TABLE" />
+		where t_user.u_username=#{username}
+	</select>
+	<!-- 查询用户人数 -->
+	<select id="queryUserCount" resultType="com.happystudy.model.User">
+		select COUNT(*) from t_user
+		<if test="keyword !='' and keyword !=null">
+			where
+		</if>
+		<if test="keyword !='' and keyword !=null">t_user.id like '%{keyword}%'</if>
+	</select>
+	<!-- 查询用户权限职责信息 -->
+	<select id="queryUserProp" resultType="com.happystudy.model.User">
+		select p_duty from t_user left join t_role on t_user.u_role_fk=t_role.id left join t_property on t_property.p_role_fk=t_role.id
+		where u_username=#{username}
+	</select>
+	<!-- 添加用户 -->
+	<select id="addUser" resultType="com.happystudy.model.User">
+		insert into t_user(u_username, u_userpass, u_phone,u_role_fk)
+		values (#{uUsername},#{uUserpass},#{uPhone},#{uRoleFk})
+	</select>
+	<!-- 绑定手机 -->
+	<select id="findUserByPhone"  resultType="com.happystudy.model.User">
+		select u_username u_phone from t_user
+		where
+		<if test="phonenum !='' and phone !=null">
+			u_phone=#{phonenum} or
+		</if>
+		u_username=#{username}
+	</select>
 </mapper>

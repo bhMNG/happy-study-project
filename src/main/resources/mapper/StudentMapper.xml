@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.StudentMapper">
+	<sql id="BASE_TABLE">
+		t_student
+	</sql>
+	<sql id="BASE_COL">
+		t_student.id, s_no, s_name, s_sex, s_birthday, s_enter_year
+	</sql>
+	
+</mapper>

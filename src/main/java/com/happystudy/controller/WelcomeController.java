@@ -18,8 +18,6 @@ public class WelcomeController {
 	@GetMapping("getMenu")
 	@ResponseBody
 	public JSONObject getMenu() {
-		System.out.println("ywh");
-		System.out.println("git");
 		return null;
 	}
 }
