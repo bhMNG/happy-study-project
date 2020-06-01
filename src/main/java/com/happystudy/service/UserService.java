@@ -17,10 +17,12 @@ public interface UserService {
 	public JSONObject updateUser(String username,String oldPassword,String newPassword);
 	//注册用户
 	public JSONObject registUser(String username,String password);
-	//修改用户个人信息
-	public JSONObject updateUserInfo(Map<String,Object> userinfo);
+    //绑定手机
+    public JSONObject bindPhone(String username, String phonenum);
+    //修改用户个人信息
+	public JSONObject updateUserInfo(Map<String,Object> param);
 	//查询已存在用户（5个参数）
-	public JSONObject queryUser(Map<String,Object> param);
+	public JSONObject queryUser(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
 	//查询用户个人信息
 	public JSONObject queryUserInfo(String username);
 	//查询用户角色名称

@@ -14,6 +14,7 @@ public interface Constants {
 	public static final int REGIST_ERROR = 3; //用户已经被注册
 	public static final int USER_FORMAT_ERROR = 4; //账号或密码格式错误
 	public static final int NULL_PHONE = 5; //没有该手机号
+	public static final int PHONE_EXIST=6;//电话号码已存在
 	
 	//学生模块
 	public static final int SNO_EXIST = 20; //学号已经存在
