@@ -106,15 +106,20 @@ public class UserServiceImpl implements UserService {
             String password1=CipherMachine.encryption(oldPassword);
             //根据用户名查询用户
             User exitsuser=userMapper.findUserByName(username);
-            //获取用户密码
-            String password2=exitsuser.getuUserpass();
-            //对密码进行判断
-            if (password1.equalsIgnoreCase(password2)){//密码相同
-                userMapper.updateUser(username,newPassword);
-                json.set("status",Constants.SUCCESS);
-                return json;
-            }else {//密码不相同
-                json.set("status",Constants.PASSWORD_ERROR);
+            if (exitsuser!=null){//用户名存在
+                //获取用户密码
+                String password2=exitsuser.getuUserpass();
+                //对密码进行判断
+                if (password1.equalsIgnoreCase(password2)){//密码相同
+                    userMapper.updateUser(username,newPassword);
+                    json.set("status",Constants.SUCCESS);
+                    return json;
+                }else {//密码不相同
+                    json.set("status",Constants.PASSWORD_ERROR);
+                    return json;
+                }
+            }else {//用户名不存在
+                json.set("status",Constants.NULL_USER);
                 return json;
             }
         }catch (Exception e){
