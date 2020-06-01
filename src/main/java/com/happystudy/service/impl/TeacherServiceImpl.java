@@ -1,7 +1,11 @@
 package com.happystudy.service.impl;
 
 import cn.hutool.json.JSONObject;
+import com.happystudy.constants.Constants;
+import com.happystudy.dao.TeacherMapper;
 import com.happystudy.service.TeacherService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
@@ -9,7 +13,10 @@ import java.util.Map;
  * @author LJS
  * @data 2020/6/1 8:39
  */
+@Service
 public class TeacherServiceImpl implements TeacherService {
+    @Autowired
+    private TeacherMapper teacherMapper;
     //查询教师（5个参数）
     @Override
     public JSONObject queryTeacher(Map<String, Object> param) {
@@ -19,12 +26,17 @@ public class TeacherServiceImpl implements TeacherService {
     //查询教师人数（默认所有教师人数）
     @Override
     public JSONObject queryTeacherCount(String keyword) {
-        return null;
+        JSONObject json=new JSONObject();
+        Integer count = teacherMapper.queryTeacherCount(keyword);
+        json.set("status", Constants.SUCCESS);
+        json.set("count",count);
+        return json;
     }
 
     //添加教师
     @Override
     public JSONObject addTeacher(String tNo, String tName) {
+
         return null;
     }
 
