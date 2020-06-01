@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.ClazzMapper">
+<sql id="BASE_TABLE">
+		t_clazz
+	</sql>
+	<sql id="BASE_COL">
+		t_clazz.id, c_no, c_name, c_enter_year
+	</sql>
+	<!--查询班级（5个参数） -->
+	<select id="queryClazz" resultType="map" parameterType="java.util.Map">
+		select t_clazz.* from t_clazz
+		<if test="keyword !='' and keyword !=null">
+			where
+		</if>
+		<if test="keyword !=''">(c_no like '%${keyword}%' or c_name like '%${keyword}%'")</if>
+		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
+	</select>
+	<!--查询班级个数  -->
+	<select id="queryClazzCount" resultType="com.springboottest.model.Clazz">
+		select COUNT(*) from t_clazz
+		<if test="param.cNo !='' and param.cNo">
+			where
+		</if>
+		<if test="param.cNo !='' and param.cNo !=null">c_no=#{param.cNo}</if>
+	</select>
+	<!-- 添加班级 -->
+	<insert id="addClazz">
+		insert into t_clazz(c_no,c_name,c_enter_year)
+		values (#{cNo},#{cName},#{cEnterYear})
+	</insert>
+	<!-- 修改班级信息 -->
+	<update id="updateClazzByNo">
+		update t_clazz
+		set t_clazz.c_no=#{cNo}
+		t_clazz.c_name=#{cName}
+		t_clazz.c_enter_year=#{cEnterYear}
+		where
+		<if test="param.cNo !='' and param.cNo">
+			c_no=#{param.cNo}
+		</if>
+	</update>
+	<!-- 删除班级 -->
+	<delete id="deleteClazzByNo">
+		delete * from t_clazz where c_no=#{cNo}
+	</delete>
+	<!-- 根据班级号精确匹配班级 -->
+	<select id="findClazzByNo" resultType="com.springboottest.model.Clazz">
+		select c_name from t_clazz where c_no=#{cNo}
+	</select>
+	<!-- 通过老师找班级 -->
+	<select id="findClazzByTeacher" resultType="com.springboottest.model.Clazz">
+		select c_no,c_name,c_enter_year from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.id left join t_depart
+		on s_student.s_depart_fk=t_depart.id left join t_teacher on t_teacher.t_depart_fk=depart.id
+		where t_no=#{tNo}
+	</select>
+	<!-- 查询该班级的所有学生 -->
+	<select id="queryClazzAllStu" resultType="com.springboottest.model.Student">
+		select s_no,s_name,s_sex,s_birthday,s_enter_year from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.id
+		where c_no=#{cNo}
+	</select>
+	<!-- 查询该班级的学生人数 -->
+	<select id="queryClazzStuCount" resultType="com.springboottest.model.Student">
+		select COUNT(*) from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.id
+		<if test="param.cNo !='' and param.cNo !=null">
+			where
+		</if>
+		<if test="param.cNo !='' and param.cNo !=null">c_no=#{cNo}</if>
+	</select>	
+</mapper>
