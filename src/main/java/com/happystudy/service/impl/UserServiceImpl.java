@@ -73,8 +73,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject registUser(String username, String password) {
         JSONObject json=new JSONObject();
-        List<User> userList=userMapper.findUserByName(username);
-        if (userList.size()<0){//新用户不存在
+        String exitsUser=userMapper.findUserbyName(username);
+        if (exitsUser==null){//新用户不存在
             try{
                 String pass=CipherMachine.encryption(password);
                 User user=userMapper.registUser(username,pass);
@@ -96,8 +96,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject bindPhone(String username, String phonenum) {
         JSONObject json=new JSONObject();
-        List<User> userList=userMapper.findUserByName(username);
-        if (userList.size()>0) {//新用户不存在
+        User exitsUser=userMapper.findUserbyName(username);
+        if (exitsUser==null) {//新用户不存在
             json.set("status",Constants.NULL_USER);
             return json;
         }else {
@@ -122,10 +122,11 @@ public class UserServiceImpl implements UserService {
     public JSONObject updateUserInfo(Map<String,Object> param) {
         JSONObject json=new JSONObject();
         try{
-            List<User> userList=userMapper.findUserByName((String) param.get("u_username"));
-            if (userList.size()>0){//用户存在
-                userMapper.updateUserInfo(param);
+            User existUser=userMapper.findUserByName((String)param.get("u_username"));
+            if (existUser!=null){//用户存在
+                User user=userMapper.updateUserInfo(param);
                 json.set("status",Constants.SUCCESS);
+                json.set("user",user);
                 return json;
             }else {
                 json.set("status",Constants.NULL_USER);
@@ -171,9 +172,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-        List<User> userList=userMapper.findUserByName(username);
+         user=userMapper.findUserByName(username);
         json.set("status",Constants.SUCCESS);
-        json.set("userList",userList);
+        json.set("user",user);
         return json;
     }
 
@@ -181,11 +182,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserRole(String username) {
         JSONObject json=new JSONObject();
-        List<User> userList=userMapper.findUserByName(username);
-        if (userList.size()>0){//用户存在
-            List<User> users=userMapper.queryUserRole(username);
+        User existUser=userMapper.findUserByName(username);
+        if (existUser!=null){//用户存在
+            User user=userMapper.queryUserRole(username);
             json.set("status",Constants.SUCCESS);
-            json.set("users",users);
+            json.set("user",user);
             return json;
         }else {
          json.set("status",Constants.NULL_USER);
