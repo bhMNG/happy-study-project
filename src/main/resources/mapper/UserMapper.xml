@@ -11,7 +11,7 @@
 	<update id="updateUser">
 		update t_user
 		set t_user.u_userpass=#{password}
-		where t_user.id=#{id}
+		where t_user.u_username=#{username}
 	</update>
 	<!-- 修改用户个人信息 -->
 	<update id="updateUserInfo">
@@ -26,7 +26,7 @@
 		where t_user_info.id=#{id}
 	</update>
 	<!-- 查询已存在用户(5个参数) -->
-	<select id="queryUser" resultType="map">
+	<select id="queryUser" resultType="map" parameterType="java.util.Map">
 		select t_user.*,r_property,r_name from t_user left join t_role on t_user.t_role_fk=t_role.id
 		<if test="roleId !='' or keyword !=''">
 			where
@@ -53,34 +53,39 @@
 	</delete>
 	<!-- 通过用户名查询用户信息 -->
 	<select id="findUserByName" resultType="com.happystudy.model.User">
-		select t_user.id,u_username,u_userpass,u_phone from <include refid="BASE_TABLE" />
+		select u_username,u_userpass,u_phone from <include refid="BASE_TABLE" />
 		where t_user.u_username=#{username}
 	</select>
 	<!-- 查询用户人数 -->
 	<select id="queryUserCount" resultType="com.happystudy.model.User">
 		select COUNT(*) from t_user
-		<if test="keyword !='' and keyword !=null">
+		<if test="param.Id !='' and param.Id !=null">
 			where
 		</if>
-		<if test="keyword !='' and keyword !=null">t_user.id like '%{keyword}%'</if>
+		<if test="param.Id !='' and param.Id !=null">t_user.id=#{param.Id}</if>
 	</select>
 	<!-- 查询用户权限职责信息 -->
-	<select id="queryUserProp" resultType="com.happystudy.model.User">
+	<select id="queryUserProp" resultType="com.happystudy.model.Property">
 		select p_duty from t_user left join t_role on t_user.u_role_fk=t_role.id left join t_property on t_property.p_role_fk=t_role.id
 		where u_username=#{username}
 	</select>
 	<!-- 添加用户 -->
 	<select id="addUser" resultType="com.happystudy.model.User">
-		insert into t_user(u_username, u_userpass, u_phone,u_role_fk)
+		insert into t_user (u_username, u_userpass, u_phone,u_role_fk)
 		values (#{uUsername},#{uUserpass},#{uPhone},#{uRoleFk})
 	</select>
-	<!-- 绑定手机 -->
+	<!-- 根据电话查找用户 -->
 	<select id="findUserByPhone"  resultType="com.happystudy.model.User">
-		select u_username u_phone from t_user
+		select u_username,u_phone from t_user
+		where u_phone=#{phonenum}		
+	</select>
+	<!-- 绑定手机 -->
+	<select id="bindPhone" resultType="com.happystudy.model.User">
+		select u_username,u_phone from t_user
 		where
-		<if test="phonenum !='' and phone !=null">
-			u_phone=#{phonenum} or
+		<if test="username !='' and username !=null">
+			u_username=#{username} and
 		</if>
-		u_username=#{username}
+		u_phone=#{phonenum}
 	</select>
 </mapper>

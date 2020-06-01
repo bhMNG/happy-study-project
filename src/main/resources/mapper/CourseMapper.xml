@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.CourseMapper">
+<sql id="BASE_TABLE">
+		t_course
+	</sql>
+	<sql id="BASE_COL">
+		t_course.id, co_no, co_name
+	</sql>
+	<!--查询课程（5个参数） -->
+	<select id="queryCourse" resultType="map" parameterType="java.util.Map">
+		select t_course.* from t_course
+		<if test="keyword !='' and keyword !=null">
+			where
+		</if>
+		<if test="keyword !=''">(co_no like '%${keyword}%' or co_name like '%${keyword}%'")</if>
+		order by ${orderBy} ${orderWay} limit ${offset},${pageSize} 
+	</select>
+	<!-- 查询课程数（默认为所有课程） -->
+	<select id="queryCourseCount" resultType="com.springboottest.model.Course">
+		select COUNT(*) from t_course
+		<if test="param.coNo !='' and param.coNo !=null">
+			where
+		</if>
+		<if test="param.coNo !='' and param.coNo !=null">co_no=#{coNo}</if>
+	</select>
+	<!-- 添加课程 -->
+	<insert id="addCourse">
+		insert into t_course (co_no,co_name)
+		values (#{coNo},#{coName})
+	</insert> 
+	<!-- 修改课程名 -->
+	<update id="updateCourseByNo" >
+		update t_course
+		set t_course.co_no=#{coNo}
+		t_course.co_name=#{coName}
+		where
+		<if test="param.coNo !='' and param.coNo !=null">
+			cn_no=#{param.coNo}
+		</if>
+	</update>
+	<!-- 根据课程号删除课程 -->
+	<delete id="deleteCourseByNo">
+		delete * from t_course where co_no=#{coNo}
+	</delete>
+	<!-- 根据课程号精确匹配课程 -->
+	<select id="findCourseByNo" resultType="com.springboottest.model.Course">
+		select co_name from t_course where co_no=#{coNo}
+	</select>
+	<!-- 通过老师找课程 -->
+	<select id="getTeacherCourse" resultType="com.springboottest.model.Course">
+		select co_no,co_name from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id
+		where t_no=#{tNo}
+	</select>
+	<!-- 通过学院找课程 -->
+	<select id="findCourseByDepart" resultType="com.springboottest.model.Course">
+		select co_no,co_name from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id left join t_depart on t_teacher.t_depart_fk=t_depart.id
+		where d_no=#{dNo}
+	</select>
+	<!-- 查询报了该课程的所有学生 -->
+	<select id="queryCourseAllStu" resultType="com.springboottest.model.Student">
+		select s_no,s_name,s_sex,s_birthday,s_enter_year from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id left join t_depart on t_teacher.t_depart_fk=t_depart.id
+		left join t_student on t_student.t_depart_fk=t_depart.id
+		where co_no=#{coNo}
+	</select>
+	<!-- 查询该课程的学生人数 -->
+	<select id="queryCourseStudentCount" resultType="com.springboottest.model.Student">
+		select COUNT(*) from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id left join t_depart on t_teacher.t_depart_fk=t_depart.id
+		left join t_student on t_student.t_depart_fk=t_depart.id
+		<if test="param.coNo !='' and param.coNo !=null">
+			where
+		</if>
+		<if test="param.coNo !='' and param.coNo !=null">co_no=#{coNo}</if>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
