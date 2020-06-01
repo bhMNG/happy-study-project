@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.happystudy.model.Clazz;
 import com.happystudy.model.Student;
+import org.springframework.stereotype.Repository;
 
 public interface ClazzMapper {
 

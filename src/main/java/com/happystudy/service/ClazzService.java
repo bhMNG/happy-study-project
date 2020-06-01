@@ -8,6 +8,7 @@ import java.util.Map;
  * @author LJS
  * @data 2020/5/31 13:12
  */
+
 public interface ClazzService {
     //查询班级
     public JSONObject queryClazz(Map<String,Object> param);
