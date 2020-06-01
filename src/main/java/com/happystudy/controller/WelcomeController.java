@@ -21,7 +21,6 @@ public class WelcomeController {
 		System.out.println("=========");
 		System.out.println("======ywh");
 		System.out.println("=====ljs");
-		System.out.println("=====lhb");
 		return null;
 	}
 }
