@@ -233,7 +233,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-         User existUser=userMapper.findUserByName(username);
+         User existUser=userMapper.queryUserInfo(username);
          if (existUser!=null){
              json.set("status",Constants.SUCCESS);
              json.set("user",existUser);
@@ -257,6 +257,21 @@ public class UserServiceImpl implements UserService {
         }else {
          json.set("status",Constants.NULL_USER);
          return json;
+        }
+    }
+
+    //查询用户权限职责信息
+    @Override
+    public JSONObject queryUserProp(String username) {
+        JSONObject json=new JSONObject();
+        User user = userMapper.queryUserProp(username);
+        if (user!=null){
+            json.set("status",Constants.SUCCESS);
+            json.set("user",user);
+            return json;
+        }else{
+            json.set("status",Constants.NULL_USER);
+            return json;
         }
     }
 

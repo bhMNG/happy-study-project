@@ -27,6 +27,8 @@ public interface UserService {
 	public JSONObject queryUserInfo(String username);
 	//查询用户角色名称
 	public JSONObject queryUserRole(String username);
+	//查询用户权限职责信息
+	public JSONObject queryUserProp(String username);
 	//删除用户
 	public JSONObject delUserByName(String username);
 }
