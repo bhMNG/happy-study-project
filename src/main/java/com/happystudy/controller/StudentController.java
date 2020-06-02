@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +15,11 @@ import java.util.Map;
 public class StudentController {
     @Autowired
     StudentService studentService;
+    
+    @RequestMapping("")
+	public String index() {
+		return "student_man";
+	}
 
     //根据关键字查询学生信息（排序、分页）(5个参数)
     @ResponseBody

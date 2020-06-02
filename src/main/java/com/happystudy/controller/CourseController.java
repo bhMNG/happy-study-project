@@ -1,19 +1,28 @@
 package com.happystudy.controller;
 
-import cn.hutool.json.JSONObject;
-import com.happystudy.constants.Constants;
-import com.happystudy.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.happystudy.constants.Constants;
+import com.happystudy.service.CourseService;
+
+import cn.hutool.json.JSONObject;
+
 @Controller
+@RequestMapping("happy-study/course")
 public class CourseController {
     @Autowired
     CourseService courseService;
+    
+    @RequestMapping("")
+	public String index() {
+		return "course_man";
+	}
 
     //查询课程（5个参数）
     @ResponseBody

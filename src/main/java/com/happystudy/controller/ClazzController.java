@@ -6,15 +6,22 @@ import com.happystudy.service.ClazzService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
+@RequestMapping("/happy-study/clazz")
 public class ClazzController {
     @Autowired
     ClazzService clazzService;
 
+    @RequestMapping("")
+    public String index() {
+    	return "clazz_mam";
+    }
+    
     //查询班级（5个参数）
     @ResponseBody
     public JSONObject queryClazz(Map<String, Object> param){

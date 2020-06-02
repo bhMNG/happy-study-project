@@ -23,6 +23,16 @@ import static com.happystudy.util.camelToUnderline.camelToUnderline;
 public class UserController {
     @Autowired
     UserService userService;
+    
+	@RequestMapping("")
+	public String index() {
+		return "user_man";
+	}
+	
+	@RequestMapping("propertyMan")
+	public String gotoPropMan() {
+		return "property_man";
+	}
 
     //修改密码
     @ResponseBody

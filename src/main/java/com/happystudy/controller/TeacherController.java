@@ -16,6 +16,11 @@ import java.util.Map;
 public class TeacherController {
     @Autowired
     TeacherService teacherService;
+    
+    @RequestMapping("")
+	public String index() {
+		return "teacher_man";
+	}
 
     //查询教师（5个参数）
     @ResponseBody
