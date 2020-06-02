@@ -119,12 +119,6 @@ public class StudentServiceImpl implements StudentService {
         return json;
     }
 
-    //学生选课
-    @Override
-    public JSONObject courseSelective(String sNo, String cNo) {
-        return null;
-    }
-
     //获取学生已选课程
     @Override
     public JSONObject getStudentCourse(String sNo) {

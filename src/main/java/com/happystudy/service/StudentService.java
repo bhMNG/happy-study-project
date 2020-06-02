@@ -23,8 +23,6 @@ public interface StudentService {
     public JSONObject getStudentClazz(String sNo);
     //获取学生成绩
     public JSONObject getStudentScore(String sNo);
-    //学生选课
-    public JSONObject courseSelective(String sNo,String cNo);
     //获取学生已选课程
     public JSONObject getStudentCourse(String sNo);
     //获取学生的学院
