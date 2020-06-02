@@ -11,9 +11,9 @@ import java.util.Map;
 
 public interface ClazzService {
     //查询班级
-    public JSONObject queryClazz(Map<String,Object> param);
+    public JSONObject queryClazz(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
     //查询班级个数（默认班级人数）
-    public JSONObject queryClazzCount(String keyword);
+    public JSONObject queryClazzCount(Map<String,Object> param);
     //添加班级
     public JSONObject addClazz(String cNo,String cName);
     //修改班级信息
@@ -25,5 +25,5 @@ public interface ClazzService {
     //查询该班级的所有学生
     public JSONObject queryClazzAllStu(String cNo);
     //查询该班级的学生人数
-    public JSONObject queryClazzStuCount(String cNo);
+    public JSONObject queryClazzStuCount(Map<String, Object> param);
 }

@@ -18,11 +18,11 @@
 	</select>
 	<!-- 查询课程数（默认为所有课程） -->
 	<select id="queryCourseCount" resultType="com.springboottest.model.Course">
-		select COUNT(*) from t_course
-		<if test="param.coNo !='' and param.coNo !=null">
+		select COUNT(coNo) from t_course
+		<if test="coNo ='' and coNo =null">
 			where
 		</if>
-		<if test="param.coNo !='' and param.coNo !=null">co_no=#{coNo}</if>
+		<if test="coNo ='' and coNo =null">co_no=#{coNo}</if>
 	</select>
 	<!-- 添加课程 -->
 	<insert id="addCourse">
@@ -34,10 +34,7 @@
 		update t_course
 		set t_course.co_no=#{coNo}
 		t_course.co_name=#{coName}
-		where
-		<if test="param.coNo !='' and param.coNo !=null">
-			cn_no=#{param.coNo}
-		</if>
+		where cn_no=#{coNo}
 	</update>
 	<!-- 根据课程号删除课程 -->
 	<delete id="deleteCourseByNo">
@@ -65,12 +62,12 @@
 	</select>
 	<!-- 查询该课程的学生人数 -->
 	<select id="queryCourseStudentCount" resultType="com.springboottest.model.Student">
-		select COUNT(*) from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id left join t_depart on t_teacher.t_depart_fk=t_depart.id
+		select COUNT(s_no) from t_course left join t_teacher on t_teacher.t_course_fk=t_course.id left join t_depart on t_teacher.t_depart_fk=t_depart.id
 		left join t_student on t_student.t_depart_fk=t_depart.id
-		<if test="param.coNo !='' and param.coNo !=null">
+		<if test="coNo !='' and coNo !=null">
 			where
 		</if>
-		<if test="param.coNo !='' and param.coNo !=null">co_no=#{coNo}</if>
+		<if test="coNo !='' and coNo !=null">co_no=#{coNo}</if>
 	</select>
 	
 	

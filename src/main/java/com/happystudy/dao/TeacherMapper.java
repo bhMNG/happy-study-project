@@ -19,7 +19,7 @@ public interface TeacherMapper {
 	//添加教师
 	public void addTeacher(Teacher teacher);	
 	//更新教师
-	public void updateTeacherByNo(Map<String, Object> param);	
+	public void updateTeacherByNo(String tNo,Map<String, Object> param);	
 	//删除教师
 	public void deleteTeacherByNo(String tNo);
 	//根据班级获取老师
@@ -34,4 +34,6 @@ public interface TeacherMapper {
 	public Course getTeacherCourse(String tNo);
 	//获得该老师所属的学院
 	public Depart getTeacherDepart(String tNo);
+	//根据教师号查询教师
+	public Teacher findTeacherByNo(String tNo);
 }

@@ -106,15 +106,20 @@ public class UserServiceImpl implements UserService {
             String password1=CipherMachine.encryption(oldPassword);
             //根据用户名查询用户
             User exitsuser=userMapper.findUserByName(username);
-            //获取用户密码
-            String password2=exitsuser.getuUserpass();
-            //对密码进行判断
-            if (password1.equalsIgnoreCase(password2)){//密码相同
-                userMapper.updateUser(username,newPassword);
-                json.set("status",Constants.SUCCESS);
-                return json;
-            }else {//密码不相同
-                json.set("status",Constants.PASSWORD_ERROR);
+            if (exitsuser!=null){//用户名存在
+                //获取用户密码
+                String password2=exitsuser.getuUserpass();
+                //对密码进行判断
+                if (password1.equalsIgnoreCase(password2)){//密码相同
+                    userMapper.updateUser(username,newPassword);
+                    json.set("status",Constants.SUCCESS);
+                    return json;
+                }else {//密码不相同
+                    json.set("status",Constants.PASSWORD_ERROR);
+                    return json;
+                }
+            }else {//用户名不存在
+                json.set("status",Constants.NULL_USER);
                 return json;
             }
         }catch (Exception e){
@@ -228,10 +233,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-         User user=userMapper.findUserByName(username);
-        json.set("status",Constants.SUCCESS);
-        json.set("user",user);
-        return json;
+         User existUser=userMapper.findUserByName(username);
+         if (existUser!=null){
+             json.set("status",Constants.SUCCESS);
+             json.set("user",existUser);
+             return json;
+         }else {
+             json.set("status",Constants.NULL_USER);
+             return json;
+         }
     }
 
     //查询用户角色
@@ -258,9 +268,13 @@ public class UserServiceImpl implements UserService {
         String[] userNameArrray=username.split(",");
         for (String name:userNameArrray
              ) {
-            userMapper.delUserByName(name);
+            if (userMapper.findUserByName(name)!=null){
+                userMapper.delUserByName(name);
+                json.set("status",Constants.SUCCESS);
+            }else {
+                json.set("status",Constants.NULL_USER);
+            }
         }
-        json.set("status",Constants.SUCCESS);
         return json;
     }
 }

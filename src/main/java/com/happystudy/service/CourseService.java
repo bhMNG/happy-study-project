@@ -12,13 +12,13 @@ import java.util.Map;
  */
 public interface CourseService {
     //查询课程
-    public JSONObject queryCourse(Map<String,Object> param);
+    public JSONObject queryCourse(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
     //查询课程数（默认为所有课程）
-    public JSONObject queryCourseCount(String keyword);
+    public JSONObject queryCourseCount(Map<String,Object> param);
     //添加课程
     public JSONObject addCourse(String coNo,String coName);
     //修改课程名
-    public JSONObject updateCourseByNo(String coNo,String coName);
+    public JSONObject updateCourseByNo(String coNo,Map<String, Object> param);
     //根据课程号删除课程
     public JSONObject deleteCourseByNo(String coNo);
     //根据课程号精确匹配课程
@@ -27,9 +27,9 @@ public interface CourseService {
     public JSONObject getTeacherCourse(String tNO);
     //通过学院找课程
     public JSONObject findCourseByDepart(String dNo);
-    //查询所有课程的所有学生
-    public JSONObject queryCourseAllStu();
+    //查询报了该课程的所有学生
+    public JSONObject queryCourseAllStu(String cNo);
     //查询该课程的学生人数
-    public JSONObject queryCourseStudentCount(String cNo);
+    public JSONObject queryCourseStudentCount(Map<String, Object> param);
 
 }

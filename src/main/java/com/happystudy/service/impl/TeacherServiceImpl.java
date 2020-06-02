@@ -25,9 +25,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     //查询教师人数（默认所有教师人数）
     @Override
-    public JSONObject queryTeacherCount(String keyword) {
+    public JSONObject queryTeacherCount(Map<String,Object> param) {
         JSONObject json=new JSONObject();
-        Integer count = teacherMapper.queryTeacherCount(keyword);
+        Integer count = teacherMapper.queryTeacherCount(param);
         json.set("status", Constants.SUCCESS);
         json.set("count",count);
         return json;
@@ -36,7 +36,6 @@ public class TeacherServiceImpl implements TeacherService {
     //添加教师
     @Override
     public JSONObject addTeacher(String tNo, String tName) {
-
         return null;
     }
 

@@ -1,5 +1,4 @@
 package com.happystudy.dao;
-
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,7 @@ public interface ClazzMapper {
 	//添加班级
 	public void addClazz(Clazz clazz);
 	//修改班级信息
-	public void updateClazzByNo(Map<String, Object> param);
+	public void updateClazzByNo(String cNo,Map<String, Object> param);
 	//删除班级
 	public void deleteClazzByNo(String cNo);
 	//根据班级号精确匹配班级
