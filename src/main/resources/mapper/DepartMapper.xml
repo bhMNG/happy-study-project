@@ -18,11 +18,11 @@
 	</select>
 	<!-- 查询学院个数（默认为总个数） -->
 	<select id="queryDepartCount" resultType="com.springboottest.model.Depart">
-		select COUNT(*) from t_depart
-		<if test="param.dNo !='' and param.dNo !=null">
+		select COUNT(dNo) from t_depart
+		<if test="dNo ='' and dNo =null">
 			where
 		</if>
-		<if test="param.dNo !='' and param.dNo !=null">d_no=#{param.dNo}</if>
+		<if test="dNo ='' and dNo =null">d_no=#{dNo}</if>
 	</select>
 	<!-- 添加学院 -->
 	<insert id="addDepart">
@@ -33,10 +33,7 @@
 		uodate t_depart
 		set t_depart.d_no=#{dNo}
 		t_depart.d_name=#{dName}
-		where
-		<if test="param.dNo !='' and param.dNo !=null">
-			d_no=#{param.dNo}
-		</if>
+		where d_no=#{dNo}
 	</update>
 	<!-- 根据学院号删除学院 -->
 	<delete id="deleteDepartByNo">
@@ -44,7 +41,7 @@
 	</delete>
 	<!-- 根据学院号精准匹配学院 -->
 	<select id="findDepartByNo" resultType="com.springboottest.model.Depart">
-		select d_name from t_depart where d_no=#{dNo}
+		select d_no,d_name from t_depart where d_no=#{dNo}
 	</select>
 	<!-- 查找某个学生的学院 -->
 	<select id="getStudentDepart" resultType="com.springboottest.model.Depart">
@@ -63,18 +60,27 @@
 	</select>
 	<!-- 统计该学院的学生人数 -->
 	<select id="queryDepartAllStu" resultType="com.springboottest.model.Student">
-		select COUNT(*) from t_depart left join t_student on t_student.s_depart_fk=t_depart.id
-		where d_no=#{dNo}
+		select COUNT(s_no) from t_depart left join t_student on t_student.s_depart_fk=t_depart.id
+		<if test="dNo !='' and dNo !=null">
+			where
+		</if>
+		<if test="dNo !='' and dNo !=null">d_no=#{dNo}</if>
 	</select>
 	<!-- 统计该学院的课程总数 -->
 	<select id="queryDepartAllCourse" resultType="com.springboottest.model.Course">
-		select COUNT(*) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id left join t_course on t_student.t_course_fk=t_course.id
-		where d_no=#{dNo}
+		select COUNT(co_no) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id left join t_course on t_student.t_course_fk=t_course.id
+		<if test="dNo !='' and dNo !=null">
+			where
+		</if>
+		<if test="dNo !='' and dNo !=null">d_no=#{dNo}</if>
 	</select>
 	<!-- 统计该学院的老师人数 -->
 	<select id="queryDepartAllTeaCount" resultType="com.springboottest.model.Teacher">
-		select COUNT(*) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id
-		where d_no=#{dNo}
+		select COUNT(t_no) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id		
+		<if test="dNo !='' and dNo !=null">
+			where
+		</if>
+		<if test="dNo !='' and dNo !=null">d_no=#{dNo}</if>
 	</select>
 	
 	

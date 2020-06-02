@@ -20,16 +20,16 @@
 	</select>
 	<!-- 查询教师人数（默认为所有教师人数） -->
 	<select id="queryTeacherCount" resultType="com.happystudy.model.Teacher">
-		select COUNT(*) from t_teacher		
-		<if test="param.tNo !='' and param.tNo !=null">
+		select COUNT(tNo) from t_teacher		
+		<if test="tNo !='' and tNo !=null">
 			where
 		</if>
-		<if test="param.tNo !='' and param.tNo !=null">t_no=#{param.tNo}</if>
+		<if test="tNo !='' and tNo !=null">t_no=#{tNo}</if>
 	</select>
 	<!-- 添加教师 -->
 	<insert id="addTeacher">
-		insert into t_teacher(t_no,t_name,t_sex,t_depart_fk,t_course_fk,t_role_fk)
-		values (#{tNo},#{tName},#{tSex},#{tDepartFk},#{tCourseFk},#{tRoleFk})
+		insert into t_teacher(t_no,t_name,t_sex,t_depart_fk,t_course_fk)
+		values (#{tNo},#{tName},#{tSex},#{tDepartFk},#{tCourseFk})
 	</insert>
 	<!-- 更新教师 -->
 	<update id="updateTeacherByNo">
@@ -37,10 +37,7 @@
 		set t_teacher.t_no=#{tNo}
 		t_teacher.t_name=#{tName},
 		t_teacher.t_sex=#{tSex}
-		where
-		<if test=" param.tNo !='' and param.tNo=null">
-			t_no=#{param.tNo}
-		</if>
+		where t_no=#{tNo}
 	</update>
 	<!-- 删除教师 -->
 	<delete id="deleteTeacherByNo">
@@ -75,5 +72,9 @@
 	<select id="getTeacherDepart" resultType="com.happystudy.model.Depart">
 		select d_no,d_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.id
 		where t_teacher.t_no=#{tNo}
+	</select>
+	<!-- 根据教师号查询教师 -->
+	<select id="findTeacherByNo" resultType="com.happystudy.model.Teacher">
+		select t_no, t_name, t_sex from t_teacher where t_no=#{tNo}
 	</select>		
 </mapper>

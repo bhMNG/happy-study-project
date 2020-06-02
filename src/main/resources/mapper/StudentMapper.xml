@@ -19,11 +19,11 @@
 	</select>
 	<!-- 查询学生人数（可以根据条件查询，默认为总人数） -->
 	<select id="queryStudentCount" resultType="com.happystudy.model.Student">
-		select COUNT(*) from t_student
-		<if test="param.sNo !='' and param.sNo !=null">
+		select COUNT(sNo) from t_student
+		<if test="sNo ='' and sNo =null">
 			where
 		</if>
-		<if test="param.sNo !='' and param.sNo !=null">s_no=#{param.sNo}</if>
+		<if test="sNo ='' and sNo =null">s_no=#{sNo}</if>
 	</select>
 	<!-- 添加学生 -->
 	<insert id="addStudent">

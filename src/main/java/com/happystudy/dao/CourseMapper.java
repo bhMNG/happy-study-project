@@ -15,7 +15,7 @@ public interface CourseMapper {
 	//添加课程
 	public void addCourse(String coNo, String coName);
 	//修改课程名
-	public void updateCourseByNo(Map<String, Object> param);
+	public void updateCourseByNo(String coNo,Map<String, Object> param);
 	//根据课程号删除课程
 	public void deleteCourseByNo(String coNo);
 	//根据课程号精确匹配课程

@@ -58,11 +58,11 @@
 	</select>
 	<!-- 查询用户人数 -->
 	<select id="queryUserCount" resultType="com.happystudy.model.User">
-		select COUNT(*) from t_user
-		<if test="param.Id !='' and param.Id !=null">
+		select COUNT(Id) from t_user
+		<if test="Id ='' and Id =null">
 			where
 		</if>
-		<if test="param.Id !='' and param.Id !=null">t_user.id=#{param.Id}</if>
+		<if test="Id ='' and Id =null">t_user.id=#{Id}</if>
 	</select>
 	<!-- 查询用户权限职责信息 -->
 	<select id="queryUserProp" resultType="com.happystudy.model.Property">
