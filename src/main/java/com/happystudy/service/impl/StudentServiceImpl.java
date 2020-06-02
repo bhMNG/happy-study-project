@@ -81,7 +81,7 @@ public class StudentServiceImpl implements StudentService {
         JSONObject json=new JSONObject();
         Student existStudent = studentMapper.findStudentByNo(sNo);
         if (existStudent==null){//学号不存在
-            json.set("status",Constants.SNO_EXIST);
+            json.set("status",Constants.NULL_STU);
             return json;
         }else {
             studentMapper.deleteStudentByNo(sNo);
