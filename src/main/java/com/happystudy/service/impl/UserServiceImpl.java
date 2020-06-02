@@ -203,7 +203,7 @@ public class UserServiceImpl implements UserService {
 
     //查询已存在用户（5个参数）
     @Override
-    public JSONObject queryUser(String keyword,String orderby,boolean asc,int pageNo,int pageSize) {
+    public JSONObject queryUser(String keyword,String orderby,String asc,int pageNo,int pageSize) {
         JSONObject json=new JSONObject();
         Map<String,Object> param=new HashMap<>();
         //计算偏移量

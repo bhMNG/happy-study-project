@@ -22,7 +22,7 @@ public interface UserService {
     //修改用户个人信息
 	public JSONObject updateUserInfo(Map<String,Object> param);
 	//查询已存在用户（5个参数）
-	public JSONObject queryUser(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
+	public JSONObject queryUser(String keyword,String orderby,String asc,int pageNo,int pageSize);
 	//查询用户个人信息
 	public JSONObject queryUserInfo(String username);
 	//查询用户角色名称
