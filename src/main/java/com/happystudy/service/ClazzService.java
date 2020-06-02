@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface ClazzService {
     //查询班级
-    public JSONObject queryClazz(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
+    public JSONObject queryClazz(String keyword,String orderby,String asc,int pageNo,int pageSize);
     //查询班级个数（默认班级人数）
     public JSONObject queryClazzCount(Map<String,Object> param);
     //添加班级
