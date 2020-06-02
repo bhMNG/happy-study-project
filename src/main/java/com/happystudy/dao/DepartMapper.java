@@ -15,7 +15,7 @@ public interface DepartMapper {
 	//添加学院
 	public void addDepart(String dNo);
 	//修改学院名字
-	public void updateDepartByNo(Map<String, Object> param);
+	public void updateDepartByNo();
 	//根据学院号删除学院
 	public void deleteDepartByNo(String dNo);
 	//根据学院号精准匹配学院

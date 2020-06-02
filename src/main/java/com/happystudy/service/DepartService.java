@@ -10,13 +10,13 @@ import java.util.Map;
  */
 public interface DepartService {
     //查询学院(5个参数）
-    public JSONObject queryDepart(Map<String,Object> param);
+    public JSONObject queryDepart(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
     //查询学院个数（默认为总个数）
-    public JSONObject queryDepartCount(String keyword);
+    public JSONObject queryDepartCount(Map<String,Object> param);
     //添加学院
     public JSONObject addDepart(String dNo,String dName);
     //修改学院名字
-    public JSONObject updateDepartByNo(String dNo,String dName);
+    public JSONObject updateDepartByNo(String dNo,Map<String, Object> param);
     //根据学院号删除学院
     public JSONObject deleteDepartByNo(String dNo);
     //根据学院号精准匹配学院
@@ -28,10 +28,10 @@ public interface DepartService {
     //查找某个学院的课程
     public JSONObject getDepartCourse(String dNo);
     //统计该学院的学生人数
-    public JSONObject queryDepartAllStu(String dNo);
+    public JSONObject queryDepartAllStu(Map<String, Object> param);
     //统计该学院的课程总数
-    public JSONObject queryDepartAllCourse(String dNo);
+    public JSONObject queryDepartAllCourse(Map<String, Object> param);
     //统计该学院的老师人数
-    public JSONObject queryDepartAllTeaCount(String dNo);
+    public JSONObject queryDepartAllTeaCount(Map<String, Object> param);
 
 }
