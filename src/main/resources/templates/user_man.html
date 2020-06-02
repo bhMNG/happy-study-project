@@ -1,0 +1,229 @@
+<style>
+	#person-info .panel-body{
+		color: #fff;
+	}
+	.info-box{
+		text-align: center;
+		transition: all .28s ease-in .1s;
+		background: #87CEFF;
+	}
+	.info-box:hover {
+		
+		height:200px;
+		background-color: #00EEEE;
+		cursor:pointer;
+	}
+	.headphoto-box{
+		height: 280px;
+		width: 280px;
+		transition: all .28s ease-in .1s;
+		text-align: center;
+	}
+	.headphoto-box img{
+		height: 100%;
+		width: 100%;
+	}
+	.headphoto-box:hover{
+		width: 400px;
+		height: 400px;
+		cursor:pointer;
+	}
+	.infobox-input{
+		width: 80%;
+		
+		
+		
+	}
+	.infobox-input input {
+		
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 60%;
+        height: 50px;
+        padding-top: 7px;
+	}
+</style>
+
+<div style="width: 80%;" id="userman-content">
+
+<!-- usertable -->
+<div style="margin-top: 50px;">
+	<div style="background: rgba(0,0,0,0.8); height: 500px;" class="panel panel-info" id="person-info">
+		<div class="panel-heading">
+        	<h3 class="panel-title">个人信息</h3>
+      	</div>
+  		<div class="panel-body" >
+    		<div style="">
+    			<table class="table">
+				<thead>
+				 	<tr>
+    					<th style="text-align: center;">用户名</th>
+    					<th style="text-align: center;">职责</th>
+    					<th style="text-align: center;">手机</th>
+    				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="text-align: center;">{{userinfo.user.u_username}}</td>
+						<td style="text-align: center;">{{userinfo.user.r_name}}</td>
+						<td style="text-align: center;">{{userinfo.user.u_phone}}</td>
+					</tr>
+				</tbody>
+    			</table>
+    		</div>
+    		
+    		<div style="border: 2px solid black; height: 300px;box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+             box-sizing: border-box; display: flex; flex-direction: row;" >
+    			<div style="flex: 3; background: #fff;background: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;">
+    				<!-- left top -->
+    				<div style="flex: 1;background: rgba(0, 0, 0, 0.3);display: flex; flex-direction: row;">
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_name, 'i_name')">
+    						<h3>{{userinfo.user.i_name}}</h3>
+    						
+    					</div>
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_sex, 'i_sex')">
+    						<h3>{{userinfo.user.i_sex}}</h3>
+    					</div>
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_birthday, 'i_birthday')">
+    						<h3>{{userinfo.user.i_birthday}}</h3>
+    					</div>
+    				</div>
+    				<!-- left bottom -->
+    				<div style="flex: 1;  display: flex; flex-direction: row;">
+    					<div class="info-box" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.i_idcard, 'i_idcard')">
+    						<h3>{{userinfo.user.i_idcard}}</h3>
+    					</div>
+    					<div class="info-box box-bottom" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.i_address, 'i_address')">
+    						<h3>{{userinfo.user.i_address}}</h3>
+    					</div>
+    				</div>
+    			</div>
+    			<!-- right -->
+    			<div style="flex: 1; bbackground: rgba(191,191,191,0.8); margin-bottom: 15px;">
+    				<div class="headphoto-box">
+    					<img :src="userinfo.user.i_photo" @click="chooseFile">
+    				</div>
+    			</div>
+    			<form id="upload_form" enctype="multipart/form-data" method="post" action="" hidden="hidden">
+    				<input type="file" class="user_photo_file" name="file" accept="image/*" id="user_photo">
+    			</form>
+    		</div>
+  		</div>
+  		
+		
+	</div>
+</div>
+<!-- ./usertable -->
+
+<!-- inputBox -->
+<div class="inputBox"  v-show="inputShow.boxShow">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="需要修改名字吗？" aria-describedby="basic-addon2">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button">保存</button>
+      							</span>
+							</div>
+</div>
+<!-- ./inputBox -->
+	
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#userman-content",
+		data : {
+			imgData : {
+				accept : 'image/gif, image/jpeg, image/png, image/jpg',
+				imgUrl : "",
+			},
+			inputShow : {
+				boxShow : false,
+				updateDataType : '', //根据这个来确定修改什么
+			},
+			userinfo : {
+				user : {
+					u_username : "aaaa",
+					r_name : "管理员",
+					u_phone : "18608336957",
+					i_name : "杨伟豪",
+					i_sex: "男",
+					i_photo : "${ctxPath}/img/default_student.jpg",
+					i_address : "四川乐山",
+					i_birthday : "1999-06-12",
+					i_idcard : "511102199906122013",
+				}
+			}
+		},
+		methods : {
+			loadFiles : function(){
+				var img = $("#user_photo")[0].files;
+				var type = img[0].type;
+				var size = img[0].size;
+				//图片格式判断
+				if (this.imgData.accept.indexOf(type) == -1){
+					alert("请选择我们支持的图片格式");
+					console.log(img);
+					console.log(img[0].type);
+					return ;
+				}
+				//判断大小
+				if (size > 3145728){
+					alert("图片太大啦，请选择3M内的图片！");
+					return ;
+				}
+				var formData = new FormData($('#upload_form')[0]);
+				console.log(img);
+				formData.append("file", img);
+				console.log(formData);
+				console.log(event);
+				
+				$.ajax({
+					type : "post",
+					url : "${ctxPath}/management/student/uploadFiles", 
+					processData : false,
+					contentType : false,
+					data : formData,
+					success : function(ret){
+						if (ret.indexOf("error:") > 1){
+							alert(ret);
+							return ;
+						}
+						
+						alert("文件上传成功");
+						vue.imgData.imgUrl = ret;
+						$("#user_photo").val("");
+					},
+					error : function(err){
+						alert(err);
+						$("#user_photo").val("");
+					}
+				});
+			},
+			chooseFile : function(){
+				var res = confirm("需要修改头像吗？");
+				if (res == true){
+					$("#user_photo").trigger("click");
+				}else{
+					return false;
+				}
+			},
+			showInputBox : function(boxname, updateDataType){
+				console.log(boxname);
+				if (this.inputShow.boxShow == true){
+					this.inputShow.boxShow = false;
+					return ;
+				}
+				this.inputShow.boxShow = true;
+				this.inputShow.updateDataType = updateDataType
+				console.log(this.inputShow.updateDataType);
+				return ;
+
+			}
+		},
+		
+	})
+</script>

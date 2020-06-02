@@ -1,1 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<menus>
+	<menu id="welcome" name="系统首页" icon="iconfont icon-daohangshouye"></menu>
+	<menu id="campusMan" name="校园管理" icon="iconfont icon-zhihuixiaoyuan">
+		<menu id="student" name="学生管理" icon="iconfont icon-xuesheng"/>
+		<menu id="teacher" name="教师管理" icon="iconfont icon-xuexiao_jiaoshi"/>
+		<menu id="clazz" name="班级管理" icon="iconfont icon-banjiguanli"/>
+		<menu id="depart" name="学院管理" icon="iconfont icon-zhaoxueyuan"/>
+		<menu id="course" name="课程管理" icon="iconfont icon-kecheng"/>
+	</menu>
+	<menu id="userMan" name="用户管理" icon="iconfont icon-yonghushezhi-">
+		<menu id="user" name="个人信息" icon="iconfont icon-gerenxinxi-"/>
+		<menu id="user-propertyMan" name="权限管理" icon="iconfont icon-quanxianguanli"/>
+	</menu>
+	<menu id="welcome-quickQuery" name="快速查询" icon="iconfont icon-chaxun"></menu>
+	<menu id="welcome-chartStatistics" name="图表统计" icon="iconfont icon-tubiao"></menu>
+	<menu id="welcome-systemSettings" name="系统设置" icon="iconfont icon-shezhi"></menu>
+	<menu id="welcome-campusWall" name="校园墙" icon="iconfont icon-liuyanjianyi"></menu>
+</menus>

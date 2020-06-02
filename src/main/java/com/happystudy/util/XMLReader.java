@@ -14,7 +14,10 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 
 public class XMLReader {
-	public static void getMenuXML() {
+	public static void initMenuXML() {
+		if (!FinalData.MENU.isEmpty()) {
+			return ;
+		}
 		try {
 			ClassPathResource classPathResource = new ClassPathResource("dataxml/menu.xml");
 			InputStream is = classPathResource.getInputStream();
@@ -32,10 +35,14 @@ public class XMLReader {
 				//二级菜单
 				JSONArray subMenuArray = new JSONArray();
 				List<Element> subMenus = menuEle.elements();
+				if (!subMenus.isEmpty()) {
+					menuJson.set("id", "= "+menuEle.attributeValue("id"));
+				}
 				for (Element subMenuEle : subMenus) {
 					JSONObject subMenuJson = new JSONObject();
 					subMenuJson.set("id",  subMenuEle.attributeValue("id"));
 					subMenuJson.set("name",  subMenuEle.attributeValue("name"));
+					subMenuJson.set("icon", subMenuEle.attributeValue("icon"));
 					subMenuArray.add(subMenuJson);
 				}
 				menuJson.set("subMenus", subMenuArray);

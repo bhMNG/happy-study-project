@@ -1,0 +1,215 @@
+<style>
+	.helper{
+		height: 50px;
+		width: 50px;
+		background: rgba(255,255,255,0.8);
+		border: 5px solid;
+		border-radius: 50px;
+		position: absolute;
+		right: 10px;
+		top: 300px;
+	}
+	.helper{
+		cursor:pointer;
+	}
+	.helperPane{
+		width: 500px;
+		height: 500px;
+		background: rgba(0,0,0,0.8);
+		position: absolute;
+		top: 0px;
+		right: 60%; 
+		display: flex;
+		flex-direction: column;
+	}
+	.topButton{
+		cursor:pointer;
+	}
+	.bottomButton{
+		cursor:pointer
+	}
+	#propman-content{
+		background: rgba(0,0,0,0.4);
+		width: 600px;
+		height: 350px;
+		
+		margin-top: 200px;
+		margin-left: 600px;
+		
+	}
+	
+</style>
+
+<div id="outer-div">
+<!-- 悬浮按钮 -->
+<div class="helper" @click="openHelper">
+	
+</div>
+<!-- 助手框 -->
+<div class="helperPane">
+	<div style="flex: 1;background: green;  display: flex; flex-direction: row;margin: 20px 20px 20px 20px;">
+		<div style="background: red;border-right: 10px; width: 300px; border: 10px solid;" class="topButton" id="giveProp">
+			<h3>权限授予</h3>
+			<div style="height: 171px;">
+				<span class="glyphicon glyphicon-paperclip" style="font-size: 100px; margin-top: 30px;"></span>
+			</div>
+		</div>
+		<div style="width: 300px; border: 10px solid;" class="topButton" id="queryProp">
+			<h3>查询权限</h3>
+			<div>
+				<span class="iconfont icon-chaxun" style="font-size: 120px;"></span>
+			</div>
+		</div>
+	
+	</div>
+	<div style="flex: 1; background: yellow; margin: 20px; border: 10px solid;" class="bottomButton" id="diyProp">
+		<h1>自定义权限</h1>
+		<div style="height: 171px;">
+				<span class="glyphicon glyphicon-king" style="font-size: 100px; margin-top: 30px;"></span>
+		</div>
+	</div>
+</div>
+
+<!-- 创建+重置 -->
+<div id="propman-content" style="padding: 20px 40px 20px 40px;">
+	
+  	<div class="col-lg-6" style="width: 100%; margin-top: 10px;" v-show="edit.showUsernameInput">
+    	<div class="input-group">
+     		<span class="input-group-btn">
+        	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-ok"></span></button>
+      	</span>
+     	<input type="text" class="form-control" placeholder="用户名">
+     	<span class="input-group-addon" id="sizing-addon1">用户名</span>
+    	</div><!-- /input-group -->
+  	</div><!-- /.col-lg-6 -->
+  	<div class="col-lg-6" style="width: 100%; margin-top: 30px;" v-show="edit.showSnoInput">
+    	<div class="input-group">
+     		<span class="input-group-btn ">
+        	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-down"></span></button>
+      	</span>
+     	<input type="text" class="form-control" placeholder="学生号">
+     	<span class="input-group-addon " id="sizing-addon1">学生号</span>
+    	</div><!-- /input-group -->
+  	</div><!-- /.col-lg-6 -->
+  	<div class="col-lg-6" style="width: 100%; margin-top: 30px;" v-show="edit.showPasswordInput">
+    	<div class="input-group">
+     		<span class="input-group-btn ">
+        	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-eye-close"></span></button>
+      	</span>
+     	<input type="text" class="form-control" placeholder="新密码">
+     	<span class="input-group-addon " id="sizing-addon1">新密码</span>
+    	</div><!-- /input-group -->
+  	</div><!-- /.col-lg-6 -->
+  	<!-- 按钮 -->
+  	<div>
+  		<!-- 下拉菜单选择操作 -->
+  		<div class="dropdown" align="left" >
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="margin-top: 30px; margin-left: 15px;">
+		   <span id="editModel">注册&修改&重置 </span>
+		    <span class="caret"></span>
+		    
+		  </button>
+		  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+		    <li><a href="#" @click="chooseEditModel('注册账号', 1)">注册账号</a></li>
+		    <li><a href="#" @click="chooseEditModel('修改密码', 2)">修改密码</a></li>
+		    <li><a href="#" @click="chooseEditModel('重置密码', 3)">重置密码</a></li>
+		    
+		  </ul>
+		  
+
+		</div>
+		<!-- 确认 -->
+		  <div style=" margin-bottom: 30px;" align="right">
+			<button class="btn btn-danger" style="margin-right: 15px; height: 88px; font-size: 16px;">执行操作<div style="margin-top: 8px;"><span class="glyphicon glyphicon-wrench"></span></div></button>
+		  </div>
+  	</div>
+
+	
+<!-- ./propman-content -->
+</div>
+
+
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#outer-div",
+		data : {
+			helper : {
+				count : 0,
+			},
+			edit : {
+				showUsernameInput : true,
+				showSnoInput : true,
+				showPasswordInput : true
+			}
+		},
+		methods : {
+			chooseEditModel : function(editModel, modelCode){
+				checkEditModel.direction='alternate'
+				checkEditModel.restart();
+				$("#editModel").text(editModel);
+				if (modelCode == 1){
+					this.edit.showSnoInput = true;
+					this.edit.PasswordInput = true;
+				}else if(modelCode == 2){
+					this.edit.showSnoInput = false;
+					this.edit.showPasswordInput = true;
+				}else if(modelCode == 3){
+					this.edit.showSnoInput = false;
+					this.edit.showPasswordInput = false;
+				}
+			
+				setTimeout(() => {
+					checkEditModel.direction='reverse';
+					checkEditModel.restart();
+				}, 1000);
+			},
+			openHelper : function(){
+				this.helper.count++;
+				//console.log(openHelperPaneCome)
+				if ((this.helper.count % 2) != 0){
+					openHelperPaneCome.play();
+				}else{
+					openHelperPaneBack.play();
+				}
+				callHelper.restart();
+				
+			}
+		},
+		mounted : function(){
+			
+		},
+	})
+	
+	var editModelCome = anime({
+		targets : '#propman-content',
+		translateY : 600,
+		autoplay : false
+	})
+	var checkEditModel = anime({
+		targets : '#propman-content',
+		translateY : -600,
+		autoplay : false
+	})
+	var callHelper = anime({
+		targets: '.helper',
+		translateX: -50
+	});
+	var openHelperPaneCome = anime({
+		targets: '.helperPane',
+		translateY: 250,
+		duration: 3000,
+		autoplay : false
+	});
+	var openHelperPaneBack = anime({
+		targets: '.helperPane',
+		translateY: -700,
+		duration: 3000,
+		autoplay : false
+	});
+	
+	$(function(){
+		openHelperPaneBack.play();
+	})
+</script>

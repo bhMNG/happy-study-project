@@ -1,0 +1,142 @@
+<div style="width: 80%;" id="clazzman-content">
+
+<!-- ClazzTable -->
+<div>
+	<div style="background: rgba(0,0,0,0.8); background: #fff">
+		<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>班级号</th>
+				<th>班级名</th>
+				<th>负责老师</th>
+				<th>所属学院</th>
+				<th>班级人数</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+		</table>
+		<!-- 分页 -->
+		<div>
+		<nav aria-label="Page navigation" id="pagePane">
+  			<ul class="pagination">
+  				<li>
+      				<a href="javascript://" aria-label="Previous" @click="goToPage(1)">首页
+        			<span aria-hidden="true">&laquo;</span>
+     			 	</a>
+    			</li>
+    			<li>
+      			<a href="#" aria-label="Previous" @click="goToPage(queryPage.currentPage-1)">
+        			<span aria-hidden="true">&laquo;</span>
+     			 </a>
+    			</li>
+    			<!-- 前省略号 -->
+    			<li v-for="i in 1" class="toPageBtn" 
+    				v-show="queryPage.pageBeforeOmit">
+    				<a href="#">...</a>
+    				
+    			</li>
+    			<li v-for="i in queryPage.pageCount" class="toPageBtn" 
+    				v-show="queryPage.pageBuffer[i-1]=='0'">
+    				<a href="#" @click="goToPage(i)">{{i}}</a>
+    				
+    			</li>
+    			<!-- 后省略号 -->
+    			<li v-for="i in 1" class="toPageBtn" 
+    				v-show="queryPage.pageAfterOmit">
+    				<a href="#">...</a>
+    				
+    			</li>
+    			<li>
+      				<a href="#" aria-label="Next"  @click="goToPage(queryPage.currentPage+1)">
+        			<span aria-hidden="true">&raquo;</span>
+      				</a>
+    			</li>
+    			<li>
+      				<a href="javascript://" aria-label="Next" @click="goToPage(queryPage.pageCount)">
+        			<span aria-hidden="true">&raquo;</span>
+        			尾页
+      				</a>
+    			</li>
+  			</ul>
+		</nav>
+		</div>
+	</div>
+</div>
+
+<!-- TODO -->
+
+<!-- ./TODO -->
+
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#clazzman-content",
+		data : {
+			queryPage : {
+				currentPage : 1,
+				pageSize : 5,
+				pageCount : 3,
+				allRowCount : 13,
+				liCount : [],
+				pageBuffer : [],
+				pageBeforeOmit : false,
+				pageAffterOmit : true,
+			}
+		},
+		methods : {
+			queryClazz : function(){
+				updatePageNav
+			},
+			updatePageNav : function(){
+				vue.queryPage.pageBuffer = [];
+				for (var i = 1; i <= this.queryPage.pageCount; i++){
+					if ((this.queryPage.currentPage-3<i&&i<3+this.queryPage.currentPage)){
+						vue.queryPage.pageBuffer.push("0");
+					}else{
+						vue.queryPage.pageBuffer.push("1");
+					}
+
+				}
+				if (this.queryPage.currentPage - 1 > 2){
+					this.queryPage.pageBeforeOmit = true;
+				}else{
+					this.queryPage.pageBeforeOmit = false;
+				}
+				if (this.queryPage.currentPage < this.queryPage.pageCount - 2){
+					this.queryPage.pageAfterOmit = true;
+					console.log("!!");
+					console.log(this.queryPage.pageAfterOmit);
+				}else{
+					this.queryPage.pageAfterOmit = false;
+					console.log("--");
+					console.log(this.queryPage.pageAfterOmit);
+				}
+				console.log("倒数第三页"+(this.queryPage.pageCount - 2));
+				console.log("当前页"+this.queryPage.currentPage)
+			},
+			goToPage : function(page){
+				if (page < 1){
+					alert("已经是第一页啦");
+					return ;
+				}
+				if (page > this.queryPage.pageCount) {
+					alert("已经到底啦");
+					return ;
+				}
+				this.queryPage.currentPage = page;
+				console.log("go to page " + this.queryPage.currentPage);
+				this.queryStudent();
+			},
+		
+		},
+		mounted : function(){
+			
+		},
+	});
+	$(function(){
+		$("#DynamicMarquee").text("Welcome to Happy-Study!"+"    "+"---ClassManagement");
+		
+	})
+</script>

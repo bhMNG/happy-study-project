@@ -1,0 +1,186 @@
+<style>
+	.wel-btn{
+		font-size: 28px;
+	}
+</style>
+<div style="width: 80%;" id="course-content">
+
+<!-- course welcome -->
+<div id="course-welcome" style="height: 500px; margin-top: 100px;" align="left" v-show="courseWelcomePaneShow">
+	<div class="Layer-div" style="display: flex; flex-direction: row; height: 50%;
+		width: 50%;background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+             box-sizing: border-box; border-bottom: 1px solid; align-items: center; padding-left: 30px;">
+		<div style="flex: 1; height: 70%; background: rgba(0,0,0,0.1);">
+			<button class="btn btn-warning wel-btn" style="width: 200px; height: 98%;" 
+			@click="showCoursePane"><p>课程一览</p><span class="glyphicon glyphicon-chevron-right"></span></button>
+		</div>
+		<div style="flex: 1; height: 70%; display: flex; flex-direction: column; 
+			background: rgba(0,0,0,0.1); padding-right: 30px;">
+			<button class="btn btn-info wel-btn" style="height: 43%;">
+			<span class="glyphicon glyphicon-list-alt"></span> 我的课程</button>
+			<button class="btn btn-success wel-btn" style="height: 43%;margin-top: 20px;">
+			<span class="glyphicon glyphicon-search"></span> 查询课程</button>
+		</div>
+	</div>
+</div>
+<!-- Coursetable -->
+<div  v-show="courseTable.coursePaneShow">
+	<div style="background: rgba(0,0,0,0.8); background: #fff">
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>课程编号</th>
+					<th>课程名称</th>
+					<th>任课老师</th>
+					<th>报课人数</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		<!-- 分页 -->
+		<div>
+		<nav aria-label="Page navigation" id="pagePane">
+  			<ul class="pagination">
+  				<li>
+      				<a href="javascript://" aria-label="Previous" @click="goToPage(1)">首页
+        			<span aria-hidden="true">&laquo;</span>
+     			 	</a>
+    			</li>
+    			<li>
+      			<a href="#" aria-label="Previous" @click="goToPage(queryPage.currentPage-1)">
+        			<span aria-hidden="true">&laquo;</span>
+     			 </a>
+    			</li>
+    			<!-- 前省略号 -->
+    			<li v-for="i in 1" class="toPageBtn" 
+    				v-show="queryPage.pageBeforeOmit">
+    				<a href="#">...</a>
+    				
+    			</li>
+    			<li v-for="i in queryPage.pageCount" class="toPageBtn" 
+    				v-show="queryPage.pageBuffer[i-1]=='0'">
+    				<a href="#" @click="goToPage(i)">{{i}}</a>
+    				
+    			</li>
+    			<!-- 后省略号 -->
+    			<li v-for="i in 1" class="toPageBtn" 
+    				v-show="queryPage.pageAfterOmit">
+    				<a href="#">...</a>
+    				
+    			</li>
+    			<li>
+      				<a href="#" aria-label="Next"  @click="goToPage(queryPage.currentPage+1)">
+        			<span aria-hidden="true">&raquo;</span>
+      				</a>
+    			</li>
+    			<li>
+      				<a href="javascript://" aria-label="Next" @click="goToPage(queryPage.pageCount)">
+        			<span aria-hidden="true">&raquo;</span>
+        			尾页
+      				</a>
+    			</li>
+  			</ul>
+		</nav>
+		</div>
+	</div>
+</div>
+<div>
+	<button class="btn btn-warning btn-lg" @click="closeCoursePane" v-show="courseTable.coursePaneShow"
+		style="margin-top: 50px; width: 200px;"><span class="glyphicon glyphicon-chevron-left"></span>
+		返回</button>
+</div>
+<!-- ./Coursetable -->
+
+	
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#course-content",
+		data : {
+			courseWelcomePaneShow : true,
+			courseTable : {
+				coursePaneShow : false,
+				myCoursePaneShow : false,
+				queryCoursePaneShow : false,
+			},
+			queryPage : {
+				currentPage : 1,
+				pageSize : 5,
+				pageCount : 3,
+				allRowCount : 13,
+				liCount : [],
+				pageBuffer : [],
+				pageBeforeOmit : false,
+				pageAffterOmit : true,
+			}
+		},
+		methods : {
+			clearWelcomePane : function(){
+				this.courseTable.coursePaneShow = false;
+				this.courseTable.myCoursePaneShow = false;
+				this.courseTable.queryCoursePaneShow = false;
+			},
+			closeCoursePane : function(){
+				this.courseTable.coursePaneShow = false;
+				this.courseWelcomePaneShow = true;
+			},
+			showCoursePane : function(){
+				this.courseWelcomePaneShow = false;
+				this.courseTable.coursePaneShow = true;
+				//if (this.courseTable.coursePaneShow == true){
+				//	this.clearWelcomePane();
+				//}else{
+				//	this.clearWelcomePane();
+				//	this.courseTable.coursePaneShow = true;
+				//}
+			},
+			queryCourse : function(){
+				vue.updatePageNav();
+			},
+			updatePageNav : function(){
+				vue.queryPage.pageBuffer = [];
+				for (var i = 1; i <= this.queryPage.pageCount; i++){
+					if ((this.queryPage.currentPage-3<i&&i<3+this.queryPage.currentPage)){
+						vue.queryPage.pageBuffer.push("0");
+					}else{
+						vue.queryPage.pageBuffer.push("1");
+					}
+
+				}
+				if (this.queryPage.currentPage - 1 > 2){
+					this.queryPage.pageBeforeOmit = true;
+				}else{
+					this.queryPage.pageBeforeOmit = false;
+				}
+				if (this.queryPage.currentPage < this.queryPage.pageCount - 2){
+					this.queryPage.pageAfterOmit = true;
+					console.log("!!");
+					console.log(this.queryPage.pageAfterOmit);
+				}else{
+					this.queryPage.pageAfterOmit = false;
+					console.log("--");
+					console.log(this.queryPage.pageAfterOmit);
+				}
+				console.log("倒数第三页"+(this.queryPage.pageCount - 2));
+				console.log("当前页"+this.queryPage.currentPage)
+			},
+			goToPage : function(page){
+				if (page < 1){
+					alert("已经是第一页啦");
+					return ;
+				}
+				if (page > this.queryPage.pageCount) {
+					alert("已经到底啦");
+					return ;
+				}
+				this.queryPage.currentPage = page;
+				console.log("go to page " + this.queryPage.currentPage);
+				this.queryStudent();
+			}
+		},
+
+	})
+	
+</script>

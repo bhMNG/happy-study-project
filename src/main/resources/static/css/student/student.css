@@ -1,0 +1,14 @@
+#chooseCoursePane .mesTable td{
+	padding-top: 16px;
+	padding-bottom : 0px;
+	
+},
+
+
+
+.innerbox div{
+	align: left;
+	background: white;
+	height: 50px;
+	
+}

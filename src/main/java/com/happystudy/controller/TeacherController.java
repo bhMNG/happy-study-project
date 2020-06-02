@@ -4,16 +4,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/happy-study/user")
-public class UserController {
-	
+@RequestMapping("/happy-study/teacher")
+public class TeacherController {
+
 	@RequestMapping("")
 	public String index() {
-		return "user_man";
-	}
-	
-	@RequestMapping("propertyMan")
-	public String gotoPropMan() {
-		return "property_man";
+		return "teacher_man";
 	}
 }

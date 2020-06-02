@@ -1,0 +1,23 @@
+
+#maindiv header{
+	height:50px;
+    line-height: 50px;
+    
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 10px;
+     
+}
+.row-pane{
+	background:gray;
+	background:rgba(0,0,0,0.5);	
+}
+.row-pane div{
+	padding-top:15px;
+	padding-bottom:15px;
+	margin-bottom: 0px;
+}
+.row-pane div div{
+	
+	padding-bottom:0px;
+}
