@@ -18,11 +18,11 @@
 	</select>
 	<!--查询班级个数  -->
 	<select id="queryClazzCount" resultType="com.springboottest.model.Clazz">
-		select COUNT(*) from t_clazz
-		<if test="param.cNo !='' and param.cNo">
+		select COUNT(cNo) from t_clazz
+		<if test="cNo ='' and cNo=null">
 			where
 		</if>
-		<if test="param.cNo !='' and param.cNo !=null">c_no=#{param.cNo}</if>
+		<if test="cNo ='' and cNo =null">c_no=#{cNo}</if>
 	</select>
 	<!-- 添加班级 -->
 	<insert id="addClazz">
@@ -35,10 +35,7 @@
 		set t_clazz.c_no=#{cNo}
 		t_clazz.c_name=#{cName}
 		t_clazz.c_enter_year=#{cEnterYear}
-		where
-		<if test="param.cNo !='' and param.cNo">
-			c_no=#{param.cNo}
-		</if>
+		where c_no=#{cNo}
 	</update>
 	<!-- 删除班级 -->
 	<delete id="deleteClazzByNo">
@@ -46,7 +43,7 @@
 	</delete>
 	<!-- 根据班级号精确匹配班级 -->
 	<select id="findClazzByNo" resultType="com.springboottest.model.Clazz">
-		select c_name from t_clazz where c_no=#{cNo}
+		select c_no,c_name,c_enter_year from t_clazz where c_no=#{cNo}
 	</select>
 	<!-- 通过老师找班级 -->
 	<select id="findClazzByTeacher" resultType="com.springboottest.model.Clazz">
@@ -61,10 +58,10 @@
 	</select>
 	<!-- 查询该班级的学生人数 -->
 	<select id="queryClazzStuCount" resultType="com.springboottest.model.Student">
-		select COUNT(*) from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.id
+		select COUNT(s_no) from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.id
 		<if test="param.cNo !='' and param.cNo !=null">
 			where
 		</if>
-		<if test="param.cNo !='' and param.cNo !=null">c_no=#{cNo}</if>
+		<if test="param.cNo !='' and param.cNo !=null">c_no=#{param.cNo}</if>
 	</select>	
 </mapper>

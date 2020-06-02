@@ -13,9 +13,9 @@ public interface DepartMapper {
 	//查询学院个数（默认为总个数）
 	public Integer queryDepartCount(Map<String, Object> param);
 	//添加学院
-	public void addDepart(String dNo);
+	public void addDepart(String dNo,String dName);
 	//修改学院名字
-	public void updateDepartByNo(Map<String, Object> param);
+	public void updateDepartByNo(String dNo,Map<String, Object> param);
 	//根据学院号删除学院
 	public void deleteDepartByNo(String dNo);
 	//根据学院号精准匹配学院
