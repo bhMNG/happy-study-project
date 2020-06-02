@@ -1,5 +1,4 @@
 package com.happystudy.dao;
-qc
 import java.util.List;
 import java.util.Map;
 
