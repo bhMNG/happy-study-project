@@ -78,11 +78,17 @@ public class CourseServiceImpl implements CourseService {
 
     //修改课程名
     @Override
-    public JSONObject updateCourseByNo(Map<String, Object> param) {
+    public JSONObject updateCourseByNo(String coNo,Map<String, Object> param) {
         JSONObject json=new JSONObject();
-        courseMapper.updateCourseByNo(param);
-        json.set("status",Constants.SUCCESS);
-        return json;
+        Course existCourse = courseMapper.findCourseByNo(coNo);
+        if (existCourse!=null){
+            courseMapper.updateCourseByNo(coNo,param);
+            json.set("status",Constants.SUCCESS);
+            return json;
+        }else {
+            json.set("status",Constants.NULL_COURSE);
+            return json;
+        }
     }
 
     //根据课程号删除课程

@@ -3,7 +3,6 @@ package com.happystudy.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.happystudy.constants.Constants;
-import com.happystudy.dao.DepartMapper;
 import com.happystudy.model.Course;
 import com.happystudy.model.Depart;
 import com.happystudy.service.DepartService;

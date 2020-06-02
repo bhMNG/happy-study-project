@@ -18,7 +18,7 @@ public interface CourseService {
     //添加课程
     public JSONObject addCourse(String coNo,String coName);
     //修改课程名
-    public JSONObject updateCourseByNo(Map<String, Object> param);
+    public JSONObject updateCourseByNo(String coNo,Map<String, Object> param);
     //根据课程号删除课程
     public JSONObject deleteCourseByNo(String coNo);
     //根据课程号精确匹配课程
