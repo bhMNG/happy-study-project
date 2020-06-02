@@ -72,7 +72,7 @@ public class UserController {
         if (userinfo.get("i_name")==null) return new JSONObject().set("status",Constants.NULL_USER);
         else {
             Map<String,Object> param=new HashMap<String,Object>();
-            Field[] fields=User_Info.class.getDeclaredFields();//反射获取属性名
+            Field[] fields=UserInfo.class.getDeclaredFields();//反射获取属性名
             String[] fieldsname=new String[fields.length];
             for (int i=0;i<fields.length;i++)
             {
