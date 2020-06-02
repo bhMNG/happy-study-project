@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface DepartService {
     //查询学院(5个参数）
-    public JSONObject queryDepart(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
+    public JSONObject queryDepart(String keyword,String orderby,String asc,int pageNo,int pageSize);
     //查询学院个数（默认为总个数）
     public JSONObject queryDepartCount(Map<String,Object> param);
     //添加学院

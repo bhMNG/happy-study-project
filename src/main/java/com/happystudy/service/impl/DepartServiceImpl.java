@@ -25,7 +25,7 @@ public class DepartServiceImpl implements DepartService {
 
     //查询学院(5个参数）
     @Override
-    public JSONObject queryDepart(String keyword,String orderby,boolean asc,int pageNo,int pageSize) {
+    public JSONObject queryDepart(String keyword,String orderby,String asc,int pageNo,int pageSize) {
         JSONObject json=new JSONObject();
         Map<String,Object> param=new HashMap<>();
         //计算偏移量
