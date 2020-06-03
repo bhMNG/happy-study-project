@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface StudentService {
     //根据关键字查询学生信息（排序、分页）（5个参数）
-    public JSONObject queryStudent(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
+    public JSONObject queryStudent(String keyword,String orderby,String asc,int pageNo,int pageSize);
     //查询学生人数（可以根据条件查询，默认为总人数）
     public JSONObject queryStudentCount(Map<String,Object> param);
     //添加学生

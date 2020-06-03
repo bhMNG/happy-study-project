@@ -1,56 +1,74 @@
 package com.happystudy.controller;
 
-import cn.hutool.json.JSONObject;
-import com.happystudy.constants.Constants;
-import com.happystudy.service.TeacherService;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.happystudy.constants.Constants;
+import com.happystudy.service.TeacherService;
+
+import cn.hutool.json.JSONObject;
 
 @Controller
 @RequestMapping("/happy-study/teacher")
 public class TeacherController {
-    @Autowired
+	@Autowired
     TeacherService teacherService;
 
-    //查询教师（5个参数）
+	@RequestMapping("")
+	public String index() {
+		return "teacher_man";
+	}
+	
+	 //查询教师（5个参数）
+    @PostMapping("/queryTeacher")
     @ResponseBody
-    public JSONObject queryTeacher(Map<String, Object> param){
+    public JSONObject queryTeacher(String keyword,String orderBy,String orderWay,Integer pageNo,Integer pageSize){
         Map<String,Object> newParam=new HashMap<String,Object>();
-        if (param.get("keyword")==null){
-            newParam.put("keyword","t_no");
-        } else newParam.put("keyword",param.get("keyword"));
+        if (keyword==null){
+            keyword = "t_no";
+        }
 
-        if (param.get("orderBy")==null){
-            newParam.put("orderBy","t_no");
-        }else newParam.put("orderBy",param.get("orderBy"));
+        if (orderBy==null){
+            orderBy = "t_no";
+        }
 
-        if (param.get("orderWay")==null){
-            newParam.put("orderWay","asc");
-        }else newParam.put("orderWay",param.get("orderWay"));
+        if (orderWay==null){
+            orderWay = "asc";
+        }
 
-        if (param.get("pageOffset")==null){
-            newParam.put("pageOffset","1");
-        }else newParam.put("pageOffset",param.get("pageOffset"));
+        if (pageNo==null){
+            pageNo = 1;
+        }
 
-        if (param.get("pageSize")==null){
-            newParam.put("pageSize","5");
-        }else newParam.put("pageSize",param.get("pageSize"));
+        if (pageSize==null){
+            pageSize = 5;
+        }
 
-        return this.teacherService.queryTeacher(newParam);
+        return this.teacherService.queryTeacher(keyword,orderBy,orderWay,pageNo,pageSize);
     }
 
     //查询教师人数（默认为所有教师人数）
+    @PostMapping("/queryTeacherCount")
     @ResponseBody
     public JSONObject queryTeacherCount(String keyword){
-        return this.teacherService.queryTeacherCount(keyword);
+    	Map<String, Object> param = new HashMap<>();
+    	if (keyword.equals("d_no")) {
+    		param.put("d_no", keyword);
+    	}
+    	// maby TODO
+    	
+        return this.teacherService.queryTeacherCount(param);
+        
     }
 
     //添加教师
+    @PostMapping("/addTeacher")
     @ResponseBody
     public JSONObject addTeacher(String tNo, String tName)
     {
@@ -63,8 +81,10 @@ public class TeacherController {
     }
 
     //更新教师
+    @PostMapping("/updateTeacher")
     @ResponseBody
     public JSONObject updateTeacher(String tNo, Map<String, Object> param){
+    	
         if (tNo.isEmpty()||tNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_TEACHER);
@@ -91,11 +111,12 @@ public class TeacherController {
             if (param.get("t_role_fk")!=null){
                 newParam.put("t_role_fk",param.get("t_role_fk"));
             }
-            return this.teacherService.queryTeacher(newParam);
+            return this.teacherService.updateTeacher(tNo, param);
         }
     }
 
     //删除教师
+    @PostMapping("/deleteClazzByNo")
     @ResponseBody
     public JSONObject deleteClazzByNo(String tNo){
         if (tNo.isEmpty()||tNo.trim().isEmpty())
@@ -108,6 +129,7 @@ public class TeacherController {
     }
 
     //根据班级获取老师
+    @PostMapping("/findTeacherByClazz")
     @ResponseBody
     public JSONObject findTeacherByClazz(String cNo){
         if (cNo.isEmpty()||cNo.trim().isEmpty()){
@@ -117,6 +139,7 @@ public class TeacherController {
     }
 
     //根据课程找老师
+    @PostMapping("/findTeacherByCourse")
     @ResponseBody
     public JSONObject findTeacherByCourse(String coNo)
     {
@@ -127,6 +150,7 @@ public class TeacherController {
     }
 
     //根据学院找老师
+    @PostMapping("/findTeacherByDepart")
     @ResponseBody
     public JSONObject findTeacherByDepart(String dNo)
     {
@@ -137,6 +161,7 @@ public class TeacherController {
     }
 
     //获得该老师所负责的班级
+    @PostMapping("/getTeacherClazz")
     @ResponseBody
     public JSONObject getTeacherClazz(String tNo)
     {
@@ -147,6 +172,7 @@ public class TeacherController {
     }
 
     //获得该老师所负责的课程
+    @PostMapping("/getTeacherCourse")
     @ResponseBody
     public JSONObject getTeacherCourse(String tNo){
         if (tNo.isEmpty()||tNo.trim().isEmpty()){
@@ -157,6 +183,7 @@ public class TeacherController {
 
 
     //获得该老师所属的学院
+    @PostMapping("/getTeacherDepart")
     @ResponseBody
     public JSONObject getTeacherDepart(String tNo){
         if (tNo.isEmpty()||tNo.trim().isEmpty()){
@@ -164,5 +191,4 @@ public class TeacherController {
         }
         else return this.teacherService.getTeacherDepart(tNo);
     }
-
 }

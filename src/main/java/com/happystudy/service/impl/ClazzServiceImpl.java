@@ -24,7 +24,7 @@ public class ClazzServiceImpl implements ClazzService {
     private ClazzMapper clazzMapper;
     //查询班级
     @Override
-    public JSONObject queryClazz(String keyword,String orderby,boolean asc,int pageNo,int pageSize) {
+    public JSONObject queryClazz(String keyword,String orderby,String asc,int pageNo,int pageSize) {
         JSONObject json=new JSONObject();
         Map<String,Object> param=new HashMap<>();
         //计算偏移量

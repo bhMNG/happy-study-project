@@ -25,7 +25,7 @@ public class CourseServiceImpl implements CourseService {
 
     //查询课程
     @Override
-    public JSONObject queryCourse(String keyword,String orderby,boolean asc,int pageNo,int pageSize) {
+    public JSONObject queryCourse(String keyword,String orderby,String asc,int pageNo,int pageSize) {
         JSONObject json=new JSONObject();
         Map<String,Object> param=new HashMap<>();
         //计算偏移量

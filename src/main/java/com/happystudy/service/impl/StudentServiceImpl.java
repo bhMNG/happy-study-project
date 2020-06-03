@@ -24,7 +24,7 @@ public class StudentServiceImpl implements StudentService {
 
     //根据关键字查询学生信息（排序、分页）（5个参数）
     @Override
-    public JSONObject queryStudent(String keyword,String orderby,boolean asc,int pageNo,int pageSize) {
+    public JSONObject queryStudent(String keyword,String orderby,String asc,int pageNo,int pageSize) {
         JSONObject json=new JSONObject();
         Map<String,Object> param=new HashMap<>();
         //计算偏移量
@@ -119,7 +119,7 @@ public class StudentServiceImpl implements StudentService {
         return json;
     }
 
-    //学生选课
+    //学生选课<!!!!!!!!>
     @Override
     public JSONObject courseSelective(String sNo, String cNo) {
         return null;

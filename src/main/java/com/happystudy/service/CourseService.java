@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface CourseService {
     //查询课程
-    public JSONObject queryCourse(String keyword,String orderby,boolean asc,int pageNo,int pageSize);
+    public JSONObject queryCourse(String keyword,String orderby,String asc,int pageNo,int pageSize);
     //查询课程数（默认为所有课程）
     public JSONObject queryCourseCount(Map<String,Object> param);
     //添加课程
