@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.DepartMapper">
+    <sql id="BASE_TABLE">
+		t_depart
+	</sql>
+	<sql id="BASE_COL">
+		t_depart.id, d_no, d_name
+	</sql>
+	<!--查询学院（5个参数） -->
+	<select id="queryDepart" resultType="map" parameterType="java.util.Map">
+		select t_depart.* from t_depart
+		<if test="param.keyword !=null and param.keyword !=''">
+			where
+		</if>
+		<if test="param.keyword !=''">d_no like '%${param.keyword}%' or d_name like '%${param.keyword}%'</if>
+		order by ${param.orderBy} ${param.orderWay} limit ${param.offset},${param.pageSize}
+	</select>
+	<!-- 查询学院个数（默认为总个数） -->
+	<select id="queryDepartCount" resultType="Integer">
+		select COUNT(dNo) from t_depart
+		<if test="param.dNo !='' and param.dNo !=null">
+			where
+		</if>
+		<if test="param.dNo !='' and param.dNo !=null">d_no=#{param.dNo}</if>
+	</select>
+	<!-- 添加学院 -->
+	<insert id="addDepart">
+		insert into t_depart (d_no,d_name) values (#{dNo},#{dName})
+	</insert>
+	<!-- 修改学院名字 -->
+	<update id="updateDepartByNo">
+		update t_depart
+		set t_depart.d_name=#{param.dName}
+		where d_no=#{dNo}
+	</update>
+	<!-- 根据学院号删除学院 -->
+	<delete id="deleteDepartByNo">
+		delete * from t_depart where d_no=#{dNo}
+	</delete>
+	<!-- 根据学院号精准匹配学院 -->
+	<select id="findDepartByNo" resultType="com.happystudy.model.Depart">
+		select d_no,d_name from t_depart where d_no=#{dNo}
+	</select>
+	<!-- 查找某个学生的学院 -->
+	<select id="getStudentDepart" resultType="com.happystudy.model.Depart">
+		select d_no,d_name from t_depart left join t_student on t_student.s_depart_fk=t_depart.id
+		where s_no=#{sNo}
+	</select>
+	<!-- 查找某个老师的学院 -->
+	<select id="getTeacherDepart" resultType="com.happystudy.model.Depart">
+		select d_no,d_name from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id
+		where t_no=#{tNo}
+	</select>
+	<!-- 查找某个学院的课程 -->
+	<select id="getDepartCourse" resultType="com.happystudy.model.Course">
+		select co_no,co_name from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id left join t_course on t_student.t_course_fk=t_course.id
+		where d_no=#{dNo}
+	</select>
+	<!-- 统计该学院的学生人数 -->
+	<select id="queryDepartAllStu" resultType="Integer">
+		select COUNT(s_no) from t_depart left join t_student on t_student.s_depart_fk=t_depart.id
+		<if test="param.dNo !='' and param.dNo !=null">
+			where
+		</if>
+		<if test="param.dNo !='' and param.dNo !=null">d_no=#{param.dNo}</if>
+	</select>
+	<!-- 统计该学院的课程总数 -->
+	<select id="queryDepartAllCourse" resultType="Integer">
+		select COUNT(co_no) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id left join t_course on t_student.t_course_fk=t_course.id
+		<if test="param.dNo !='' and param.dNo !=null">
+			where
+		</if>
+		<if test="param.dNo !='' and param.dNo !=null">d_no=#{param.dNo}</if>
+	</select>
+	<!-- 统计该学院的老师人数 -->
+	<select id="queryDepartAllTeaCount" resultType="Integer">
+		select COUNT(t_no) from t_depart left join t_teacher on t_teacher.t_depart_fk=t_depart.id		
+		<if test="param.dNo !='' and param.dNo !=null">
+			where
+		</if>
+		<if test="param.dNo !='' and param.dNo !=null">d_no=#{param.dNo}</if>
+	</select>
+	
+	
+</mapper>

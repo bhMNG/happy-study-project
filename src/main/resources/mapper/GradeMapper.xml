@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.GradeMapper">
+<sql id="BASE_TABLE">
+		t_grade
+	</sql>
+	<sql id="BASE_COL">
+		t_grade.id, g_core,g_course_fk,g_student_fk
+	</sql>
+	<!-- 查找某个课程的成绩单 -->
+	<select id="findGradeByCourse" resultType="com.happystudy.model.Grade">
+		select g_score from t_grade left join t_course on t_grade.g_course_fk=t_course.co_no 
+		where co_no=#{coNo}
+	</select>
+	<!-- 查询某个学生的成绩单 -->
+	<select id="findGradeByStudent" resultType="com.happystudy.model.Grade">
+		select g_score from t_grade left join t_student on t_grade.g_student_fk=t_student.s_no 
+		where s_no=#{sNo}
+	</select>
+	<!-- 查询某个学生某门课程的成绩单 || 查询某门课程某个学生的成绩单 -->
+	<select id="findGradeByCS" resultType="com.happystudy.model.Grade">
+		select g_score from t_grade left join t_student on t_grade.g_student_fk=t_student.s_no left join t_course on t_grade.g_course_fk=t_course.co_no 
+		where s_no=#{sNo} and co_no=#{coNo}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

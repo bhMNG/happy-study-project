@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.StudentMapper">
+	<sql id="BASE_TABLE">
+		t_student
+	</sql>
+	<sql id="BASE_COL">
+		t_student.id, s_no, s_name, s_sex, s_birthday, s_enter_year
+	</sql>
+	<!-- 据关键字查询学生信息（排序、分页）(5个参数) -->
+	<select id="queryStudent" resultType="map" parameterType="map">
+		select t_student.*,c_no,c_name,d_no,d_name from t_student 
+		left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no left join t_depart on t_student.s_depart_fk=t_depart.d_no 
+		<if test="keyword !=''"> where (s_no like '%${keyword}%' or s_name like '%${keyword}%') </if>
+		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
+	</select>
+	<!-- 查询学生人数（可以根据条件查询，默认为总人数） -->
+	<select id="queryStudentCount" resultType="java.lang.Integer">
+		select COUNT(s_no) from t_student
+		<if test="sNo =null and sNo =''">
+			where
+		</if>
+		<if test="sNo =null and sNo =''">s_no=#{sNo}</if>
+	</select>
+	<!-- 添加学生 -->
+	<insert id="addStudent">
+		insert into t_student (s_no,s_name) values (#{sNo},#{sName})
+	</insert>
+	<!-- 根据学号删除学生 -->
+	<delete id="deleteStudentByNo">
+		delete * from t_student where s_no=#{sNo}
+	</delete>
+	<!-- 根据学号修改学生 -->
+	<update id="updateStudentByNo">
+		update t_student
+		set
+		t_student.s_name=#{param.sName},
+		t_student.s_sex=#{param.sSex},
+		t_student.s_birthday=#{param.sBirthday},
+		<if test="param.sEnterYear != null and param.sEnterYear !=''"> t_student.s_enter_year=#{param.sEnterYear}, </if>
+		<if test="param.sClazzFk != null and param.sClazzFk !=''"> t_student.s_clazz_fk=#{param.sClazzFk}, </if>
+		<if test="param.sDepartFk != null and param.sDepartFk !=''"> t_student.s_depart_fk=#{param.sDepartFk}, </if>
+		<if test="param.sRoleFk != null and param.sRoleFk !=''"> t_student.s_role_fk=#{param.sRoleFk}, </if>
+
+		<if test=" param.sNo !='' and param.sNo=null">
+			where s_no=#{param.sNo}
+		</if>
+	</update>
+	<!-- 根据学号查询学生 -->
+	<select id="findStudentByNo" resultType="com.happystudy.model.Student">
+		select s_no,s_name,s_sex,s_birthday,s_enter_year from t_student where s_no=#{sNo}
+	</select>
+	<!-- 获取学生所在班级 -->
+	<select id="getStudentClazz" resultType="com.happystudy.model.Clazz">
+		select c_no,c_name from t_student left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no
+		where s_no=#{sNo}
+	</select>
+	<!-- 获取学生成绩 -->
+	<select id="getStudentGrade" resultType="com.happystudy.model.Grade">
+		select g_score from t_student left join t_grade on t_grade.g_student_fk=t_student.s_no
+		where s_no=#{sNo}
+	</select>
+	<!-- 获取学生已选课程 -->
+	<select id="getStudentCourse" resultType="com.happystudy.model.Course">
+		select co_no,co_name from t_student left join t_depart on t_student.s_depart_fk=t_depart.d_no left join t_teacher on t_teacher.t_depart_fk=t_depart.d_no
+		left join t_course on t_teacher.t_course_fk=t_course.co_no
+		where s_no=#{sNo}
+	</select>
+	<!-- 获取学生的学院 -->
+	<select id="getStudentDepart" resultType="com.happystudy.model.Depart">
+		select d_no,d_name from t_student left join t_depart on t_student.s_depart_fk=t_depart.d_no
+		where s_no=#{sNo}
+	</select>
+	
+	
+</mapper>

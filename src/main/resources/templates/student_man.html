@@ -16,14 +16,26 @@
 				<th>账号</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody v-for="stu in studentQuery.stuArray">
+			<tr>
+				<td>{{stu.s_no}}</td>
+				<td>{{stu.s_name}}</td>
+				<td>{{stu.s_sex}}</td>
+				<td>{{stu.s_birthday}}</td>
+				<td>{{stu.s_enter_year}}</td>
+				<td>{{stu.s_depart_fk}}</td>
+				<td>{{stu.s_clazz_fk}}</td>
+				<td>{{stu.s_role_fk}}</td>
+				<td>{{stu.s_no}}</td>
+			</tr>
+			
 		</tbody>
 	</table>
 	</div>
 	
 	<!-- 按钮空间栏 -->
 	<div>
-		<button type="button" class="btn btn-success">添加学生</button>
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#stuModal">添加学生</button>
 		<button type="button" class="btn btn-primary">批量导入</button>
 		<button type="button" class="btn btn-danger">批量删除</button>
 	</div>
@@ -243,6 +255,36 @@
 	
 </div>
 
+<!-- 新增&修改模态框 -->
+<div id="stuModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">新增&修改</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">学号</span>
+  			<input type="text" class="form-control" placeholder="学号" aria-describedby="basic-addon1">
+		</div>
+		<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">姓名</span>
+  			<input type="text" class="form-control" placeholder="姓名" aria-describedby="basic-addon1">
+		</div>
+		<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">性别</span>
+  			<input type="text" class="form-control" placeholder="性别" aria-describedby="basic-addon1">
+		</div>
+		<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">入学时间</span>
+  			<input type="date" class="form-control" placeholder="入学时间" aria-describedby="basic-addon1">
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ./content -->
 </div>
 
@@ -273,9 +315,37 @@
 				queryGradeShow : false,
 				chooseCourseShow : false,
 				
-			}
+			},
+			studentQuery : {
+				stuArray : null,
+				keyword : "",
+				orderParam1 : "s_no",
+				orderParam2 : "asc",
+				
+			},
 		},
 		methods : {
+			openStuModal : function(){
+				
+			},
+			queryStudent : function(){
+				this.stuArray = null;
+				$.post("${ctxPath}/happy-study/student/queryStudent", {keyword : this.studentQuery.keyword,
+					orderParam1 : this.studentQuery.orderParam1,
+					orderParam2 : this.studentQuery.orderParam2,
+					paggingParam1 : this.queryPage.currentPage,
+					paggingParam2 : this.queryPage.pageSize} ,response =>{
+						console.log(response.studentArray);
+						this.studentQuery.stuArray = response.studentArray;
+						this.queryPage.pageCount = response.pageCount;
+						this.queryPage.allRowCount = response.recCount;
+						
+						
+						this.updatePageNav();
+						
+					});
+				this.updatePageNav();
+			},
 			showChoosedCourse : function(){
 				if (vue.courseMess.showChoosedCourse == true){
 					vue.courseMess.showChoosedCourse = false;
@@ -302,9 +372,6 @@
 			},
 			queryStudentCourse : function(){
 				this.updatePageNav
-			},
-			queryStudent : function(){
-				this.updatePageNav();
 			},
 			updatePageNav : function(){
 				vue.queryPage.pageBuffer = [];
@@ -348,7 +415,7 @@
 			},
 		},
 		mounted : function(){
-			
+			this.queryStudent();
 		},
 	});
 	
