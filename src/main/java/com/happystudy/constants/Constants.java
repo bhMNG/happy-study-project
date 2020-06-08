@@ -15,6 +15,8 @@ public interface Constants {
 	public static final int USER_FORMAT_ERROR = 4; //账号或密码格式错误
 	public static final int NULL_PHONE = 5; //没有该手机号
 	public static final int PHONE_EXIST=6;//电话号码已存在
+	public static final int ALREADY_BOUND=7;//用户已绑定手机
+
 	
 	//学生模块
 	public static final int SNO_EXIST = 20; //学号已经存在
@@ -25,6 +27,7 @@ public interface Constants {
 	public static final int TNO_EXIST = 30; //教师号已经存在
 	public static final int NULL_TEACHER = 31; //该教师不存在
 	public static final int TEACHER_EDIT_FAILD = 32; //教师编辑失败
+	public static final int ALREADY_PICK= 33; //已经选课
 	
 	//班级模块
 	public static final int CNO_EXIST = 40; // 班级号已经存在
@@ -35,6 +38,7 @@ public interface Constants {
 	public static final int CONO_EXIST = 50; //课程号已经存在
 	public static final int NULL_COURSE = 51; //该课程不存在
 	public static final int COURSE_EDIT_FAILD = 52; //课程编辑操作失败
+	public static final int COURSE_ALREADY_PICK = 53; //课程编辑操作失败
 	
 	//学院模块
 	public static final int DNO_EXIST = 60; //学院号已经存在

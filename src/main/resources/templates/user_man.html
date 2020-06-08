@@ -70,7 +70,8 @@
 					<tr>
 						<td style="text-align: center;">{{userinfo.user.u_username}}</td>
 						<td style="text-align: center;">{{userinfo.user.r_name}}</td>
-						<td style="text-align: center;">{{userinfo.user.u_phone}}</td>
+						<td style="text-align: center;">{{userinfo.user.u_phone}}
+							<button v-if="userinfo.bindPhoneBtnShow" class="btn btn-warning" @click="showInputBox(userinfo.user.u_username, 'u_phone')">绑定手机</button></td>
 					</tr>
 				</tbody>
     			</table>
@@ -81,23 +82,23 @@
     			<div style="flex: 3; background: #fff;background: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;">
     				<!-- left top -->
     				<div style="flex: 1;background: rgba(0, 0, 0, 0.3);display: flex; flex-direction: row;">
-    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_name, 'i_name')">
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.u_username, 'i_name')">
     						<h3>{{userinfo.user.i_name}}</h3>
     						
     					</div>
-    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_sex, 'i_sex')">
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.u_username, 'i_sex')">
     						<h3>{{userinfo.user.i_sex}}</h3>
     					</div>
-    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.i_birthday, 'i_birthday')">
+    					<div class="info-box" style="flex: 1;border:1px solid white; margin-bottom: 1px;" @click="showInputBox(userinfo.user.u_username, 'i_birthday')">
     						<h3>{{userinfo.user.i_birthday}}</h3>
     					</div>
     				</div>
     				<!-- left bottom -->
     				<div style="flex: 1;  display: flex; flex-direction: row;">
-    					<div class="info-box" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.i_idcard, 'i_idcard')">
+    					<div class="info-box" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.u_username, 'i_idcard')">
     						<h3>{{userinfo.user.i_idcard}}</h3>
     					</div>
-    					<div class="info-box box-bottom" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.i_address, 'i_address')">
+    					<div class="info-box box-bottom" style="flex: 1;border:1px solid white;" @click="showInputBox(userinfo.user.u_username, 'i_address')">
     						<h3>{{userinfo.user.i_address}}</h3>
     					</div>
     				</div>
@@ -122,9 +123,9 @@
 <!-- inputBox -->
 <div class="inputBox"  v-show="inputShow.boxShow">
 	<div class="input-group infobox-input">
-  								<input type="text" class="form-control" placeholder="需要修改名字吗？" aria-describedby="basic-addon2">
+  								<input type="text" class="form-control" placeholder="需要修改信息吗？" aria-describedby="basic-addon2" v-model="inputShow.value" id="stuMesInput">
   								<span class="input-group-btn">
-        							<button class="btn btn-default" type="button">保存</button>
+        							<button class="btn btn-default" type="button" @click="updateInfo">保存</button>
       							</span>
 							</div>
 </div>
@@ -143,22 +144,76 @@
 			inputShow : {
 				boxShow : false,
 				updateDataType : '', //根据这个来确定修改什么
+				value : "", //输入框的值
 			},
 			userinfo : {
 				user : {
 					u_username : "aaaa",
 					r_name : "管理员",
 					u_phone : "18608336957",
-					i_name : "杨伟豪",
-					i_sex: "男",
+					i_name : "",
+					i_sex: "",
 					i_photo : "${ctxPath}/img/default_student.jpg",
-					i_address : "四川乐山",
-					i_birthday : "1999-06-12",
-					i_idcard : "511102199906122013",
-				}
+					i_address : "",
+					i_birthday : "",
+					i_idcard : "",
+				},
+				bindPhoneBtnShow : false,
 			}
 		},
 		methods : {
+			queryUser : function(){
+				this.userinfo.user.u_username = $("#username").val();
+				this.userinfo.user.u_phone=$("#userphone").val()
+				this.userinfo.user.r_name=$("#position").val()
+				if (this.userinfo.user.u_phone == null || this.userinfo.user.u_phone == ""){
+					this.userinfo.bindPhoneBtnShow = true;
+				}
+				console.log(this.userinfo.user.u_username);
+				console.log(this.userinfo.user.u_phone);
+				console.log(this.userinfo.user.r_name);
+				$.post("${ctxPath}/happy-study/user/queryUserInfo", {username : this.userinfo.user.u_username}, response=>{
+					console.log(response);
+					if (response.status==1){
+						this.userinfo.user.i_name="姓名< 待完善 >";
+						this.userinfo.user.i_sex="性别< 待完善 >";
+						this.userinfo.user.i_birthday="出生日期< 待完善 >";
+						this.userinfo.user.i_idcard="身份证号< 待完善 >";
+						this.userinfo.user.i_address="现住地址< 待完善 >";
+					}
+					if (response.user.iName == "" || response.user.iName == null || response.user.iName == undefined){
+						this.userinfo.user.i_name="姓名< 待完善 >";
+					}else{
+						this.userinfo.user.i_name=response.user.iName;
+					}
+					if (response.user.iSex == "" || response.user.iSex == null || response.user.iSex == undefined){
+						this.userinfo.user.i_sex = "性别< 待完善 >";
+					}else{
+						if (response.user.iSex == 1){
+							this.userinfo.user.i_sex = "女";
+						}else if(response.user.iSex == 0){
+							this.userinfo.user.i_sex = "男";
+						}else{
+							this.userinfo.user.i_sex = "性别< 待完善 >";
+						}
+					}
+					if (response.user.iBirthday == "" || response.user.iBirthday == null || response.user.iBirthday == undefined){
+						this.userinfo.user.i_birthday = "出生日期< 待完善 >";
+					}else{
+						this.userinfo.user.i_birthday = response.user.iBirthday;
+					}
+					if (response.user.iIdcard == "" || response.user.iIdcard == null || response.user.iIdcard == undefined){
+						this.userinfo.user.i_idcard="身份证号< 待完善 >";
+					}else{
+						this.userinfo.user.i_idcard = response.user.iIdcard;
+					}
+					if (response.user.iAddress == "" || response.user.iAddress == null || response.user.iAddress == undefined){
+						this.userinfo.user.i_address = "现住地址< 待完善 >";
+					}else{
+						this.userinfo.user.i_address = response.user.iAddress;
+					}
+				})
+			},
 			loadFiles : function(){
 				var img = $("#user_photo")[0].files;
 				var type = img[0].type;
@@ -211,8 +266,47 @@
 					return false;
 				}
 			},
+			updateInfo : function(){
+				var value = this.inputShow.value;
+				var key = this.inputShow.updateDataType
+				if (key == "u_phone"){
+					$.post("${ctxPath}/happy-study/user/bindPhone",{username : this.userinfo.user.u_username, 
+						phonenum : value}, response=>{
+							if (response.status == 0){
+								alert("修改成功");
+								this.queryUser();
+								$("#userphone").val(value);
+							}else{
+								alert("修改失败, code: " + response.status);
+							}
+						})
+				}else{
+					$.post("${ctxPath}/happy-study/user/updateUserInfo", {username : this.userinfo.user.u_username,
+						key : key,
+						value : value
+						}, response=>{
+							if (response.status==0){
+								alert("修改成功");
+								this.queryUser();
+							}else{
+								alert("修改失败, error: " + response.status);
+							}
+					})
+				}
+				
+			},
+			clearInputShow : function(){
+				this.inputShow.value = "";
+				this.inputShow.updateDataType = "";
+			},
 			showInputBox : function(boxname, updateDataType){
+				this.clearInputShow();
 				console.log(boxname);
+				if (updateDataType == "i_birthday"){
+					$("#stuMesInput").attr("type", "date");
+				}else{
+					$("#stuMesInput").attr("type", "text");
+				}
 				if (this.inputShow.boxShow == true){
 					this.inputShow.boxShow = false;
 					return ;
@@ -220,10 +314,14 @@
 				this.inputShow.boxShow = true;
 				this.inputShow.updateDataType = updateDataType
 				console.log(this.inputShow.updateDataType);
+				console.log($("#userphone").val(value));
 				return ;
 
 			}
 		},
+		mounted : function(){
+			this.queryUser();
+		}
 		
 	})
 </script>

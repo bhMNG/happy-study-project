@@ -69,4 +69,12 @@ public class CipherMachine {
 		HappyStudyIO.write(key, "src/main/resources/static/key/secret_key.obj");
 	}
 
+	public static void main(String[] args) {
+		try {
+			System.out.println(CipherMachine.encryption("222"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

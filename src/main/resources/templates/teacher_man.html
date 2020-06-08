@@ -1,22 +1,30 @@
-<div style="width: 80%;" id="stuman-content">
+<div style="width: 80%;" id="teaman-content">
 
 <!-- Teachertable -->
 <div>
-	<div style="background: rgba(0,0,0,0.8); background: #fff">
-		<table class="table table-bordered">
+	<div style="background: rgba(0,0,0,0.8); background: #fff; margin-top: 5%; border: 6px solid rgba(0, 0, 0, 0.8);">
+		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
 				<th>教师号</th>
 				<th>教师名</th>
 				<th>性别</th>
-				<th>年龄</th>
-				<th>入学时间</th>
 				<th>所属学院</th>
-				<th>就读班级</th>
+				<th>负责班级</th>
+				<th>负责课程</th>
 				<th>账号</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody v-for="teacher in teacherQuery.teacherArray">
+			<tr>
+				<td style="text-align: center;">{{teacher.t_no}}</td>
+				<td style="text-align: center;">{{teacher.t_name}}</td>
+				<td style="text-align: center;">{{teacher.t_sex}}</td>
+				<td style="text-align: center;">{{teacher.d_name}}</td>
+				<td style="text-align: center;">{{teacher.c_name}}</td>
+				<td style="text-align: center;">{{teacher.co_name}}</td>
+				<td style="text-align: center;">{{teacher.t_user_fk}}</td>
+			</tr>
 		</tbody>
 		</table>
 		<!-- 分页 -->
@@ -70,7 +78,7 @@
 <!-- 操作按钮栏 -->
 <div>
 	<div style="width: 30%; background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; 
-		border-bottom: 1px solid; overflow-x: hidden;">
+		border-bottom: 1px solid; overflow-x: hidden;margin-top: 120px;">
 		<button type="button" class="btn btn-success btn-lg" style="margin-right: 5%; width:35%"> 
 			<span class="glyphicon glyphicon-align-left"></span> 管理班级</button>
 		<button type="button" class="btn btn-primary btn-lg" style="margin-left: 5%; width: 35%">
@@ -87,23 +95,49 @@
 	var vue = new Vue({
 		el : "#teaman-content",
 		data : {
+			teacherQuery : {
+				teacherArray : null,
+				keyword : "",
+				orderBy : "t_no",
+				orderWay : "asc",
+	
+			},
 			queryPage : {
 				currentPage : 1,
 				pageSize : 5,
-				pageCount : 3,
-				allRowCount : 13,
+				pageCount : "",
+				allRowCount : "",
 				liCount : [],
 				pageBuffer : [],
 				pageBeforeOmit : false,
 				pageAffterOmit : true,
 			}
+			
 		},
 		methods : {
 			queryTeacher : function(){
-				vue.updatePageNav()
+				this.teacherQuery.teacherArray = null;
+				$.post("${ctxPath}/happy-study/teacher/queryTeacher", {keyword : this.teacherQuery.keyword,
+					orderBy : this.teacherQuery.orderBy,
+					orderWay : this.teacherQuery.orderWay,
+					pageNo : this.queryPage.currentPage,
+					pageSize : this.queryPage.pageSize}, response=>{
+						//console.log("teacherArray：");
+						//console.log(response.teacherArray);
+						
+						this.teacherQuery.teacherArray = response.teacherArray;
+						this.queryPage.pageCount = response.pageCount;
+						this.queryPage.allRowCount = response.recCount;
+						//console.log("----="+this.queryPage.pageCount)
+						//console.log("----="+this.queryPage.allRowCount)
+						this.updatePageNav();
+						
+					})
+				this.updatePageNav()
 			},
 			updatePageNav : function(){
-				vue.queryPage.pageBuffer = [];
+				this.queryPage.pageBuffer = [];
+				//console.log("xxxxxxxxxxxxxx " + this.queryPage.pageBuffer)
 				for (var i = 1; i <= this.queryPage.pageCount; i++){
 					if ((this.queryPage.currentPage-3<i&&i<3+this.queryPage.currentPage)){
 						vue.queryPage.pageBuffer.push("0");
@@ -126,10 +160,11 @@
 					console.log("--");
 					console.log(this.queryPage.pageAfterOmit);
 				}
-				console.log("倒数第三页"+(this.queryPage.pageCount - 2));
-				console.log("当前页"+this.queryPage.currentPage)
+				//console.log("倒数第三页"+(this.queryPage.pageCount - 2));
+				//console.log("当前页"+this.queryPage.currentPage)
 			},
 			goToPage : function(page){
+				
 				if (page < 1){
 					alert("已经是第一页啦");
 					return ;
@@ -139,11 +174,12 @@
 					return ;
 				}
 				this.queryPage.currentPage = page;
-				console.log("go to page " + this.queryPage.currentPage);
+				//console.log("go to page " + this.queryPage.currentPage);
 				this.queryStudent();
 			}
 		},
 		mounted : function(){
+			this.queryTeacher();
 			
 		},
 	})

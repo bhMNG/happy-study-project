@@ -8,39 +8,37 @@
 		t_teacher.id, t_no, t_name, t_sex
 	</sql>
 	<!-- 查询教师(5个参数 )-->
-	<select id="queryTeacher" resultType="map">
+	<select id="queryTeacher" resultType="map" parameterType="map">
 		select t_teacher.*,d_no,d_name,co_no,co_name,r_property,r_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
 		left join t_course on t_teacher.t_course_fk=t_course.co_no left join t_role on t_teacher.t_role_fk=t_role.id
-		<if test="departcNo !='' or param.keyword !=''">
-			where
-		</if>
-		<if test="departcNo !=''">t_depart_fk=${departcNo}</if>
-		<if test="param.keyword !=''">(t_no like '%${param.keyword}%' or t_name like '%${param.keyword}')</if>
-		order by ${param.orderBy} ${param.orderWay} limit ${param.offset},${param.pageSize}
+		<if test="keyword !=''">where (t_no like '%${keyword}%' or t_name like '%${keyword}')</if>
+		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
 	</select>
 	<!-- 查询教师人数（默认为所有教师人数） -->
 	<select id="queryTeacherCount" resultType="java.lang.Integer">
-		select COUNT(param.tNo) from t_teacher		
-		<if test="param.tNo ='' and param.tNo =null">
-			where
+		select COUNT(t_no) from t_teacher		
+		<if test="dNo !='' and dNo !=null">
+			where d_no=#{dNo}
 		</if>
-		<if test="param.tNo ='' and param.tNo =null">t_no=#{param.tNo}</if>
+		<if test="cNo !='' and cNo !=null">c_no=#{cNo}</if>
+		<if test="coNo !='' and coNo !=null">co_no=#{coNo}</if>
 	</select>
 	<!-- 添加教师 -->
 	<insert id="addTeacher">
 		insert into t_teacher(t_no,t_name,t_sex,t_depart_fk,t_course_fk)
-		values (#{teacher.tNo},#{teacher.tName},#{teacher.tSex},#{teacher.tDepartFk},#{teacher.tCourseFk})
+		values (#{tNo},#{tName},#{tSex},#{tDepartFk},#{tCourseFk})
 	</insert>
 	<!-- 更新教师 -->
 	<update id="updateTeacherByNo">
 		update t_teacher
-		set t_teacher.t_name=#{param.tName},
-		t_teacher.t_sex=#{param.tSex}
+		set
+		<if test=" tName != null and tName!= '' ">t_teacher.t_name=#{tName},</if>
+		<if test=" tSex != null and tSex!= '' ">t_teacher.t_sex=#{tSex}</if>
 		where t_no=#{tNo}
 	</update>
 	<!-- 删除教师 -->
 	<delete id="deleteTeacherByNo">
-		delete * from t_teacher where t_no=#{tNo}
+		delete from t_teacher where t_no=#{tNo}
 	</delete>
 	<!-- 根据班级获取老师 -->
 	<select id="findTeacherByClazz" resultType="com.happystudy.model.Teacher">
@@ -59,21 +57,44 @@
 	</select>
 	<!-- 获得该老师所负责的班级-->
 	<select id="getTeacherClazz" resultType="com.happystudy.model.Clazz">
-		select c_no, c_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no left join t_student on t_student.s_depart_fk=t_depart.d_no
+		select DISTINCT c_no, c_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no left join t_student on t_student.s_depart_fk=t_depart.d_no
 		left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no where t_teacher.t_no=#{tNo}
 	</select>
 	<!-- 获得该老师所负责的课程 -->
 	<select id="getTeacherCourse" resultType="com.happystudy.model.Course">
-		select co_no, co_name from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
+		select DISTINCT co_no, co_name from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
 		where t_teacher.t_no=#{tNo}
 	</select>
 	<!-- 获得该老师所属的学院 -->
 	<select id="getTeacherDepart" resultType="com.happystudy.model.Depart">
-		select d_no,d_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
+		select DISTINCT d_no,d_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
 		where t_teacher.t_no=#{tNo}
 	</select>
 	<!-- 根据教师号查询教师 -->
 	<select id="findTeacherByNo" resultType="com.happystudy.model.Teacher">
 		select t_no, t_name, t_sex from t_teacher where t_no=#{tNo}
-	</select>		
+	</select>
+	<!-- 查询课程状态 -->	
+	<select id="getCourseStatus" resultType="com.happystudy.model.Course">
+		select status from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
+		where t_no=#{tNo}
+	</select>
+	<!-- 修改课程状态 -->
+	<update id="setCourseStatus">
+		update t_course
+		set t_course.co_status=#{Status}
+		from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
+		where co_no=#{coNo}
+	</update>
+	<!-- 查询教师是否选课 -->
+	<select id="getTeacherCourseFk" resultType="com.happystudy.model.Teacher">
+		select t_course_fk from t_teacher where t_no=#{tNo}
+	</select>
+	<!-- 修改教师课程状态 -->
+	<update id="setTeacherCourseFk">
+		update t_course
+		set t_course.co_no=#{coNo}
+		from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
+		where t_no=#{tNo}
+	</update>		
 </mapper>

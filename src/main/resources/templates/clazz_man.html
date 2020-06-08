@@ -2,8 +2,8 @@
 
 <!-- ClazzTable -->
 <div>
-	<div style="background: rgba(0,0,0,0.8); background: #fff">
-		<table class="table table-bordered">
+	<div style="background: rgba(0,0,0,0.8); background: #fff; margin-top: 5%; border: 6px solid rgba(0, 0, 0, 0.8);">
+		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
 				<th>班级号</th>
@@ -13,7 +13,14 @@
 				<th>班级人数</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody v-for="clazz in clazzQuery.array">
+			<tr>
+				<td style="text-align: center;">{{clazz.cNo}}</td>
+				<td style="text-align: center;">{{clazz.cName}}</td>
+				<td style="text-align: center;">TODO</td>
+				<td style="text-align: center;">TODO</td>
+				<td style="text-align: center;">TODO</td>
+			</tr>
 		</tbody>
 		</table>
 		<!-- 分页 -->
@@ -77,17 +84,39 @@
 			queryPage : {
 				currentPage : 1,
 				pageSize : 5,
-				pageCount : 3,
-				allRowCount : 13,
+				pageCount : "",
+				allRowCount : "",
 				liCount : [],
 				pageBuffer : [],
 				pageBeforeOmit : false,
 				pageAffterOmit : true,
-			}
+			},
+			clazzQuery : {
+				array : null,
+				keyword : "",
+				orderBy : "c_no",
+				orderWay : "asc",
+			},
+			
+			
 		},
 		methods : {
 			queryClazz : function(){
-				updatePageNav
+				this.clazzQuery.array = [];
+				$.post("${ctxPath}/happy-study/clazz/queryClazz", {keyword : this.clazzQuery.keyword,
+					orderBy : this.clazzQuery.orderBy,
+					orderWay : this.clazzQuery.orderWay,
+					pageNo : this.queryPage.currentPage,
+					pageSize : this.queryPage.pageSize}, response=>{
+						this.clazzQuery.array = response.clazzArray;
+						this.queryPage.pageCount = response.pageCount;
+						this.queryPage.allRowCount = response.recCount;
+						this.updatePageNav();
+						console.log("----="+this.queryPage.pageCount)
+						console.log("----="+this.queryPage.allRowCount)
+						console.log(this.clazzQuery.array)
+					})
+				
 			},
 			updatePageNav : function(){
 				vue.queryPage.pageBuffer = [];
@@ -127,12 +156,12 @@
 				}
 				this.queryPage.currentPage = page;
 				console.log("go to page " + this.queryPage.currentPage);
-				this.queryStudent();
+				this.queryClazz();
 			},
 		
 		},
 		mounted : function(){
-			
+			this.queryClazz();
 		},
 	});
 	$(function(){

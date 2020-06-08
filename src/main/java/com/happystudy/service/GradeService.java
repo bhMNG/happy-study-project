@@ -7,7 +7,7 @@ import cn.hutool.json.JSONObject;
  * @data 2020/5/31 13:45
  */
 public interface GradeService {
-    //查询某个课程的成绩单
+	//查询某个课程的成绩单
     public JSONObject findGradeByCourse(String cNo);
     //查询某个学生的成绩
     public JSONObject findGradeByStudent(String sNo);

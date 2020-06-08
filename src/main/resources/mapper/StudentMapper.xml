@@ -17,34 +17,33 @@
 	<!-- 查询学生人数（可以根据条件查询，默认为总人数） -->
 	<select id="queryStudentCount" resultType="java.lang.Integer">
 		select COUNT(s_no) from t_student
-		<if test="sNo =null and sNo =''">
-			where
+		<if test="dNo != null and dNo != ''">
+			where d_no=#{dNo}
 		</if>
-		<if test="sNo =null and sNo =''">s_no=#{sNo}</if>
+		<if test="cNo !=null and cNo != ''"> where c_no=#{cNo}</if>
+		<if test="coNo !=null and coNo != ''"> where co_no=#{coNo}</if>
 	</select>
 	<!-- 添加学生 -->
 	<insert id="addStudent">
-		insert into t_student (s_no,s_name) values (#{sNo},#{sName})
+		insert into t_student (s_no,s_name,s_sex,s_enter_year) values (#{sNo},#{sName},#{sSex},#{sEnterYear})
 	</insert>
 	<!-- 根据学号删除学生 -->
 	<delete id="deleteStudentByNo">
-		delete * from t_student where s_no=#{sNo}
+		delete from t_student where s_no=#{sNo}
 	</delete>
 	<!-- 根据学号修改学生 -->
 	<update id="updateStudentByNo">
 		update t_student
 		set
-		t_student.s_name=#{param.sName},
-		t_student.s_sex=#{param.sSex},
-		t_student.s_birthday=#{param.sBirthday},
-		<if test="param.sEnterYear != null and param.sEnterYear !=''"> t_student.s_enter_year=#{param.sEnterYear}, </if>
-		<if test="param.sClazzFk != null and param.sClazzFk !=''"> t_student.s_clazz_fk=#{param.sClazzFk}, </if>
-		<if test="param.sDepartFk != null and param.sDepartFk !=''"> t_student.s_depart_fk=#{param.sDepartFk}, </if>
-		<if test="param.sRoleFk != null and param.sRoleFk !=''"> t_student.s_role_fk=#{param.sRoleFk}, </if>
+		t_student.s_name=#{sName},
+		t_student.s_sex=#{sSex},
+		t_student.s_enter_year=#{sEnterYear}
+		<if test="sBirthday != null and sBirthday !=''"> t_student.s_birthday=#{sBirthday}, </if>
+		<if test="sClazzFk != null and sClazzFk !=''"> t_student.s_clazz_fk=#{sClazzFk}, </if>
+		<if test="sDepartFk != null and sDepartFk !=''"> t_student.s_depart_fk=#{sDepartFk}, </if>
+		<if test="sRoleFk != null and sRoleFk !=''"> t_student.s_role_fk=#{sRoleFk}, </if>
+		where s_no=#{sNo}
 
-		<if test=" param.sNo !='' and param.sNo=null">
-			where s_no=#{param.sNo}
-		</if>
 	</update>
 	<!-- 根据学号查询学生 -->
 	<select id="findStudentByNo" resultType="com.happystudy.model.Student">
@@ -71,6 +70,10 @@
 		select d_no,d_name from t_student left join t_depart on t_student.s_depart_fk=t_depart.d_no
 		where s_no=#{sNo}
 	</select>
-	
+	<!-- 添加学生信息（详细） -->
+	<insert id="doAddStudent">
+		insert into t_student (s_no,s_name,s_sex,s_birthday,s_enter_year,s_clazz_fk,s_depart_fk) 
+		values (#{sNo},#{sName},#{sSex},#{sBirthday},#{sEnterYear},#{sClazzFk},#{sDepartFk})
+	</insert>
 	
 </mapper>

@@ -3,8 +3,15 @@ package com.happystudy.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.happystudy.constants.Constants;
+import com.happystudy.dao.CourseMapper;
+import com.happystudy.dao.TeacherMapper;
 import com.happystudy.dao.UserMapper;
+import com.happystudy.model.Course;
+import com.happystudy.model.Property;
+import com.happystudy.model.Role;
+import com.happystudy.model.Teacher;
 import com.happystudy.model.User;
+import com.happystudy.model.UserInfo;
 import com.happystudy.service.UserService;
 import com.happystudy.util.CipherMachine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +28,12 @@ import java.util.Map;
  */
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
+	@Autowired
     private UserMapper userMapper;
+    @Autowired
+    private TeacherMapper teacherMapper;
+    @Autowired
+    private CourseMapper courseMapper;
 
     //手机号码验证登录
     private JSONObject loginByPhone(String phone,String password){
@@ -42,6 +53,7 @@ public class UserServiceImpl implements UserService {
                 if (pass1.equalsIgnoreCase(pass2)){
                     json.set("isSuccess",true);
                     json.set("username",username);
+                    json.set("userProperty", user.getuRoleFk());
                     return json;
                 }else {
                     json.set("isSuccess",false);
@@ -59,17 +71,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject login(String username, String password) {
         JSONObject json=new JSONObject();
+        JSONObject curuser = new JSONObject(); //放入session的
         User existUser=userMapper.findUserByName(username);
         if (existUser==null){//根据用户名查询用户不存在
             JSONObject result = loginByPhone(username, password);
             //现在查找用户名不存在的情况下，手机号是否存在
             if (result.getBool("isSuccess")){//手机号验证成功
-                json.set("phonenum",username);
-                json.set("username",result.getStr("username"));
+                //json.set("phonenum",username);
+                //json.set("username",result.getStr("username"));
                 json.set("password",password);
                 //todo 缓存操作
                 json.set("status",Constants.SUCCESS);
+                //json.set("userProperty", result.get("userProperty"));
+                //json.set("userPosition", getUserPosition(username));
                 json.remove("password");
+                curuser.set("username", result.getStr("username"));
+                curuser.set("phonenum", username);
+                curuser.set("userProperty", result.get("userProperty"));
+                curuser.set("userPosition", getUserPosition(username));
+              //获取用户头像和idcard
+                UserInfo userInfo = userMapper.queryUserInfo(username);
+              //JSONObject userJson = (JSONObject)queryUserInfo(username).get("user");
+                if (userInfo != null) {
+                	String userPhoto = userInfo.getiPhoto();
+                    String userIdCard = userInfo.getiIdcard();
+                    if (userPhoto != null) {
+                    	curuser.set("userPhoto", userPhoto);
+                    }
+                    if (userIdCard != null) {
+                    	curuser.set("userIdCard", userIdCard);
+                    }
+                }
+                json.set("user", curuser);
                 return json;
             }else {//手机号验证失败
                 json.set("status", Constants.NULL_USER);
@@ -83,7 +116,29 @@ public class UserServiceImpl implements UserService {
                 String newPass = CipherMachine.encryption(password);
                 if (pass.equalsIgnoreCase(newPass)){//密码正确
                     json.set("status",Constants.SUCCESS);
-                    json.set("user",existUser);
+                    //json.set("user",existUser);
+                    curuser.set("username", existUser.getuUsername());
+                    curuser.set("userProperty", existUser.getuRoleFk());
+                    curuser.set("userPosition", getUserPosition(username));
+                    curuser.set("phonenum", existUser.getuPhone());
+                    //获取用户头像和idcard
+                    UserInfo userInfo = userMapper.queryUserInfo(username);
+                    
+                    if (userInfo != null) {
+                    	String userPhoto = userInfo.getiPhoto();
+                        String userIdCard = userInfo.getiIdcard();
+                        if (userPhoto != null) {
+                        	curuser.set("userPhoto", userPhoto);
+                        }
+                        if (userIdCard != null) {
+                        	curuser.set("userIdCard", userIdCard);
+                        }
+                    }
+                    json.set("user", curuser);
+                    //json.set("username", existUser.getuUsername());
+                    //json.set("userProperty", existUser.getuRoleFk());
+                    //json.set("userPostion", getUserPosition(username));
+                    System.out.println(json);
                     return json;
                 }else {
                     json.set("status",Constants.PASSWORD_ERROR);
@@ -95,6 +150,12 @@ public class UserServiceImpl implements UserService {
                 return json;
             }
         }
+    }
+    //获取职权名
+    private String getUserPosition(String username) {
+    	String userPosition = (String)userMapper.queryUserPosition(username).get("r_name");
+        return userPosition ;
+        
     }
 
     //修改密码
@@ -111,7 +172,7 @@ public class UserServiceImpl implements UserService {
                 String password2=exitsuser.getuUserpass();
                 //对密码进行判断
                 if (password1.equalsIgnoreCase(password2)){//密码相同
-                    userMapper.updateUser(username,newPassword);
+                    userMapper.updateUser(username,CipherMachine.encryption(newPassword));
                     json.set("status",Constants.SUCCESS);
                     return json;
                 }else {//密码不相同
@@ -158,22 +219,21 @@ public class UserServiceImpl implements UserService {
     public JSONObject bindPhone(String username, String phonenum) {
         JSONObject json=new JSONObject();
         User exitsUser=userMapper.findUserByName(username);
-        if (exitsUser==null) {//新用户不存在
+        if (exitsUser==null) {//用户不存在
             json.set("status",Constants.NULL_USER);
             return json;
         }else {
-            if (exitsUser.getuPhone()==null){//未绑定
+            if (exitsUser.getuPhone()==null||exitsUser.getuPhone().trim().isEmpty()){//未绑定
                 if(userMapper.findUserByPhone(phonenum)==null){//电话号码唯一
-                    User user=userMapper.bindPhone(username,phonenum);
+                    userMapper.bindPhone(username,phonenum);
                     json.set("status",Constants.SUCCESS);
-                    json.set("user",user);
                     return json;
                 }else {
                     json.set("status",Constants.PHONE_EXIST);
                     return json;
                 }
             }
-            json.set("status",Constants.NULL_PHONE);
+            json.set("status",Constants.ALREADY_BOUND);
             return json;
         }
     }
@@ -181,12 +241,15 @@ public class UserServiceImpl implements UserService {
     //修改用户个人信息
     @Transactional
     @Override
-    public JSONObject updateUserInfo(Map<String,Object> param) {
+    public JSONObject updateUserInfo(String username,String key, String value) {
         JSONObject json=new JSONObject();
         try{
-            User existUser=userMapper.findUserByName((String)param.get("u_username"));
+            User existUser=userMapper.findUserByName(username);
             if (existUser!=null){//用户存在
-                userMapper.updateUserInfo(param);
+            	if (userMapper.queryUserInfo(username)==null) {
+            		userMapper.insertUserInfo(username, key, value);
+            	}
+                userMapper.updateUserInfo(username, key, value);
                 json.set("status",Constants.SUCCESS);
                 return json;
             }else {
@@ -214,7 +277,7 @@ public class UserServiceImpl implements UserService {
         param.put("offset",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
-        List<Map<String, Object>> mapList = userMapper.queryUser(param);
+        List<Map<String ,Object>> mapList = userMapper.queryUser(param);
         //查询总条数
         int recCount=userMapper.queryUserCount(param);
         //总页数
@@ -233,7 +296,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserInfo(String username) {
         JSONObject json=new JSONObject();
-         User existUser=userMapper.queryUserInfo(username);
+         UserInfo existUser=userMapper.queryUserInfo(username);
          if (existUser!=null){
              json.set("status",Constants.SUCCESS);
              json.set("user",existUser);
@@ -250,9 +313,9 @@ public class UserServiceImpl implements UserService {
         JSONObject json=new JSONObject();
         User existUser=userMapper.findUserByName(username);
         if (existUser!=null){//用户存在
-            User user = userMapper.queryUserRole(username);
+            Role role = userMapper.queryUserRole(username);
             json.set("status",Constants.SUCCESS);
-            json.set("userArray",user);
+            json.set("role",role);
             return json;
         }else {
          json.set("status",Constants.NULL_USER);
@@ -264,10 +327,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject queryUserProp(String username) {
         JSONObject json=new JSONObject();
-        User user = userMapper.queryUserProp(username);
-        if (user!=null){
+        Property userProp = userMapper.queryUserProp(username);
+        if (userProp!=null){
             json.set("status",Constants.SUCCESS);
-            json.set("user",user);
+            json.set("userProp",userProp);
             return json;
         }else{
             json.set("status",Constants.NULL_USER);
@@ -291,5 +354,101 @@ public class UserServiceImpl implements UserService {
             }
         }
         return json;
+    }
+
+    @Override
+    public JSONObject validateTeacherCourse(String tNo) {
+        JSONObject json=new JSONObject();
+        Teacher teacher = teacherMapper.findTeacherByNo(tNo);
+        if (teacher==null)
+        {
+            return json.set("status",Constants.NULL_TEACHER);
+        }
+
+        if (teacher.gettCourseFk()==null){
+            return json.set("status",Constants.SUCCESS);
+        }
+        else {
+            return json.set("status",Constants.ALREADY_PICK);
+        }
+    }
+
+    @Override
+    public JSONObject validateCourseStatus(String coNo) {
+        JSONObject json=new JSONObject();
+        Course course = courseMapper.findCourseByNo(coNo);
+        if (course==null)
+        {
+            return json.set("status",Constants.NULL_COURSE);
+        }
+        else {
+            if (course.getCoStatus()==2||course.getCoStatus()==0)
+            {
+                return json.set("status", Constants.ALREADY_PICK);
+            }
+            else return json.set("status",Constants.SUCCESS);
+        }
+    }
+
+    //通过老师申请
+    @Override
+    public JSONObject doTeacherChooseCourse(String tNo, String coNo) {
+        JSONObject json=new JSONObject();
+        userMapper.setCourseStatus(coNo,"2");
+        userMapper.setTeacherCourseFk(tNo,coNo);
+        return json.set("status",Constants.SUCCESS);
+    }
+    
+
+    @Override
+    public JSONObject queryUserCourseGrade(String username,String orderby,String asc,Integer pageNo,Integer pageSize) {
+    	JSONObject json=new JSONObject();
+        Map<String,Object> param=new HashMap<>();
+        int offset=(pageNo-1)*pageSize;
+        param.put("username",username);
+        param.put("orderBy",orderby);
+        param.put("orderWay",asc);
+        param.put("offset",offset);
+        param.put("pageSize",pageSize);
+        //查询结果并分页
+        List<Map<String, Object>> mapList = userMapper.queryUserCourseGrade(param);
+        //查询总条数
+        Integer recCount = userMapper.queryUserCourseCount(username);
+        
+        //总页数
+        int pageCount = recCount/pageSize;
+        if (recCount % pageSize>0) {
+        	pageCount++;
+        }
+        System.out.println("----------------------------" + pageCount);
+        json.set("status", Constants.SUCCESS);
+        json.set("studentArray", JSONUtil.parseArray(mapList));
+        json.set("recCount", recCount);
+        json.set("pageCount", pageCount);
+        return json;
+        
+    }
+    
+    @Override
+    public JSONObject queryUserCourse(String username, String orderBy, String orderWay){
+    	JSONObject result = new JSONObject();
+    	List<Map<String, Object>> mapList;
+    	Integer property = userMapper.queryUserRole(username).getrProperty();
+    	if (property.equals(1)) {
+    		mapList = userMapper.queryTeacherUserCourse(username, orderBy, orderWay);
+    	}else if(property.equals(2)) {
+    		mapList = userMapper.queryStudentUserCourse(username, orderBy, orderWay);
+    	}else if(property.equals(0)){
+    		//按照老师的来
+    		mapList = userMapper.queryTeacherUserCourse(username, orderBy, orderWay);
+    		
+    	}else {
+    		return result.set("status", Constants.DB_ERROR);
+    	}
+    	
+    	result.set("courseArray", JSONUtil.parseArray(mapList));
+    	result.set("status", Constants.SUCCESS);
+    	return result;
+    	
     }
 }

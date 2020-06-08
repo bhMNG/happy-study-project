@@ -5,9 +5,9 @@ public class UserInfo {
 	private Integer id;
 	private String iName;
 	private String iSex;
-	private String iPhone;
+	private String iPhoto;
 	private String iAddress;
-	private String iBrithday;
+	private String iBirthday;
 	private String iIdcard;
 	private String iUsernameFk;
 	public Integer getId() {
@@ -28,11 +28,11 @@ public class UserInfo {
 	public void setiSex(String iSex) {
 		this.iSex = iSex;
 	}
-	public String getiPhone() {
-		return iPhone;
+	public String getiPhoto() {
+		return iPhoto;
 	}
-	public void setiPhone(String iPhone) {
-		this.iPhone = iPhone;
+	public void setiPhoto(String iPhoto) {
+		this.iPhoto = iPhoto;
 	}
 	public String getiAddress() {
 		return iAddress;
@@ -40,11 +40,11 @@ public class UserInfo {
 	public void setiAddress(String iAddress) {
 		this.iAddress = iAddress;
 	}
-	public String getiBrithday() {
-		return iBrithday;
+	public String getiBirthday() {
+		return iBirthday;
 	}
-	public void setiBrithday(String iBrithday) {
-		this.iBrithday = iBrithday;
+	public void setiBirthday(String iBrithday) {
+		this.iBirthday = iBrithday;
 	}
 	public String getiIdcard() {
 		return iIdcard;

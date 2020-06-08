@@ -1,32 +1,65 @@
 <div style="width: 80%;" id="stuman-content">
 
-<!-- Stutable -->
-<div v-if="paneSwitch.isStutableShow" style="position: relative;">
-	<div style="background:rgba(0,0,0,0.8); background: #fff">
-	<table class="table table-bordered">
+<!-- 我的成绩 -->
+	<div id="myGradeTable" v-if="paneSwitch.isMyGradeShow" style="background:rgba(0,0,0,0.8); background: #fff; margin-top: 50px;
+	border: 6px solid rgba(0, 0, 0, 0.8); ">
+	<table class="table">
+		<div><h3>我的成绩</h3></div>
 		<thead>
 			<tr>
-				<th>学号</th>
-				<th>姓名</th>
-				<th>性别</th>
-				<th>年龄</th>
-				<th>入学时间</th>
-				<th>所属学院</th>
-				<th>就读班级</th>
-				<th>账号</th>
+				<th style="text-align: center;">课程号</th>
+				<th style="text-align: center;">课程名</th>
+				<th style="text-align: center;">分数</th>
+				<th style="text-align: center;">是否通过</th>
+			</tr>
+		</thead>
+		<tbody v-for="grade in studentCourseGrade.array">
+			<tr>
+				<td style="text-align: center;">{{grade.co_no}}</td>
+				<td style="text-align: center;">{{grade.co_name}}</td>
+				<td style="text-align: center;">{{grade.g_score}}</td>
+				<td style="text-align: center;">TODO</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+
+<!-- Stutable -->
+<div v-if="paneSwitch.isStutableShow" style="position: relative;">
+	
+	<!-- 学生数据表 -->
+	<div style="background:rgba(0,0,0,0.8); background: #fff; margin-top: 50px;border: 6px solid rgba(0, 0, 0, 0.8);">
+	<table class="table table-bordered table-hover" >
+		<thead>
+			<tr>
+				<th id="check_all_td" align="center"><input id="check_all" type='checkbox' v-model="stuCheck.isCheckAll" @change="checkAll"/></th>
+				<th style="text-align: center;">学号</th>
+				<th style="text-align: center;">姓名</th>
+				<th style="text-align: center;">性别</th>
+				<th style="text-align: center;">年龄</th>
+				<th style="text-align: center;">入学时间</th>
+				<th style="text-align: center;">所属学院</th>
+				<th style="text-align: center;">就读班级</th>
+				<th style="text-align: center;">操作</th>
 			</tr>
 		</thead>
 		<tbody v-for="stu in studentQuery.stuArray">
 			<tr>
-				<td>{{stu.s_no}}</td>
-				<td>{{stu.s_name}}</td>
-				<td>{{stu.s_sex}}</td>
-				<td>{{stu.s_birthday}}</td>
-				<td>{{stu.s_enter_year}}</td>
-				<td>{{stu.s_depart_fk}}</td>
-				<td>{{stu.s_clazz_fk}}</td>
-				<td>{{stu.s_role_fk}}</td>
-				<td>{{stu.s_no}}</td>
+				<td align="center"><input type="checkbox" v-model="stuCheck.checkedValues" :value="stu.s_no"/></td>
+				<td style="text-align: center;">{{stu.s_no}}</td>
+				<td style="text-align: center;">{{stu.s_name}}</td>
+				<td style="text-align: center;">{{stu.s_sex}}</td>
+				<td style="text-align: center;">{{stu.s_birthday}}</td>
+				<td style="text-align: center;">{{stu.s_enter_year}}</td>
+				<td style="text-align: center;">{{stu.s_depart_fk}}</td>
+				<td style="text-align: center;">{{stu.s_clazz_fk}}</td>
+				<td style="text-align: center;">{{stu.s_role_fk}}</td>
+				<td align="center">
+				<div class="btn-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#stuModal" @click="openStuModal('update', stu.s_no)">更新</button>
+  					<button type="button" class="btn btn-default" @click="deleteStu(stu.s_no)">删除</button>
+  					
+				</div></td>
 			</tr>
 			
 		</tbody>
@@ -34,10 +67,19 @@
 	</div>
 	
 	<!-- 按钮空间栏 -->
-	<div>
-		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#stuModal">添加学生</button>
-		<button type="button" class="btn btn-primary">批量导入</button>
-		<button type="button" class="btn btn-danger">批量删除</button>
+	<div style="margin-top: 100px; margin-bottom: 10px;">
+		<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#stuModal" @click="openStuModal('add')" style="border: 2px solid rgba(0, 0, 0, 0.6);">添加学生</button>
+		<button type="button" class="btn btn-primary btn-lg" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="excelImport">批量导入</button>
+		<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);">批量删除</button>
+	</div>
+	<!-- excel导入 -->
+	<div v-show="false">
+			<form id="import_stu_form" enctype="multipart/form-data" method="post" action="" v-show="false">
+			 <div style="margin-top: 5px" v-show="false"> 
+			 选择Excel文件：<input type="file" id="stu_excel" name="stu_excel" @change="doExcelImport" 
+			 accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" /></div>
+			</form>
+			
 	</div>
 	
 	<!-- 页脚分页 -->
@@ -92,10 +134,13 @@
 
 <!-- QueryGradePane -->
 <div v-if="paneSwitch.queryGradeShow">
-	<div style="background: #fff; margin-top: 50px;">
-		<table class="table table-striped"> 
+	<div style="background:rgba(0,0,0,0.8); background: #fff; margin-top: 50px;
+	border: 6px solid rgba(0, 0, 0, 0.8);" id="stuGradeTable" v-show="paneSwitch.isStuGradeShow">
+		<table class="table table-striped table-hover"> 
 			<thead>
 				<tr>
+					<th>学生号</th>
+					<th>学生名</th>
 					<th>课程号</th>
 					<th>课程名</th>
 					<th>分数</th>
@@ -105,15 +150,17 @@
 			<tbody>
 				<tr>
 					<td><a href="#">001</a></td>
+					<td>ywh</td>
+					<td>001</td>
 					<td>Java</td>
-					<td>99</td>
+					<td>90</td>
 					<td>合格</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 	<!-- 按钮栏 -->
-	<div style="width: 96%; display: flex; flex-direction: row; justify-content: space-around;">
+	<div style="width: 96%; display: flex; flex-direction: row; justify-content: space-around;  margin-top: 100px;">
 		<!-- left -->
 		<div style="width: 45%; background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
              box-sizing: border-box; border-bottom: 1px solid;">
@@ -124,9 +171,12 @@
 		<button type="button" class="btn btn-primary btn-danger">
 			 <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> 未过课程 </button>
 		<div style="width: 94%; margin-top: 10px;">
-			<button class="btn btn-primary btn-lg btn-block"> 
-				<span class="glyphicon glyphicon-signal" aria-hidden="true"></span> 图表统计</button>
+			<button class="btn btn-primary" style="height: 65px; width: 45%; margin-right: 5%;"> 
+				<span class="glyphicon glyphicon-signal" aria-hidden="true"></span> <p style="font-size: 20px;">图表统计</p></button>
+			<button class="btn btn-warning" style="height: 65px; width: 45%;" @click="changeGradeTable"><span class="glyphicon glyphicon-refresh"></span><p style="font-size: 20px;">我的成绩</p></button>
 		</div>
+		
+		
 		</div>
 		<!-- right -->
 		<div style="width: 45%; background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
@@ -134,14 +184,15 @@
              <!-- 统计图标 -->
 		</div>
 	</div>
+	
 </div>
 
 <!-- ChooseCoursePane -->
 <div v-if="paneSwitch.chooseCourseShow" id="chooseCoursePane">
-	<div  style="background: #fff; margin-top: 50px;" v-show="!courseMess.showChoosedCourse">
+	<div  style="background: #fff; margin-top: 50px; border: 6px solid rgba(0, 0, 0, 0.8);" v-show="!courseMess.showChoosedCourse">
 		<h3 style="background: #f4f4f4; padding-top: 10px; padding-bottom: 10px;">课程信息</h3>
 		<br/>
-		<table class="table table-striped mesTable">
+		<table class="table table-striped table-hover mesTable">
 			<thead>
 				<tr>
 					<th>课程号</th>
@@ -213,21 +264,23 @@
 		background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; 
 		border-bottom: 1px solid; overflow-x: hidden;"
 		v-show="courseMess.showChoosedCourse" >
-		<div class="innerbox" style="border: 1px  #000000; width: 90%; margin: 0 auto;"
+		<div class="innerbox" style="border: 2px  #000000; width: 90%; margin: 0 auto;"
 			v-for="course in courseMess.choosedCourse">
-			<div  style="background: white; height: 80px; margin-bottom: 10px;">
-				<div style="display: flex; flex-direction: row; height: 100%">
-					<div style="height: 100%; flex:1; position: relative;">
-						<p style="position:absolute; top: 40%;">{{course.name}}</p>
+			<div style="background-color: #777; padding: 5px 10px 5px 10px; justify-content: center;">
+			<div  style="background: white; height: 80px;">
+				<div style="display: flex; flex-direction: row; height: 100%; text-align: center;">
+					<div style="height: 100%; flex:1; position: relative; border: 2px solid;">
+						<p style="margin-top:20px; text-align: center; font-size: 26px;">{{course.name}}</p>
 					</div>
-					<div style="height: 100%; flex:1; position: relative;">
-						<p style="position:absolute; top: 40%;">{{course.teacher}}</p>
+					<div style="height: 100%; flex:1; position: relative; border: 2px solid;">
+						<p style="margin-top:20px; text-align: center; font-size: 26px;">{{course.teacher}}</p>
 					</div>
-					<div style="height: 100%; flex:1; position: relative;">
-						<p style="position:absolute; top: 40%;">{{course.stuCount}}</p>
+					<div style="height: 100%; flex:1; position: relative; border: 2px solid;">
+						<p style="margin-top:20px; text-align: center; font-size: 26px;">{{course.stuCount}}</p>
 					</div>
 					
 				</div>
+			</div>
 			</div>
 		</div>
 	
@@ -240,18 +293,20 @@
 
 <!-- 导航脚 -->
 <div style="bottom: 10px; width: 70%; bottom: 0px; position: absolute;" >
-	<nav class="navbar navbar-inverse" style="">
+	<nav class="navbar navbar-inverse">
 		<div class="container" style="width: 100%">
 			<div class="span6">
-				<ul class="nav nav-tabs" style="">
-					<li class="active"><a href="#">学生管理</a></li>
+				<ul class="nav navbar-nav" style="">
+					<li><a href="javascript://" @click="openMyGrade">我的成绩</a></li>
                 	<li><a href="javascript://" @click="openStutable">总览列表</a></li>
                 	<li><a href="javascript://" @click="openQueryGradePane">成绩查询</a></li>
                 	<li><a href="javascript://" @click="openChooseCoursePane">学生选课</a></li>
+                	
 				</ul>
 			</div>
 		</div>
 	</nav>
+	
 	
 </div>
 
@@ -266,27 +321,35 @@
       <div class="modal-body">
       	<div class="input-group">
   			<span class="input-group-addon" id="basic-addon1">学号</span>
-  			<input type="text" class="form-control" placeholder="学号" aria-describedby="basic-addon1">
+  			<input type="text" class="form-control" placeholder="学号" 
+  			aria-describedby="basic-addon1"  v-model="stuModal.sNo" :readonly="stuModal.isStuNoReadonly">
 		</div>
 		<div class="input-group">
-  			<span class="input-group-addon" id="basic-addon1">姓名</span>
-  			<input type="text" class="form-control" placeholder="姓名" aria-describedby="basic-addon1">
+  			<span class="input-group-addon" id="basic-addon2" >姓名</span>
+  			<input type="text" class="form-control" placeholder="姓名" aria-describedby="basic-addon1" v-model="stuModal.sName">
 		</div>
 		<div class="input-group">
-  			<span class="input-group-addon" id="basic-addon1">性别</span>
-  			<input type="text" class="form-control" placeholder="性别" aria-describedby="basic-addon1">
+  			<span class="input-group-addon" id="basic-addon3" >性别</span>
+  			<input type="text" class="form-control" placeholder="性别" aria-describedby="basic-addon1" v-model="stuModal.sSex">
 		</div>
 		<div class="input-group">
-  			<span class="input-group-addon" id="basic-addon1">入学时间</span>
-  			<input type="date" class="form-control" placeholder="入学时间" aria-describedby="basic-addon1">
+  			<span class="input-group-addon" id="basic-addon4" >入学时间</span>
+  			<input type="date" class="form-control" placeholder="入学时间" aria-describedby="basic-addon1" v-model="stuModal.sEnterYear">
 		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddOrUpdate">保存</button>
       </div>
     </div>
   </div>
 </div>
 
+
+
 <!-- ./content -->
 </div>
+
+
 
 <script>
 	var vue = new Vue({
@@ -303,14 +366,16 @@
 			queryPage : {
 				currentPage : 1,
 				pageSize : 5,
-				pageCount : 3,
-				allRowCount : 13,
+				pageCount : "",
+				allRowCount : "",
 				liCount : [],
 				pageBuffer : [],
 				pageBeforeOmit : false,
 				pageAffterOmit : true,
 			},
 			paneSwitch : {
+				isStuGradeShow : false,
+				isMyGradeShow : true,
 				isStutableShow : false,
 				queryGradeShow : false,
 				chooseCourseShow : false,
@@ -321,30 +386,220 @@
 				keyword : "",
 				orderParam1 : "s_no",
 				orderParam2 : "asc",
-				
 			},
+			stuModal : {
+				addOrUpdate : "",
+				sNo : "",
+				sName : "",
+				sSex : "",
+				sEnterYear : "",
+				isStuNoReadonly : false,
+			},
+			stuCheck : {
+				isCheckAll : false,
+				checkedValues : []
+			},
+			studentCourseGrade : {
+				array : [],
+				keyword : "co_no",
+				orderBy : "co_no",
+				orderWay : "asc",
+				currentPage : "1",
+				pageSize : "3",
+				changeTableCount : 1
+			},
+			currentUser : {
+				username : "aaaa",
+				phonenum : "",
+				property : "2",
+				role : "学生",
+			}
+			
 		},
 		methods : {
-			openStuModal : function(){
+			changeGradeTable : function(){
+				var count = this.studentCourseGrade.changeTableCount;
+				this.paneSwitch.isMyGradeShow = true
+				this.paneSwitch.isStuGradeShow = true;
+				myGradeTableCome.restart();
+				if (count%2 != 0){
+					this.paneSwitch.isMyGradeShow = true
+					//stuGradeTableBack.restart();
+					//myGradeTableCome.restart();
+					this.paneSwitch.isStuGradeShow = false;
+				}else{
+					this.paneSwitch.isStuGradeShow = true;
+					//stuGradeTableBack.restart()
+					//myGradeTableCome.restart()
+					this.paneSwitch.isMyGradeShow = false;
+				}
+				this.studentCourseGrade.changeTableCount++;
+			},
+			queryStudentCourseGrade : function(){
+				this.studentCourseGrade.array = null;
 				
+				$.post("${ctxPath}/happy-study/user/queryStudentCourseGrade", {
+					username : this.currentUser.username,
+					orderBy : this.studentCourseGrade.orderBy,
+					orderWay : this.studentCourseGrade.orderWay,
+					currentPage : this.studentCourseGrade.currentPage,
+					pageSize : this.studentCourseGrade.pageSize}, response=>{
+						console.log(response);
+						this.studentCourseGrade.array = response.array;
+					})
+			},
+			checkAll : function(){
+				var stuArray = this.studentQuery.stuArray;
+				if (stuArray != null){
+					//全选中
+					if (this.stuCheck.isCheckAll){
+						this.stuCheck.checkedValues = [];
+						for (var i = 0; i < stuArray.length; i++){
+							this.stuCheck.checkedValues.push(stuArray[i].s_no);
+						}
+					}else{
+						this.stuCheck.checkedValues = [];
+					}
+				}
+			},
+			doExcelImport : function(){
+				var formData = new FormData($("#import_stu_form")[0]);
+				formData.append("file", $("#stu_excel")[0].files);
+				$.ajax({
+					type : "post",
+					url : "${ctxPath}/happy-study/student/importStudent",
+					processData : false,
+					contentType : false,
+					data : formData,
+					success : response=>{
+						if (response.indexOf("error:") > 1){
+							alert(response.substring(6));
+							return ;
+						}
+						alert("学生信息已导入");
+						console.log(response);
+						vue.queryStudent();
+						return ;
+					},
+					error : function(err){
+						alert(err);
+						return ;
+					}
+				})
+			},
+			excelImport : function(){
+				$("#stu_excel").trigger("click");
+				//this.doExcelImport()
+			},
+			deleteStu : function(sNo){
+				console.log(sNo);
+				if (confirm("确认要删除选中的记录吗?\n") == true){
+					$.post("${ctxPath}/happy-study/student/deleteStudent", {sNo : sNo}, response=>{
+						if (response.status == 0){
+							alert("删除成功！");
+						}else{
+							alert("error, code: "+response.status);
+						}
+						this.queryStudent();
+					});
+					return true;
+				}else{
+					return false;
+				}
+			},
+			doUpdateStudent(sNo, sName, sSex, sEnterYear){
+				$.post("${ctxPath}/happy-study/student/updateStudent", {
+					sNo : sNo,
+					sName : sName,
+					sSex : sSex,
+					sEnterYear : sEnterYear
+				}, response=>{
+					if (response.status == 0){
+						alert("更新成功");
+						vue.queryStudent();
+						$("#stuModal").modal('hide');
+						this.clearModal();
+					}else{
+						alert("更新失败, code: " + response.status);
+					}
+				})
+			},
+			doAddStudent(sNo, sName, sSex, sEnterYear){
+				$.post("${ctxPath}/happy-study/student/addStudent", {
+					sNo : sNo,
+					sName : sName,
+					sSex : sSex,
+					sEnterYear : sEnterYear
+				}, response=>{
+					if (response.status == 0){
+						alert("添加成功");
+						vue.queryStudent();
+						$("#stuModal").modal('hide');
+						
+					}else{
+						alert("添加失败, code: " + response.status);
+					}
+					vue.clearModal();
+					return ;
+				})
+			},
+			clearModal : function(){
+				this.stuModal.addOrUpdate = "";
+				this.stuModal.sNo = "";
+				this.stuModal.sName = "";
+				this.stuModal.sSex = "";
+				this.stuModal.sEnterYear = "";
+				this.stuModal.isStuNoReadonly = false;
+			},
+			doAddOrUpdate : function(){
+				console.log(this.stuModal.addOrUpdate);
+				console.log(this.stuModal.sNo);
+				console.log(this.stuModal.sName);
+				console.log(this.stuModal.sSex);
+				console.log(this.stuModal.sEnterYear);
+				if(this.stuModal.sNo=="" || this.stuModal.sName=="" || this.stuModal.sSex=="" || this.stuModal.sEnterYear == ""){
+					alert("字段不能为空哦~");
+					return ;
+				}
+				if (this.stuModal.addOrUpdate == "add"){
+					this.doAddStudent(this.stuModal.sNo,this.stuModal.sName,this.stuModal.sSex,this.stuModal.sEnterYear);
+				}else if(this.stuModal.addOrUpdate == "update"){
+					this.doUpdateStudent(this.stuModal.sNo,this.stuModal.sName,this.stuModal.sSex,this.stuModal.sEnterYear);
+				}else{
+					alert("error: " + this.stuModal.addOrUpdate);
+				}
+			},
+			openStuModal : function(addOrUpdate, sNo){
+				console.log(sNo);
+				this.stuModal.addOrUpdate = addOrUpdate;
+				if (addOrUpdate == "update"){
+					this.stuModal.isStuNoReadonly = true;
+				}
+				if(sNo != null && sNo != ""){
+					this.stuModal.sNo = sNo;
+				}
 			},
 			queryStudent : function(){
+				this.stuCheck.isCheckAll=false;
+				this.stuCheck.checkedValues = [];
 				this.stuArray = null;
 				$.post("${ctxPath}/happy-study/student/queryStudent", {keyword : this.studentQuery.keyword,
-					orderParam1 : this.studentQuery.orderParam1,
-					orderParam2 : this.studentQuery.orderParam2,
-					paggingParam1 : this.queryPage.currentPage,
-					paggingParam2 : this.queryPage.pageSize} ,response =>{
+					orderBy : this.studentQuery.orderParam1,
+					orderWay : this.studentQuery.orderParam2,
+					pageNo : this.queryPage.currentPage,
+					pageSize : this.queryPage.pageSize} ,response =>{
 						console.log(response.studentArray);
 						this.studentQuery.stuArray = response.studentArray;
 						this.queryPage.pageCount = response.pageCount;
 						this.queryPage.allRowCount = response.recCount;
-						
+						console.log("!!!!!!!!!!!!!!!!!!!!!!"+this.queryPage.currentPage);
+						console.log(this.queryPage.allRowCount);
+						console.log(response);
 						
 						this.updatePageNav();
 						
 					});
-				this.updatePageNav();
+				//this.updatePageNav();
 			},
 			showChoosedCourse : function(){
 				if (vue.courseMess.showChoosedCourse == true){
@@ -354,9 +609,11 @@
 				}
 			},
 			initPaneSwitch : function(){
+				vue.paneSwitch.isMyGradeShow = false;
 				vue.paneSwitch.isStutableShow = false;
 				vue.paneSwitch.queryGradeShow = false;
 				vue.paneSwitch.chooseCourseShow = false;
+				vue.paneSwitch.isStuGradeShow = false;
 			},
 			openChooseCoursePane : function(){
 				this.initPaneSwitch();
@@ -364,11 +621,19 @@
 			},
 			openQueryGradePane : function(){
 				this.initPaneSwitch();
+				this.queryStudentCourseGrade();
 				vue.paneSwitch.queryGradeShow = true;
+				vue.paneSwitch.isStuGradeShow = true;
 			},
 			openStutable : function(){
 				this.initPaneSwitch();
 				this.paneSwitch.isStutableShow = true;
+				
+			},
+			openMyGrade : function(){
+				this.initPaneSwitch();
+				this.paneSwitch.isMyGradeShow = true;
+				myGradeTableCome.restart();
 			},
 			queryStudentCourse : function(){
 				this.updatePageNav
@@ -398,9 +663,11 @@
 					console.log(this.queryPage.pageAfterOmit);
 				}
 				console.log("倒数第三页"+(this.queryPage.pageCount - 2));
-				console.log("当前页"+this.queryPage.currentPage)
+				console.log("当前页"+this.queryPage.currentPage);
+				console.log("尾页" + this.queryPage.pageCount)
 			},
 			goToPage : function(page){
+				console.log("===" + this.queryPage.currentPage);
 				if (page < 1){
 					alert("已经是第一页啦");
 					return ;
@@ -416,12 +683,33 @@
 		},
 		mounted : function(){
 			this.queryStudent();
+			this.queryStudentCourseGrade();
 		},
 	});
 	
 	$(function(){
 		$("#DynamicMarquee").text("Welcome to Happy-Study!"+"    "+"---StudentManagement")
-		
 	})
+	
+	var stuGradeTableCome = anime({
+		targets : '#stuGradeTable',
+		translateY : 600,
+		autoplay : false
+	});
+	var stuGradeTableBack = anime({
+		targets : '#stuGradeTable',
+		translateY : -600,
+		autoplay : false
+	});
+	var myGradeTableBack = anime({
+		targets : '#myGradeTable',
+		translateY : -600,
+	});
+	var myGradeTableCome = anime({
+		targets : '#myGradeTable',
+		translateY : 100,
+		
+	});
+	
 	
 </script>

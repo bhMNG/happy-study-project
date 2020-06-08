@@ -19,7 +19,7 @@ public interface StudentMapper {
 	//查询学生人数（可以根据条件查询，默认为总人数）
 	public Integer queryStudentCount(Map<String, Object> param);
 	//添加学生
-	public void addStudent(String sNo, String sName);
+	public void addStudent(String sNo, String sName, String sSex, String sEnterYear);
 	//根据学号删除学生
 	public void deleteStudentByNo(String sNo);
 	//根据学号修改学生
@@ -34,4 +34,6 @@ public interface StudentMapper {
 	public List<Course> getStudentCourse(String sNo);
 	//获取学生的学院
 	public Depart getStudentDepart(String sNo);
+	//添加学生（完整信息）
+	public void doAddStudent(String sNo, String sName, String sBirthday, String sSex, String sEnterYear, String sClazzFk, String sDepartFk);
 }

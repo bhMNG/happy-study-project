@@ -1,8 +1,8 @@
 <div style="width: 80%;" id="departman-content">
 <!-- DepartTable -->
 <div>
-	<div style="background: rgba(0,0,0,0.8); background: #fff">
-		<table class="table table-bordered">
+	<div style="background: rgba(0,0,0,0.8); background: #fff; margin-top: 5%; border: 6px solid rgba(0, 0, 0, 0.8);">
+		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
 				<th>学院编号</th>
@@ -12,7 +12,13 @@
 				
 			</tr>
 		</thead>
-		<tbody>
+		<tbody v-for="depart in departQuery.departArray">
+			<tr>
+				<td style="text-align: center;">{{depart.d_no}}</td>
+				<td style="text-align: center;">{{depart.d_name}}</td>
+				<td style="text-align: center;">{{depart.teacherCount}}</td>
+				<td style="text-align: center;">{{depart.stuCount}}</td>
+			</tr>
 		</tbody>
 		</table>
 		<!-- 分页 -->
@@ -69,22 +75,48 @@
 
 <script>
 	var vue = new Vue({
-		el : "departman-content",
+		el : "#departman-content",
 		data : {
 			queryPage : {
 				currentPage : 1,
 				pageSize : 5,
-				pageCount : 3,
-				allRowCount : 13,
+				pageCount : "",
+				allRowCount : "",
 				liCount : [],
 				pageBuffer : [],
 				pageBeforeOmit : false,
 				pageAffterOmit : true,
+			},
+			departQuery : {
+				departArray : null,
+				keyword : "",
+				orderBy : "d_no",
+				orderWay : "asc",
 			}
 		},
 		methods : {
-			queryTeacher : function(){
-				updatePageNav
+			queryDepart : function(){
+				this.departQuery.departArray = null;
+				$.post("${ctxPath}/happy-study/depart/queryDepart", {
+					keyword : this.departQuery.keyword,
+					orderBy : this.departQuery.orderBy,
+					orderWay : this.departQuery.orderWay,
+					pageNo : this.queryPage.pageNo,
+					pageSize : this.queryPage.pageSize
+				}, response=>{
+					console.log(response.departArray);
+					
+					console.log(response.pageCount);
+					console.log(response.recCount);
+					this.departQuery.departArray = response.departArray
+					this.queryPage.pageCount = response.pageCount;
+					this.queryPage.allRowCount = response.recCount;
+					console.log(this.departQuery.departArray[0].d_name);
+					
+					this.updatePageNav();
+					
+				});
+				
 			},
 			updatePageNav : function(){
 				vue.queryPage.pageBuffer = [];
@@ -128,7 +160,7 @@
 			}
 		},
 		mounted : function(){
-			
+			this.queryDepart();
 		},
 	})
 	

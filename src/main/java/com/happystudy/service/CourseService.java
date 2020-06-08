@@ -11,14 +11,14 @@ import java.util.Map;
  * @data 2020/5/31 13:28
  */
 public interface CourseService {
-    //查询课程
+	//查询课程
     public JSONObject queryCourse(String keyword,String orderby,String asc,Integer pageNo,Integer pageSize);
     //查询课程数（默认为所有课程）
     public JSONObject queryCourseCount(Map<String,Object> param);
     //添加课程
     public JSONObject addCourse(String coNo,String coName);
     //修改课程名
-    public JSONObject updateCourseByNo(String coNo,Map<String, Object> param);
+    public JSONObject updateCourseByNo(String coNo,String coName);
     //根据课程号删除课程
     public JSONObject deleteCourseByNo(String coNo);
     //根据课程号精确匹配课程

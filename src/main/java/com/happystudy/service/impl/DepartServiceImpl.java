@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Service
 public class DepartServiceImpl implements DepartService {
-    @Autowired
+	@Autowired
     private DepartMapper departMapper;
 
     //查询学院(5个参数）
@@ -36,12 +36,18 @@ public class DepartServiceImpl implements DepartService {
         param.put("offset",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
+        //List<Depart> mapList = departMapper.queryDepart(param);
         List<Map<String, Object>> mapList = departMapper.queryDepart(param);
+        //学院学生人数、教师人数
+        for (Map<String ,Object> map : mapList) {
+        	map.put("stuCount", (queryDepartAllStu((String)map.get("d_no"))).get("count"));
+        	map.put("teacherCount", (queryDepartAllTeaCount((String)map.get("d_no"))).get("count"));
+        }
         //查询总条数
         Integer recCount=departMapper.queryDepartCount(param);
         //总页数
         int pageCount=recCount/pageSize;
-        if (recCount%pageCount>0){
+        if (recCount%pageSize>0){
             pageCount++;
         }
         json.set("status", Constants.SUCCESS);
@@ -78,14 +84,14 @@ public class DepartServiceImpl implements DepartService {
 
     //修改学院名字
     @Override
-    public JSONObject updateDepartByNo(String dNo, Map<String, Object> param) {
+    public JSONObject updateDepartByNo(String dNo, String dName) {
         JSONObject json=new JSONObject();
         Depart existDepart = departMapper.findDepartByNo(dNo);
         if (existDepart==null){//学院不存在
             json.set("status",Constants.NULL_DEPART);
             return json;
         }else {
-            departMapper.updateDepartByNo(dNo,param);
+            departMapper.updateDepartByNo(dNo,dName);
             json.set("status",Constants.SUCCESS);
             return json;
         }
@@ -174,31 +180,46 @@ public class DepartServiceImpl implements DepartService {
 
     //统计该学院的学生人数
     @Override
-    public JSONObject queryDepartAllStu(Map<String, Object> param) {
+    public JSONObject queryDepartAllStu(String dNo) {
         JSONObject json=new JSONObject();
-        Integer count=departMapper.queryDepartAllStu(param);
+        if (departMapper.findDepartByNo(dNo)==null){
+            return json.set("status",Constants.NULL_DEPART);
+        }
+        else {
+        Integer count=departMapper.queryDepartAllStu(dNo);
         json.set("status",Constants.SUCCESS);
         json.set("count",count);
         return json;
+        }
     }
 
     //统计该学院的课程总数
     @Override
-    public JSONObject queryDepartAllCourse(Map<String, Object> param) {
+    public JSONObject queryDepartAllCourse(String dNo) {
         JSONObject json=new JSONObject();
-        Integer count=departMapper.queryDepartAllCourse(param);
+        if (departMapper.findDepartByNo(dNo)==null){
+            return json.set("status",Constants.NULL_DEPART);
+        }
+        else {
+        Integer count=departMapper.queryDepartAllCourse(dNo);
         json.set("status",Constants.SUCCESS);
         json.set("count",count);
         return json;
+        }
     }
 
     //统计该学院的老师人数
     @Override
-    public JSONObject queryDepartAllTeaCount(Map<String, Object> param) {
+    public JSONObject queryDepartAllTeaCount(String dNo) {
         JSONObject json=new JSONObject();
-        Integer count=departMapper.queryDepartAllTeaCount(param);
+        if (departMapper.findDepartByNo(dNo)==null){
+            return json.set("status",Constants.NULL_DEPART);
+        }
+        else {
+        Integer count=departMapper.queryDepartAllTeaCount(dNo);
         json.set("status",Constants.SUCCESS);
         json.set("count",count);
         return json;
+        }
     }
 }

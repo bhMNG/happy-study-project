@@ -95,7 +95,7 @@
 </head>
 <body>
 
-<div class="main">
+<div class="main" id="main-div">
     <div class="loginFrame">
         <p class="loginTitle">Login</p>
         <div class="user">
@@ -126,7 +126,7 @@
                 <input maxlength="16" placeholder="   Password" type="password" v-model="login.password">
             </label>
         </div>
-        <div class="enterBut">
+        <div class="enterBut" @click="validate">
             <span>
                 登入
             </span>
@@ -138,7 +138,7 @@
 
 <script>
 	var vue = new Vue({
-		el : "main",
+		el : "#main-div",
 		data : {
 			login : {
 				username : "",
@@ -153,6 +153,8 @@
 				var username = vue.login.username;
 				var password = vue.login.password;
 				//验证码代做. . .
+				console.log(username);
+				console.log(password);
 				
 				if (username == "" || password == ""){
 					if (username == ""){
@@ -165,11 +167,11 @@
 					return ;
 				}
 				
-				$.post("${ctxPath}/user/validate", {username : username, password : password}, response=>{
+				$.post("${ctxPath}/login/validate", {username : username, password : password}, response=>{
 					if (response.status == 0){
 						//登录成功
 						failLoginCount = 0;
-						$(location).attr("href", "${ctxPath}/student");
+						$(location).attr("href", "${ctxPath}/happy-study/welcome");
 						return ;
 					}else{
 						if (response.status == 100){
@@ -186,7 +188,6 @@
 						}
 					}
 				});
-				
 			},
 			clearLoginError : function(){
 				vue.login.usernameError = false;
@@ -194,7 +195,7 @@
 			}
 		},
 		mounted : function(){
-			
+
 		}
 	})
 

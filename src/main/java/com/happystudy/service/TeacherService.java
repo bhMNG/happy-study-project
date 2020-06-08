@@ -12,14 +12,14 @@ import cn.hutool.json.JSONObject;
  */
 
 public interface TeacherService {
-    //查询教师（5个参数）
+	//查询教师（5个参数）
     public JSONObject queryTeacher(String keyword,String orderby,String asc,Integer pageNo,Integer pageSize);
     //查询教师人数（默认所有教师人数）
     public JSONObject queryTeacherCount(Map<String,Object> param);
     //添加教师
     public JSONObject addTeacher(String tNo,String tName);
     //更新教师
-    public JSONObject updateTeacher(String tNo,Map<String,Object> param);
+    public JSONObject updateTeacher(String tNo,String tName,String tSex);
     //删除教师
     public JSONObject deleteClazzByNo(String tNo);
     //根据班级获取老师

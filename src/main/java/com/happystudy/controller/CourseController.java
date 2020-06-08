@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -26,29 +27,28 @@ public class CourseController {
 	}
 	
 	//查询课程（5个参数）
+    @PostMapping("/queryCourse")
     @ResponseBody
     public JSONObject queryCourse(String keyword,String orderBy,String orderWay,Integer pageNo,Integer pageSize)
     {
-        if (keyword==null){
-            keyword = "co_no";
+        if (keyword==null || keyword.equals("")){
+            keyword = "";
         }
-
-        if (orderBy==null){
+        if (orderBy==null || orderBy.equals("")){
             orderBy = "co_no";
         }
 
-        if (orderWay==null){
+        if (orderWay==null || orderWay.equals("")){
             orderWay = "asc";
         }
 
-        if (pageNo==null){
+        if (pageNo==null || pageNo.equals("")){
             pageNo = 1;
         }
 
-        if (pageSize == null){
+        if (pageSize==null || pageSize.equals("")){
             pageSize = 5;
         }
-
         return this.courseService.queryCourse(keyword, orderBy, orderWay, pageNo, pageSize);
     }
 
@@ -68,51 +68,61 @@ public class CourseController {
     }
 
     //添加课程
+    @PostMapping("/addCourse")
+    @ResponseBody
     public  JSONObject addCourse(String coNo, String coName){
-        if (coName.isEmpty()||coName.trim().isEmpty()||coNo.isEmpty()||coNo.trim().isEmpty()){
+        if (coName==null||coNo==null||coName.trim().isEmpty()||coNo.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.addCourse(coNo,coName);
     }
 
     //修改课程名
+    @PostMapping("/updateCourseByNo")
+    @ResponseBody
     public  JSONObject updateCourseByNo(String coNo, String coName){
-    	Map<String, Object> param = new HashMap<>();
         if (coNo==null||coName==null||coName.isEmpty()||coNo.isEmpty()||coNo.trim().isEmpty()||coName.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        param.put("coNo", coNo);
-        param.put("coName", coName);
-        return this.courseService.updateCourseByNo(coNo, param);
+
+        return this.courseService.updateCourseByNo(coNo,coName);
     }
 
     //根据课程号删除课程
+    @PostMapping("/deleteCourseByNo")
+    @ResponseBody
     public JSONObject deleteCourseByNo(String coNo){
-        if (coNo.isEmpty()||coNo.trim().isEmpty()){
+        if (coNo==null||coNo.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.deleteCourseByNo(coNo);
     }
 
     //根据课程号精确匹配课程
+    @PostMapping("/findCourseByNo")
+    @ResponseBody
     public JSONObject findCourseByNo(String coNo){
-        if (coNo.isEmpty()||coNo.trim().isEmpty()){
+        if (coNo==null||coNo.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.findCourseByNo(coNo);
     }
 
     //通过老师找课程
+    @PostMapping("/getTeacherCourse")
+    @ResponseBody
     public JSONObject getTeacherCourse(String tNo){
-        if (tNo.isEmpty()||tNo.trim().isEmpty()){
+        if (tNo==null||tNo.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.getTeacherCourse(tNo);
     }
 
     //通过学院找课程
+    @PostMapping("/findCourseByDepart")
+    @ResponseBody
     public JSONObject findCourseByDepart(String dNo){
-        if (dNo.isEmpty()||dNo.trim().isEmpty())
+        if (dNo==null||dNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
@@ -120,20 +130,25 @@ public class CourseController {
     }
 
     //查询报了该课程的所有学生
+    @PostMapping("/queryCourseAllStu")
+    @ResponseBody
     public JSONObject queryCourseAllStu(String cNo){
-        if (cNo.isEmpty()||cNo.trim().isEmpty())
+        if (cNo==null||cNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.queryCourseAllStu(cNo);
     }
 
-    //查询该课程的学生人数
-    public JSONObject queryCourseStudentCount(String cNo){
-        if (cNo.isEmpty()||cNo.trim().isEmpty())
+
+  //查询该课程的学生人数
+    @PostMapping("/queryCourseStudentCount")
+    @ResponseBody
+    public JSONObject queryCourseStudentCount(String coNo){
+        if (coNo==null||coNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        else return this.courseService.queryCourseStudentCount(cNo);
+        else return this.courseService.queryCourseStudentCount(coNo);
     }
 }

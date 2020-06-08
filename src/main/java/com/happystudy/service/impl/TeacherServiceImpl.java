@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Service
 public class TeacherServiceImpl implements TeacherService {
-    @Autowired
+	@Autowired
     private TeacherMapper teacherMapper;
     
     //查询教师（5个参数）
@@ -38,13 +38,28 @@ public class TeacherServiceImpl implements TeacherService {
         param.put("offset",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
-        List<Map<String, Object>> mapList = teacherMapper.queryTeacher(param);
+        List<Map <String,Object>> mapList = teacherMapper.queryTeacher(param);
         //查询总条数
         Integer recCount = teacherMapper.queryTeacherCount(param);
         //总页数
         int pageCount=recCount/pageSize;
-        if (recCount%pageCount>0){
+        if (recCount%pageSize>0){
             pageCount++;
+        }
+        for (Map<String, Object> map : mapList) {
+        	Depart depart = teacherMapper.getTeacherDepart((String)map.get("t_no"));
+        	if (depart != null && depart.getdName() != null) {
+        		map.put("d_name", depart.getdName());
+        	}
+        	Clazz clazz = teacherMapper.getTeacherClazz((String)map.get("t_no"));
+        	if (clazz != null && clazz.getcName() != null) {
+        		map.put("c_name", clazz.getcName());
+        	}
+        	Course course = teacherMapper.getTeacherCourse((String)map.get("t_no"));
+        	if (course != null && course.getCoName() != null) {
+        		map.put("co_name", course.getCoName());
+        	}
+        	
         }
         json.set("status",Constants.SUCCESS);
         json.set("teacherArray", JSONUtil.parseArray(mapList));
@@ -83,11 +98,11 @@ public class TeacherServiceImpl implements TeacherService {
 
     //更新教师
     @Override
-    public JSONObject updateTeacher(String tNo, Map<String, Object> param) {
+    public JSONObject updateTeacher(String tNo,String tName,String tSex) {
         JSONObject json=new JSONObject();
         Teacher existTeacher = teacherMapper.findTeacherByNo(tNo);
         if (existTeacher!=null){//教师号存在
-            teacherMapper.updateTeacherByNo(tNo,param);
+            teacherMapper.updateTeacherByNo(tNo,tName,tSex);
             json.set("status",Constants.SUCCESS);
             return json;
         }else {

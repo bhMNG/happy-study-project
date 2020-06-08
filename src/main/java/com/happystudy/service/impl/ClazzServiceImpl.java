@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Service
 public class ClazzServiceImpl implements ClazzService {
-    @Autowired
+	@Autowired
     private ClazzMapper clazzMapper;
     //查询班级
     @Override
@@ -35,7 +35,7 @@ public class ClazzServiceImpl implements ClazzService {
         param.put("offset",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
-        List<Map<String, Object>> mapList = clazzMapper.queryClazz(param);
+        List<Clazz> mapList = clazzMapper.queryClazz(param);
         //查询总条数
         Integer recCount = clazzMapper.queryClazzCount(param);
         //总页数
@@ -62,7 +62,7 @@ public class ClazzServiceImpl implements ClazzService {
 
     //添加班级
     @Override
-    public JSONObject addClazz(String cNo, String cName) {
+    public JSONObject addClazz(String cNo, String cName,String cEnterYear) {
         JSONObject json=new JSONObject();
         Clazz existClazz = clazzMapper.findClazzByNo(cNo);
         if (existClazz!=null){//班级号已存在
@@ -72,6 +72,7 @@ public class ClazzServiceImpl implements ClazzService {
             Clazz clazz=new Clazz();
             clazz.setcNo(cNo);
             clazz.setcName(cName);
+            clazz.setcEnterYear(cEnterYear);
             clazzMapper.addClazz(clazz);
             json.set("status",Constants.SUCCESS);
             return json;
@@ -83,8 +84,10 @@ public class ClazzServiceImpl implements ClazzService {
     public JSONObject updateClazzByNo(String cNo, Map<String, Object> param) {
         JSONObject json=new JSONObject();
         Clazz existClazz = clazzMapper.findClazzByNo(cNo);
-        if (existClazz!=null){//学号已存在
-            clazzMapper.updateClazzByNo(cNo,param);
+        System.out.println(param);
+        if (existClazz!=null){//课程已存在
+            param.put("cNo",cNo);
+            clazzMapper.updateClazzByNo(param);
             json.set("status",Constants.SUCCESS);
             return json;
         }else {

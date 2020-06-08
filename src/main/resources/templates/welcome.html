@@ -48,10 +48,20 @@
 	body #maindiv{
 		
 	}
+	.opacity(@opacity) {
+  		opacity: @opacity;
+  		// IE8 filter
+  		@opacity-ie: (@opacity * 100);
+  		filter: ~"alpha(opacity=@{opacity-ie})";
+	}
     </style>
 </head>
 
 <body class="skin-blue sidebar-mini" >
+<input hidden="hidden" id="username" value="${currentUser.username}">
+<input hidden="hidden" id="property" value="${currentUser.userProperty}">
+<input hidden="hidden" id="position" value="${currentUser.userPosition}">
+<input hidden="hidden" id="userphone" value="${currentUser.phonenum}">
 <div id="test">
     <div class="wrapper" id="bodydiv">
         <header class="main-header">
@@ -79,16 +89,16 @@
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown user user-menu">
                             <a href="javascript://" class="dropdown-toggle" data-toggle="dropdown" />
-                                <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'"  class="user-image" alt="User Image">
-                                <span class="hidden-xs">${currentUser.u_name}</span>
+                                <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'"  class="user-image" alt="User Image">
+                                <span class="hidden-xs">${currentUser.username}</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
                                 <li class="user-header">
-                                    <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" >
+                                    <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" >
                                     <p>
-                                        ${currentUser.u_name}
-                                        <small>${currentUser.u_idcard}</small>
+                                        ${currentUser.username}
+                                        <small>${currentUser.userIdcard}</small>
                                     </p>
                                 </li>
                                 <!-- Menu Body -->
@@ -116,12 +126,12 @@
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="${ctxPath}/${currentUser.u_photo}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" />
+                        <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" />
                     </div>
                     <div class="pull-left info">
-                        <p>${currentUser.u_name}</p>
+                        <p>${currentUser.username}</p>
                         <a href="javascript://">
-                            <i class="fa fa-circle text-success"></i> 在线
+                            <i class="fa fa-circle text-success"></i> ${currentUser.userPosition}
                         </a>
                     </div>
                 </div>
@@ -287,6 +297,7 @@
 					url += "/"+strs[i]
 				}
 				console.log(url);
+				$("#maindiv").empty();
 				$("#maindiv").html("Loading...");
 				$("#maindiv").load(url);
 			},
@@ -317,7 +328,8 @@
 		var h = d.getHours();
 		var m = d.getMinutes();
 		var s=d.getSeconds();
-		$("#timetable").text(year+"年"+month+"月"+dayNum+"日" + ": 星期" +week+" "+h+":"+m+":"+s);
+		var chineseWeek = ['天','一','二','三','四','五','六'];
+		$("#timetable").text(year+"年"+month+"月"+dayNum+"日" + ": 星期" +chineseWeek[week]+" "+h+":"+m+":"+s);
 	}
 	$(function(){
 		setInterval(()=>{show()}, 1000);
