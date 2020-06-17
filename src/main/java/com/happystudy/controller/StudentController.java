@@ -47,7 +47,7 @@ public class StudentController {
 				return "error: 文件为空";
 			}
 			String fileName = stu_excel.getOriginalFilename();
-			String filePath = "G:/Java_learning/fileupload/student/";
+			String filePath = "G:/Java_learning/fileupload/student/happy-study/";
 			String uuid = IdUtil.fastSimpleUUID();
 			File dir = new File(filePath + uuid + "/");
 			if (!dir.exists()) {
@@ -177,7 +177,9 @@ public class StudentController {
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        else return studentService.deleteStudentByNo(sNo);
+    	String sNos[] = sNo.split("-");
+        
+    	return studentService.deleteStudentByNo(sNos);
     }
 
     //根据学号修改学生
@@ -267,5 +269,16 @@ public class StudentController {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.studentService.getStudentDepart(sNo);
+    }
+    
+    //根据学号获取学生的详细信息
+    @PostMapping("/getStudentInfoByNo")
+    @ResponseBody
+    public JSONObject getStudentInfoByNo(String sNo) {
+    	if (sNo == null || sNo.equals("")) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	
+    	return this.studentService.getStudentInfoByNo(sNo);
     }
 }

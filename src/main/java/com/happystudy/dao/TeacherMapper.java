@@ -20,7 +20,8 @@ public interface TeacherMapper {
 		//添加教师
 		public void addTeacher(Teacher teacher);	
 		//更新教师
-		public void updateTeacherByNo(@Param("tNo") String tNo,@Param("tName") String tName,@Param("tSex") String tSex);
+		public void updateTeacherByNo(@Param("tNo") String tNo,@Param("tName") String tName,@Param("tSex") String tSex, 
+				@Param("tDepartFk") String tDepartFk);
 		//删除教师
 		public void deleteTeacherByNo(String tNo);
 		//根据班级获取老师
@@ -37,4 +38,11 @@ public interface TeacherMapper {
 		public Depart getTeacherDepart(String tNo);
 		//根据教师号查询教师
 		public Teacher findTeacherByNo(String tNo);
+		//设置教师账号外键
+		public void setTeacherUsername(String tno, String username);
+		
+		//根据旧外键设置新外键(删除外键对象的时候用)
+		public void setTeacherFk(String FKName, String oldFk, String newFk);
+		//
+		public void setTeacherCourseFkByTNo(String tNo, String coNo);
 }

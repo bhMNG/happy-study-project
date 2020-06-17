@@ -73,18 +73,20 @@ public class ClazzController {
 		//添加班级
 	@PostMapping("/addClazz")
 	@ResponseBody
-	public JSONObject addClazz(String cNo, String cName,String cEnterYear){
+	public JSONObject addClazz(String cNo, String cName,String cEnterYear, String cDepartFk){
 		if (cNo==null||cName==null||cEnterYear==null||cNo.trim().isEmpty()||cName.trim().isEmpty()||cEnterYear.trim().isEmpty())
 	    {
 			return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
 	    }
-	        else return this.clazzService.addClazz(cNo,cName,cEnterYear);
+		
+		cEnterYear = cEnterYear.split("-")[0];
+	    return this.clazzService.addClazz(cNo,cName,cEnterYear,cDepartFk);
 	}
 
 	//修改班级信息
-    @PostMapping("/updateClazzByNo")
+    @PostMapping("/updateClazz")
     @ResponseBody
-    public JSONObject updateClazzByNo(String cNo,String cName,String cEnterYear){
+    public JSONObject updateClazzByNo(String cNo,String cName,String cEnterYear, String cDepartFk){
 	    if (cNo.isEmpty()||cNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_CLAZZ);
@@ -97,22 +99,28 @@ public class ClazzController {
             }
             if (cEnterYear!=null)
             {
+            	cEnterYear = cEnterYear.split("-")[0];
                 newParam.put("cEnterYear",cEnterYear);
             }
+            if (cDepartFk==null) {
+            	cDepartFk="";
+            }
+            newParam.put("cDepartFk", cDepartFk);
             return this.clazzService.updateClazzByNo(cNo,newParam);
         }
     }
 
   //删除班级
-    @PostMapping("/deleteClazzByNo")
+    @PostMapping("/deleteClazz")
     @ResponseBody
     public JSONObject deleteClazzByNo(String cNo){
-        if (cNo.isEmpty()||cNo.trim().isEmpty())
+        if (cNo==null || cNo.isEmpty()||cNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else{
-            return this.clazzService.deleteClazzByNo(cNo);
+        	String[] cNos = cNo.split("-");
+            return this.clazzService.deleteClazzByNo(cNos);
         }
     }
 

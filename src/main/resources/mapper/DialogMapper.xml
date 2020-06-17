@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.happystudy.dao.DialogMapper">
+	<!-- 查询 -->
+	<select id="queryDialog" resultType="com.happystudy.model.Dialog">
+		select * from t_dialog 
+		<if test="keyword!=null"> where dl_action like '%${keyword}%' </if> 
+		order by id desc
+	</select>
+	<!-- 写入 -->
+	<insert id="writeDialog" parameterType="com.happystudy.model.Dialog">
+		insert into t_dialog (dl_action, dl_time, dl_trigger_obj, dl_info) 
+		values (#{dlAction}, #{dlTime}, #{dlTriggerObj}, #{dlInfo})
+	</insert>
+	<!-- 删除 -->
+	<delete id="deleteDialog">
+		delete from t_dialog where id=#{id}
+	</delete>
+</mapper>

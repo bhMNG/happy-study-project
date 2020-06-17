@@ -1,23 +1,51 @@
+<style>
+	.infobox-input{
+		width: 80%;
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 60%;
+        height: 50px;
+        padding-top: 7px;
+        margin-top: 20px;
+	}
+</style>
+
 <div style="width: 80%;" id="departman-content">
 <!-- DepartTable -->
 <div>
+	<!-- table & 分页 -->
 	<div style="background: rgba(0,0,0,0.8); background: #fff; margin-top: 5%; border: 6px solid rgba(0, 0, 0, 0.8);">
 		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
+				<th id="check_all_td" style="text-align: center;" v-show="paneSwitch.editDepartModel">
+					<input id="check_all" type='checkbox' v-model="departCheck.isCheckAll" @change="checkAll"/></th>
 				<th>学院编号</th>
 				<th>学院名称</th>
 				<th>教师人数</th>
 				<th>学生人数</th>
+				<th v-show="paneSwitch.editDepartModel">操作</th>
 				
 			</tr>
 		</thead>
 		<tbody v-for="depart in departQuery.departArray">
 			<tr>
-				<td style="text-align: center;">{{depart.d_no}}</td>
-				<td style="text-align: center;">{{depart.d_name}}</td>
-				<td style="text-align: center;">{{depart.teacherCount}}</td>
-				<td style="text-align: center;">{{depart.stuCount}}</td>
+				<td align="center" v-show="paneSwitch.editDepartModel" style=" padding-top: 16px;">
+					<input type="checkbox" v-model="departCheck.checkedValues" :value="depart.d_no"/></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{depart.d_no}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{depart.d_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{depart.teacherCount}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{depart.stuCount}}</p></td>
+				<td align="center" v-show="paneSwitch.editDepartModel">
+					<div class="btn-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editDepartModal" @click="openDepartModal('update', depart.d_no)">更新</button>
+  					<button type="button" class="btn btn-default" @click="delDepart(depart.d_no)">删除</button>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 		</table>
@@ -66,10 +94,54 @@
   			</ul>
 		</nav>
 		</div>
-		
 	</div>
+	<!-- ./table & 分页 -->
 </div>
+<!-- ./departtable -->
 
+<!-- 按钮空间栏 -->
+<div style="margin-top: 100px; margin-bottom: 10px;">
+	<button type="button" class="btn btn-success btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);" 
+		data-toggle="modal" data-target="#editDepartModal" @click="openDepartModal('add', '')">添加学院</button>
+	<button type="button" class="btn btn-primary btn-lg" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="editDepart">编辑学院</button>
+	<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="delDepartBatch">删除学院</button>
+	<button type="button" class="btn btn-default btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);margin-left: 50px;margin-right: 50px;" @click="openQueryInput">查询学院</button>
+</div>
+<!-- inputBox -->
+<div class="inputBox" v-show="paneSwitch.isInputBoxShow">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="学院号/学院名" aria-describedby="basic-addon2" v-model="inputBox.inputData">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="doQuery">搜索</button>
+      							</span>
+							</div>
+</div>
+<!-- 模态框 -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="editDepartModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">修改&新增学院</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="input-group">
+      		<span class="input-group-addon" id="basic-addon1" style="width: 81px;">学院号</span>
+      		<input type="text" class="form-control" placeholder="学院号"
+      		aria-describedby="basic-addon1" v-model="departModal.dNo" :readonly="departModal.isDNoReadonly">
+      	</div>
+      	<div class="input-group">
+      		<span class="input-group-addon" id="basic-addon1" style="width: 81px;">学院名</span>
+      		<input type="text" class="form-control" placeholder="学院名"
+      		aria-describedby="basic-addon1" v-model="departModal.dName">
+      	</div>
+      	<div class="modal-footer">
+      		<button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddOrUpdate">保存</button>
+      	</div>
+      </div>
+    </div>
+  </div>
+</div>
 	
 </div>
 
@@ -92,16 +164,152 @@
 				keyword : "",
 				orderBy : "d_no",
 				orderWay : "asc",
+			},
+			departCheck : {
+				isCheckAll : false,
+				checkedValues : []
+			},
+			departModal : {
+				dNo : "",
+				dName : "",
+				isDNoReadonly : false,
+				addOrUpdate : "",
+				departArray : []
+			},
+			paneSwitch : {
+				editDepartModel : false,
+				isInputBoxShow : false,
+			},
+			inputBox : {
+				inputData : "",
 			}
 		},
 		methods : {
+			doQuery : function(){
+				this.departQuery.keyword=this.inputBox.inputData;
+				this.queryDepart();
+				this.departQuery.keyword="";
+			},
+			openQueryInput : function(){
+				if (!this.paneSwitch.isInputBoxShow){
+					this.paneSwitch.isInputBoxShow = true;
+				}else{
+					this.paneSwitch.isInputBoxShow = false;
+				}
+			},
+			editDepart : function(){
+				if (!this.paneSwitch.editDepartModel){
+					this.paneSwitch.editDepartModel = true;
+				}else{
+					this.paneSwitch.editDepartModel = false;
+				}
+			},
+			delDepartBatch : function(){
+				console.log(this.departCheck.checkedValues);
+				if (this.departCheck.checkedValues == undefined || this.departCheck.checkedValues == null || 
+						this.departCheck.checkedValues.length == 0){
+					alert("还没勾选需要删除的学院");
+					return ;
+				}
+				var dNos = "";
+				for (var i = 0; i < this.departCheck.checkedValues.length; i++){
+					dNos += this.departCheck.checkedValues[i] + "-";
+				}
+				$.post("${ctxPath}/happy-study/depart/deleteDepart", {dNo : dNos}, response=>{
+					if (response.status==0){
+						alert("删除成功");
+						vue.queryDepart();
+					}else{
+						alert("删除失败, code: " + response.status);
+					}
+				})
+			},
+			delDepart : function(dNo){
+				$.post("${ctxPath}/happy-study/depart/deleteDepart", {dNo : dNo}, response=>{
+					if (response.status==0){
+						alert("删除成功");
+						vue.queryDepart();
+					}else{
+						alert("删除失败, code: " + response.status);
+					}
+				})
+			},
+			doAddDepart(dNo, dName){
+				$.post("${ctxPath}/happy-study/depart/addDepart", {dNo : dNo, dName : dName}, response=>{
+					if (response.status==0){
+						alert("添加成功");
+						vue.queryDepart();
+						$("#editDepartModal").modal("hide");
+						this.clearDepartModal();
+					}else{
+						alert("添加失败, code: " + response.status);
+					}
+				})
+			},
+			doUpdateDepart(dNo, dName){
+				$.post("${ctxPath}/happy-study/depart/updateDepart", {dNo : dNo, dName : dName}, response=>{
+					if (response.status == 0){
+						alert("修改成功");
+						vue.queryDepart();
+						$("#editDepartModal").modal("hide");
+						this.clearDepartModal();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+				})
+			},
+			doAddOrUpdate : function(){
+				if (this.departModal.dNo=="" || this.departModal.dName == ""){
+					alert("字段不能为空哦 " + this.departModal.dNo + " " + this.departModal.dName);
+					return; 
+				}
+				if (this.departModal.addOrUpdate == "add"){
+					this.doAddDepart(this.departModal.dNo, this.departModal.dName);
+				}else if(this.departModal.addOrUpdate == "update"){
+					this.doUpdateDepart(this.departModal.dNo, this.departModal.dName);
+				}else{
+					alert("error: " + this.departModal.addOrUpdate);
+				}
+			},
+			openDepartModal : function(editType, dNo){
+				this.clearDepartModal();
+				this.departModal.addOrUpdate = editType;
+				if (this.departModal.addOrUpdate == "update"){
+					this.departModal.isDNoReadonly = true;
+				}
+				if (dNo != null && dNo != ""){
+					this.departModal.dNo = dNo;
+				}
+			},
+			clearDepartModal : function(){
+				this.departModal.dNo = "";
+				this.departModal.dName = "";
+				this.departModal.isDNoReadonly = false;
+				this.departModal.addOrUpdate = "";
+				this.departModal.departArray = [];
+			},
+			checkAll : function(){
+				var departArray = this.departQuery.departArray;
+				if (departArray != null){
+					//全选中
+					if (this.departCheck.isCheckAll){
+						//console.log(departArray);
+						this.departCheck.checkedValues = [];
+						for (var i = 0; i < departArray.length; i++){
+							this.departCheck.checkedValues.push(departArray[i].d_no);
+						}
+					}else{
+						this.departCheck.checkedValues = [];
+					}
+				}
+			},
 			queryDepart : function(){
 				this.departQuery.departArray = null;
 				$.post("${ctxPath}/happy-study/depart/queryDepart", {
 					keyword : this.departQuery.keyword,
 					orderBy : this.departQuery.orderBy,
 					orderWay : this.departQuery.orderWay,
-					pageNo : this.queryPage.pageNo,
+					pageNo : this.queryPage.currentPage,
 					pageSize : this.queryPage.pageSize
 				}, response=>{
 					console.log(response.departArray);
@@ -156,7 +364,7 @@
 				}
 				this.queryPage.currentPage = page;
 				console.log("go to page " + this.queryPage.currentPage);
-				this.queryStudent();
+				vue.queryDepart()
 			}
 		},
 		mounted : function(){

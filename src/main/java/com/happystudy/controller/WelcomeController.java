@@ -24,6 +24,11 @@ public class WelcomeController {
 		return "quicklyQuery";
 	}
 	
+	@RequestMapping("/welcome/applyList")
+	public String toApplyListPane() {
+		return "applyListPane";
+	}
+	
 	@PostMapping("/getMenu")
 	@ResponseBody
 	public JSONObject getMenu() {

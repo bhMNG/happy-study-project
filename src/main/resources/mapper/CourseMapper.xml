@@ -50,25 +50,73 @@
 	</select>
 	<!-- 查询报了该课程的所有学生 -->
 	<select id="queryCourseAllStu" resultType="com.happystudy.model.Student">
-		select s_no,s_name,s_sex,s_birthday,s_enter_year from t_course left join t_teacher on t_teacher.t_course_fk=t_course.co_no left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
-		left join t_student on t_student.s_depart_fk=t_depart.d_no
-		where co_no=#{coNo}
+		select s_no,s_name,s_sex,s_birthday,s_enter_year from 
+		t_student where t_student.s_no in 
+		(select t_course_stulist.csl_student_fk from t_course_stulist 
+		where t_course_stulist.csl_course_fk in(select co_no from t_course where co_no=#{coNo}))
 	</select>
 	<!-- 查询该课程的学生人数 -->
 	<select id="queryCourseStudentCount" resultType="Integer">
-		select COUNT(s_no) from t_course left join t_teacher on t_teacher.t_course_fk=t_course.co_no left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
-		left join t_student on t_student.s_depart_fk=t_depart.d_no
-		<if test="coNo !='' and coNo !=null">
-			where
-		</if>
-		<if test="coNo !='' and coNo !=null">co_no=#{coNo}</if>
+		select count(s_no) as stuCount from 
+		t_student where t_student.s_no in 
+		(select t_course_stulist.csl_student_fk from t_course_stulist 
+		where t_course_stulist.csl_course_fk in(select co_no from t_course where co_no=#{coNo}))
 	</select>
 	
+	<!-- 设置学生表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setCourseFk">
+		update t_course set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
 	
 	
+	<!-- 设置学生表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) (课程表与学生表的中间表) -->
+	<update id="setCourseStuListFk">
+		update t_course_stulist set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	<delete id="deleteCourseStuListDataRow">
+		delete from t_course_stulist where csl_course_fk=#{cslCourseFk}
+	</delete>
+	<!-- 查询该学生是否还在这个课程里面 -->
+	<select id="findStudentByCourseAndSno" resultType="com.happystudy.model.Student">
+		select * from t_student where t_student.s_no in (select csl_student_fk from t_course 
+		LEFT JOIN t_course_stulist ON t_course.co_no=t_course_stulist.csl_course_fk
+		where t_course.co_no='1000' and t_course_stulist.csl_student_fk='004')
+	</select>
 	
+	<!-- 根据课程（是否有负责老师）的状态码来查询课程 -->
+	<select id="queryCourseByStatus" resultType="map">
+		select DISTINCT co_no, co_name, t_no, t_name, co_status from t_course
+		right join t_course_apply on t_course.co_no=t_course_apply.cal_course_fk
+		left join t_teacher on t_course_apply.cal_teacher_fk=t_teacher.t_no 
+		where co_status=#{status}
+		<if test="keyword !=''"> and co_no like '%${keyword}%' or co_name like '%${keyword}%' </if>
+		order by ${orderBy} ${orderWay} limit #{offset}, #{pageSize}
+	</select>
+	<!-- setCourseStatus -->
+	<update id="setCourseStatus">
+		update t_course set t_course.co_status=#{status} where co_no=#{co_no}
+	</update>
 	
+	<!-- 删除教师申请课程表中的一条字段（当申请成功或者失败，或是课程、教师被删除时调用） -->
+	<delete id="deleteCourseApplyDataRow">
+		delete from t_course_apply where ${noType}=#{noValue}
+	</delete>
+	<!-- 新增一条教师申请课程表中的字段（当教师申请负责课程时调用） -->
+	<insert id="insertCourseApplyDataRow">
+		insert into t_course_apply (cal_course_fk, cal_teacher_fk)
+		values (#{coNo},#{tNo})
+	</insert>
 	
+	<!-- 根据查询某个教师正在申请中的课程 -->
+	<select id="queryApplyingCourseByTNo" resultType="map">
+		select DISTINCT co_no, co_name from t_teacher 
+		left join t_course_apply on t_teacher.t_no=t_course_apply.cal_teacher_fk 
+		inner join t_course on t_course_apply.cal_course_fk=t_course.co_no 
+		where t_teacher.t_no=#{tNo} and t_course.co_status=1
+	</select>
 	
-	
+	<!-- 学生选课 根据学号选课 -->
+	<select id="chooseCourseBySNo">
+		insert into t_course_stulist (csl_course_fk, csl_student_fk) values (#{coNo}, #{sNo})
+	</select>
 </mapper>

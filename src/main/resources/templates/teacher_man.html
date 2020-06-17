@@ -1,3 +1,19 @@
+<style>
+	.infobox-input{
+		width: 80%;
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 60%;
+        height: 50px;
+        padding-top: 7px;
+        margin-top: 20px;
+	}
+</style>
+
 <div style="width: 80%;" id="teaman-content">
 
 <!-- Teachertable -->
@@ -6,6 +22,7 @@
 		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
+				<th id="check_all_td" style="text-align: center;" v-show="teacherModal.isEditModel"><input id="check_all" type='checkbox' v-model="stuCheck.isCheckAll" @change="checkAll"/></th>
 				<th>教师号</th>
 				<th>教师名</th>
 				<th>性别</th>
@@ -13,17 +30,26 @@
 				<th>负责班级</th>
 				<th>负责课程</th>
 				<th>账号</th>
+				<th v-show="teacherModal.isEditModel">操作</th>
 			</tr>
 		</thead>
 		<tbody v-for="teacher in teacherQuery.teacherArray">
 			<tr>
-				<td style="text-align: center;">{{teacher.t_no}}</td>
-				<td style="text-align: center;">{{teacher.t_name}}</td>
-				<td style="text-align: center;">{{teacher.t_sex}}</td>
-				<td style="text-align: center;">{{teacher.d_name}}</td>
-				<td style="text-align: center;">{{teacher.c_name}}</td>
-				<td style="text-align: center;">{{teacher.co_name}}</td>
-				<td style="text-align: center;">{{teacher.t_user_fk}}</td>
+				<td align="center" v-show="teacherModal.isEditModel"><input type="checkbox" v-model="stuCheck.checkedValues" :value="teacher.t_no"/></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{teacher.t_no}}</p></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{teacher.t_name}}</p></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{teacher.t_sex}}</p></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{teacher.d_name}}</p></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.c_name!=null&&teacher.c_name!=''">{{teacher.c_name}}</p><button type="button" class="btn btn-warning" v-if="teacher.c_name==null||teacher.c_name==''">暂无班级</button></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.co_name !=null&&teacher.co_name!=''">{{teacher.co_name}}</p><button type="button" class="btn btn-warning" v-if="teacher.co_name==null||teacher.co_name==''" data-toggle="modal" data-target="#chooseTeachModal" @click="chooseTeach(teacher.t_no)">暂无课程</button></td>
+				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.t_user_fk!=null&&teacher.t_user_fk!=''">{{teacher.t_user_fk}}</p>
+					<button type="button" class="btn btn-warning" @click="gotoRegist(teacher.t_no)" v-if="teacher.t_user_fk==null||teacher.t_user_fk==''">注册账号</button></td>
+				<td v-show="teacherModal.isEditModel" align="center">
+					<div class="btn-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#teacherModal" @click="openTeacherModal('update', teacher.t_no, teacher.d_name)">更新</button>
+  					<button type="button" class="btn btn-default" @click="deleteTeacher(teacher.t_no)">删除</button>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 		</table>
@@ -77,16 +103,82 @@
 
 <!-- 操作按钮栏 -->
 <div>
-	<div style="width: 30%; background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; 
-		border-bottom: 1px solid; overflow-x: hidden;margin-top: 120px;">
-		<button type="button" class="btn btn-success btn-lg" style="margin-right: 5%; width:35%"> 
-			<span class="glyphicon glyphicon-align-left"></span> 管理班级</button>
-		<button type="button" class="btn btn-primary btn-lg" style="margin-left: 5%; width: 35%">
-			<span class="glyphicon glyphicon-book"></span> 负责课程</button>
-		<button type="button" class="btn btn-danger btn-lg" style="margin-top: 20px; width: 80%">
-			<span class="glyphicon glyphicon-trash"></span> 删除教师</button>
+	<div style="margin-top: 100px; margin-bottom: 10px;">
+		<button type="button" class="btn btn-success btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8);" 
+			@click="openTeacherModal('add', '', '')" data-toggle="modal" data-target="#teacherModal"> 
+			 添加教师</button>
+		<button type="button" class="btn btn-primary btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="dowithEditModel">
+			 编辑信息</button>
+		<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8);" @click="deleteTeacherBatch">
+			 删除教师</button>
+		<button type="button" class="btn btn-default btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="openQueryInputBox">
+			 查询教师</button>
 	</div>
 </div>
+<!-- inputBox -->
+<div class="inputBox" v-show="paneSwitch.isInputBoxShow">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="教师号/教师名" aria-describedby="basic-addon2" v-model="inputBox.inputData">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="doQuery">搜索</button>
+      							</span>
+							</div>
+</div>
+<!-- 修改新增 模态框 -->
+<div id="teacherModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+       <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">新增&修改</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1">教师号</span>
+  			<input type="text" class="form-control" placeholder="教师号" 
+  			aria-describedby="basic-addon1"  v-model="teacherModal.tNo" :readonly="teacherModal.isTNoReadonly">
+		</div>
+		<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon2" >教师名</span>
+  			<input type="text" class="form-control" placeholder="姓名" aria-describedby="basic-addon1" v-model="teacherModal.tName" >
+		</div>
+		<div class="input-group" style="width: 100%;">
+  			<span class="input-group-addon" id="basic-addon3" style="width: 67px;">性别</span>
+  			<input type="text" class="form-control" placeholder="性别" aria-describedby="basic-addon1" v-model="teacherModal.tSex">
+		</div>
+		<div class="input-group" style="width: 100%">
+  			<div class="btn-group" style="width: 100%">
+  				<button id="changeDepartBtn" type="button" class="btn btn-default btn-block dropdown-toggle" style="width: 100%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  					所属学院<span class="caret"></span>
+  				</button>
+  				<ul class="dropdown-menu" style="width: 100%;overflow-y: scroll; height: 150px;">
+  					<li v-for="depart in teacherModal.departArray">
+  						<a href="javascript://" @click="changeTeacherDepart(depart.d_name,depart.d_no)">{{depart.d_name}}</a></li>
+  				</ul>
+  			</div>
+  			<input type="text" v-show="false" v-model="teacherModal.tDepart">	
+		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddOrUpdate">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ./修改新增 模态框 -->
+
+<!-- 选课模态框 -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="chooseTeachModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">选择授课</h4>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ./选课模态框 -->
 
 
 </div>
@@ -111,11 +203,209 @@
 				pageBuffer : [],
 				pageBeforeOmit : false,
 				pageAffterOmit : true,
+			},
+			stuCheck : {
+				isCheckAll : false,
+				checkedValues : []
+			},
+			teacherModal : {
+				isEditModel : false,
+				addOrUpdate : "",
+				isTNoReadonly : false,
+				tNo : "",
+				tName : "",
+				tSex : "",
+				tDepart : "",
+				departArray : [],
+			},
+			chooseTeachData : {
+				tNo : "",
+				coNo : "",
+			},
+			paneSwitch : {
+				isInputBoxShow : false,
+			},
+			inputBox : {
+				inputData : "",
 			}
 			
 		},
 		methods : {
+			doQuery : function(){
+				this.teacherQuery.keyword = this.inputBox.inputData;
+				this.queryTeacher();
+				this.teacherQuery.keyword = "";
+			},
+			openQueryInputBox : function(){
+				if (!this.paneSwitch.isInputBoxShow){
+					this.paneSwitch.isInputBoxShow = true;
+				}else{
+					this.paneSwitch.isInputBoxShow = false;
+				}
+			},
+			clearChooseTeachData : function(){
+				this.chooseTeachData.tNo = "";
+				this.chooseTeachData.coNo = "";
+			},
+			chooseTeach : function(tNo){
+				this.clearChooseTeachData();
+				this.chooseTeachData.tNo = tNo;
+			},
+			gotoRegist : function(tNo){
+				$("#registNo").val(tNo);
+				$("#maindiv").load("${ctxPath}/happy-study/user/propertyMan");
+			},
+			queryDepart : function(){
+				this.teacherModal.departArray = null;
+				$.post("${ctxPath}/happy-study/depart/queryDepart", {
+					keyword : "",
+					orderBy : "d_name",
+					orderWay : "asc",
+					pageNo : "1",
+					pageSize : "1000"
+				}, response=>{
+					if (response.status==0){
+						this.teacherModal.departArray = response.departArray;
+					}else{
+						this.teacherModal.departArray = [];
+					}
+				})
+			},
+			doAddTeacher(tNo, tName, tSex, tDepart){
+				$.post("${ctxPath}/happy-study/teacher/addTeacher", {
+					tNo : tNo,
+					tName : tName,
+					tSex : tSex,
+					tDepartFk : tDepart
+				}, response=>{
+					if (response.status==0){
+						alert("添加成功");
+						vue.queryTeacher();
+						$("#teacherModal").modal("hide");
+						this.clearTeacherModal();
+					}else{
+						alert("添加失败, code: " + response.status);
+					}
+					
+					return ;
+				})
+			},
+			doUpdateTeacher(tNo, tName, tSex, tDepart){
+				$.post("${ctxPath}/happy-study/teacher/updateTeacher", {
+					tNo : tNo,
+					tName : tName,
+					tSex : tSex,
+					tDepartFk : tDepart
+				}, response=>{
+					if (response.status==0){
+						alert("修改成功");
+						vue.queryTeacher();
+						$("#teacherModal").modal("hide");
+						this.clearTeacherModal();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+					
+					return ;
+				})
+			},
+			changeTeacherDepart : function(tDepartName, tDepartNo){
+				this.teacherModal.tDepart=tDepartNo;
+				$("#changeDepartBtn").html(tDepartName+"<span class='caret'></span>");
+			},
+			doAddOrUpdate : function(){
+				if (this.teacherModal.tNo=="" || this.teacherModal.tName=="" || this.teacherModal.tSex=="" || this.teacherModal.tDepart==""){
+					alert("字段不能为空哦~");
+					return ;
+				}
+				if (this.teacherModal.addOrUpdate == "add"){
+					this.doAddTeacher(this.teacherModal.tNo, this.teacherModal.tName, this.teacherModal.tSex, this.teacherModal.tDepart);
+				}else if(this.teacherModal.addOrUpdate == "update"){
+					this.doUpdateTeacher(this.teacherModal.tNo, this.teacherModal.tName, this.teacherModal.tSex, this.teacherModal.tDepart);
+				}else{
+					alert("error: " + this.stuModal.addOrUpdate);
+				}
+				
+			},
+			clearTeacherModal : function(){
+				this.teacherModal.tNo="";
+				this.teacherModal.tName="";
+				this.teacherModal.tSex="";
+				this.teacherModal.tDepart="";
+				this.teacherModal.isTNoReadonly = false;
+				this.teacherModal.addOrUpdate="";
+				$("#changeDepartBtn").html("所属学院<span class='caret'></span>");
+			},
+			openTeacherModal : function(addOrUpdate, tNo, tDepart){
+				this.clearTeacherModal();
+				this.queryDepart();
+				console.log(tNo);
+				console.log(tDepart);
+				if (tDepart == null || tDepart == undefined){
+					tDepart = "";
+				}
+				//this.teacherModal.tDepart = tDepart
+				this.teacherModal.addOrUpdate = addOrUpdate;
+				if (addOrUpdate == "update"){
+					this.teacherModal.isTNoReadonly = true;
+				}
+				if (tNo != null && tNo != ""){
+					this.teacherModal.tNo = tNo
+				}
+			},
+			deleteTeacherBatch : function(){
+				if (this.stuCheck.checkedValues == undefined || this.stuCheck.checkedValues == null || 
+						this.stuCheck.checkedValues.length == 0){
+					alert("还没有勾选要删除的老师!");
+					return ;
+				}
+				var tNos = "";
+				for (var i = 0; i < this.stuCheck.checkedValues.length; i++){
+					tNos += this.stuCheck.checkedValues[i] + "-";
+				}
+				this.deleteTeacher(tNos);
+			},
+			deleteTeacher : function(tNo){
+				if (confirm("确认要删除选中的记录吗?\n")==true){
+					$.post("${ctxPath}/happy-study/teacher/deleteTeacher", {tNo : tNo}, response=>{
+						if (response.status == 0){
+							alert("删除成功！");
+						}else{
+							alert("error, code: "+response.status);
+						}
+						this.queryTeacher();
+					});
+					return true;
+				}else{
+					return false;
+				}
+			},
+			dowithEditModel : function(){
+				var isEditModel = this.teacherModal.isEditModel;
+				if (isEditModel){
+					this.teacherModal.isEditModel = false;
+				}else{
+					this.teacherModal.isEditModel = true;
+				}
+				console.log(this.teacherModal.isEditModel);
+			},
+			checkAll : function(){
+				var teacherArray = this.teacherQuery.teacherArray;
+				if (teacherArray != null){
+					//全选中
+					if (this.stuCheck.isCheckAll){
+						console.log(teacherArray);
+						this.stuCheck.checkedValues = [];
+						for (var i = 0; i < teacherArray.length; i++){
+							this.stuCheck.checkedValues.push(teacherArray[i].t_no);
+						}
+					}else{
+						this.stuCheck.checkedValues = [];
+					}
+				}
+			},
 			queryTeacher : function(){
+				this.stuCheck.isCheckAll=false;
 				this.teacherQuery.teacherArray = null;
 				$.post("${ctxPath}/happy-study/teacher/queryTeacher", {keyword : this.teacherQuery.keyword,
 					orderBy : this.teacherQuery.orderBy,
@@ -123,7 +413,6 @@
 					pageNo : this.queryPage.currentPage,
 					pageSize : this.queryPage.pageSize}, response=>{
 						//console.log("teacherArray：");
-						//console.log(response.teacherArray);
 						
 						this.teacherQuery.teacherArray = response.teacherArray;
 						this.queryPage.pageCount = response.pageCount;
@@ -175,7 +464,7 @@
 				}
 				this.queryPage.currentPage = page;
 				//console.log("go to page " + this.queryPage.currentPage);
-				this.queryStudent();
+				this.queryTeacher();
 			}
 		},
 		mounted : function(){

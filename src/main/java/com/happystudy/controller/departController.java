@@ -77,7 +77,7 @@ public class departController {
     }
 
     //修改学院名字
-    @PostMapping("/updateDepartByNo")
+    @PostMapping("/updateDepart")
     @ResponseBody
     public JSONObject updateDepartByNo(String dNo, String dName){
         if (dNo==null||dName==null||dName.trim().isEmpty()||dNo.trim().isEmpty()){
@@ -89,13 +89,14 @@ public class departController {
 
 
     //根据学院号删除学院
-    @PostMapping("/deleteDepartByNo")
+    @PostMapping("/deleteDepart")
     @ResponseBody
     public JSONObject deleteDepartByNo(String dNo){
+    	String[] dNos = dNo.split("-");
         if (dNo==null||dNo.trim().isEmpty()){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        else return this.departService.deleteDepartByNo(dNo);
+        else return this.departService.deleteDepartByNo(dNos);
     }
 
 

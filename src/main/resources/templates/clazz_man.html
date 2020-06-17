@@ -1,3 +1,19 @@
+<style>
+	.infobox-input{
+		width: 80%;
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 60%;
+        height: 50px;
+        padding-top: 7px;
+        margin-top: 20px;
+	}
+</style>
+
 <div style="width: 80%;" id="clazzman-content">
 
 <!-- ClazzTable -->
@@ -6,25 +22,50 @@
 		<table class="table table-bordered table-hover">
 		<thead>
 			<tr>
-				<th>班级号</th>
-				<th>班级名</th>
-				<th>负责老师</th>
-				<th>所属学院</th>
-				<th>班级人数</th>
+				<th id="check_all_td" style="text-align: center;" v-show="paneSwitch.editClazzModel">
+					<input id="check_all" type='checkbox' v-model="stuCheck.isCheckAll" @change="checkAll"/></th>
+				<th style="text-align: center;">班级号</th>
+				<th style="text-align: center;">班级名</th>
+				<th style="text-align: center;">负责老师</th>
+				<th style="text-align: center;">所属学院</th>
+				<th style="text-align: center;">入学时间</th>
+				<th style="text-align: center;">班级人数</th>
+				<th style="text-align: center;" v-show="paneSwitch.editClazzModel">操作</th>
 			</tr>
 		</thead>
-		<tbody v-for="clazz in clazzQuery.array">
+		<tbody v-for="clazz in clazzQuery.array" v-show="!clazzQuery.showWithMyClazz">
 			<tr>
-				<td style="text-align: center;">{{clazz.cNo}}</td>
-				<td style="text-align: center;">{{clazz.cName}}</td>
-				<td style="text-align: center;">TODO</td>
-				<td style="text-align: center;">TODO</td>
-				<td style="text-align: center;">TODO</td>
+				<td align="center" v-show="paneSwitch.editClazzModel" style="padding-top: 16px;"><input type="checkbox" v-model="stuCheck.checkedValues" :value="clazz.c_no"/></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.c_no}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.c_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.t_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.d_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.c_enter_year}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.stu_count}}</p></td>
+				<td align="center" v-show="paneSwitch.editClazzModel">
+					<div class="btn-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('update', clazz.c_no)">更新</button>
+  					<button type="button" class="btn btn-default" @click="delClazz(clazz.c_no)">删除</button>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+		<tbody v-show="clazzQuery.showWithMyClazz">
+			<tr>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.c_no}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.c_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.t_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.d_name}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.c_enter_year}}</p></td>
+				<td style="text-align: center; padding-top: 16px;"><p>{{clazzQuery.myClazzMes.stuCount}}</p></td>
+				<td style="text-align: center; padding-top: 16px;" v-show="paneSwitch.editClazzModel">
+					无
+				</td>
 			</tr>
 		</tbody>
 		</table>
 		<!-- 分页 -->
-		<div>
+		<div v-show="!clazzQuery.showWithMyClazz">
 		<nav aria-label="Page navigation" id="pagePane">
   			<ul class="pagination">
   				<li>
@@ -71,8 +112,74 @@
 	</div>
 </div>
 
-<!-- TODO -->
+<!-- 按钮空间栏 -->
+<div>
+	<div style="margin-top: 100px; margin-bottom: 10px;" id="btnBox">
+		<button type="button" class="btn btn-success btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);margin-left: 50px;margin-right: 50px;" 
+			data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('add', '')">添加班级</button>
+		<button type="button" class="btn btn-primary btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="editClazz">编辑班级</button>
+		<button type="button" class="btn btn-warning btn-lg boxBtn" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="findMyClazz">
+		<p v-show="!clazzQuery.showWithMyClazz" style="margin-bottom: 0px;">我的班级</p><p v-show="this.clazzQuery.showWithMyClazz" style="margin-bottom: 0px;">所有班级</p></button>
+		<button type="button" class="btn btn-danger btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="deleteClazzBatch" >删除班级</button>
+		<button type="button" class="btn btn-default btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6); margin-left: 50px;margin-right: 50px;" @click="openQueryInputBox">查询班级</button>
+		
+	</div>
+</div>
+<!-- inputBox -->
+<div class="inputBox" v-show="paneSwitch.isInputBoxShow">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="班级号/班级名" aria-describedby="basic-addon2" v-model="inputBox.inputData">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="doQuery">搜索</button>
+      							</span>
+							</div>
+</div>
 
+<!-- 修改新增班级 模态框 -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="editClazzModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">修改&新增班级</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1" style="width: 81px;">班级号</span>
+  			<input type="text" class="form-control" placeholder="班级号" 
+  			aria-describedby="basic-addon1" v-model="clazzModal.cNo" :readonly="clazzModal.isCNoReadonly">
+		</div>
+		<div class="input-group">
+  			<span class="input-group-addon" id="basic-addon1" style="width: 81px;">班级名</span>
+  			<input type="text" class="form-control" placeholder="班级名" 
+  			aria-describedby="basic-addon1" v-model="clazzModal.cName">
+		</div>
+		<div class="input-group">
+			<span class="input-group-addon" id="basic-addon1">入学年份</span>
+  			<input type="date" class="form-control" placeholder="入学年份" 
+  			aria-describedby="basic-addon1" v-model="clazzModal.cEnterYear">
+		</div>
+		<div class="input-group" style="width: 100%">
+  			<div class="btn-group" style="width: 100%">
+  				<button id="changeDepartBtn" type="button" class="btn btn-default btn-block dropdown-toggle" style="width: 100%;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  					所属学院<span class="caret"></span>
+  				</button>
+  				<ul class="dropdown-menu" style="width: 100%;overflow-y: scroll; height: 150px;">
+  					<li v-for="depart in clazzModal.departArray">
+  						<a href="javascript://" @click="changeClazzDepart(depart.d_name,depart.d_no)">{{depart.d_name}}</a></li>
+  				</ul>
+  			</div>
+  			<input type="text" v-show="false" v-model="clazzModal.cDepart">	
+		</div>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddOrUpdate">保存</button>
+      </div>
+    </div>
+  </div>
+</div>	
+
+<!-- TODO -->
 <!-- ./TODO -->
 
 </div>
@@ -96,11 +203,207 @@
 				keyword : "",
 				orderBy : "c_no",
 				orderWay : "asc",
+				showWithMyClazz : false,
+				myClazzMes : {
+					c_no : "",
+					c_name : "",
+					t_name : "",
+					d_name : "",
+					c_enter_year : "",
+					stuCount : "",
+				},
+				
 			},
-			
+			clazzModal : {
+				cNo : "",
+				cName : "",
+				cEnterYear : "",
+				cDepart : "",
+				isCNoReadonly : false,
+				addOrUpdate : "",
+				departArray : [],
+			},
+			stuCheck : {
+				isCheckAll : false,
+				checkedValues : []
+			},
+			paneSwitch : {
+				editClazzModel : false,
+				isInputBoxShow : false,
+			},
+			inputBox : {
+				inputData : "",
+			}
 			
 		},
 		methods : {
+			doQuery : function(){
+				this.clazzQuery.keyword = this.inputBox.inputData;
+				this.queryClazz();
+				this.clazzQuery.keyword = "";
+			},
+			openQueryInputBox : function(){
+				if (!this.paneSwitch.isInputBoxShow){
+					this.paneSwitch.isInputBoxShow = true;
+				}else{
+					this.paneSwitch.isInputBoxShow = false;
+				}
+			},
+			editClazz : function(){
+				if (!this.paneSwitch.editClazzModel){
+					this.paneSwitch.editClazzModel = true;
+				}else{
+					this.paneSwitch.editClazzModel = false;
+				}
+			},
+			findMyClazz : function(){
+				if (!this.clazzQuery.showWithMyClazz){
+					var username=$("#username").val();
+					$.post("${ctxPath}/happy-study/user/getUserClazz", {username : username}, response=>{
+						if (response.status==0){
+							this.clazzQuery.myClazzMes = response.myClazzMes;
+							this.clazzQuery.showWithMyClazz = true;
+						}else if (response.status==550){
+							alert("你还没有班级哦，快去申请一个吧");
+						}else{
+							alert("error: " + response.status);
+						}
+					})
+				}else{
+					this.clazzQuery.showWithMyClazz = false;
+				}
+				
+			},
+			changeClazzDepart : function(cDepartName, cDepartNo){
+				this.clazzModal.cDepart=cDepartNo;
+				$("#changeDepartBtn").html(cDepartName+"<span class='caret'></span>");
+			},
+			queryDepart : function(){
+				this.clazzModal.departArray = null;
+				$.post("${ctxPath}/happy-study/depart/queryDepart", {
+					keyword : "",
+					orderBy : "d_name",
+					orderWay : "asc",
+					pageNo : "1",
+					pageSize : "1000"
+				}, response=>{
+					if (response.status==0){
+						this.clazzModal.departArray = response.departArray;
+					}else{
+						this.clazzModal.departArray = [];
+					}
+				})
+			},
+			deleteClazzBatch : function(){
+				if (this.stuCheck.checkedValues == undefined || this.stuCheck.checkedValues == null|| 
+						this.stuCheck.checkedValues.length == 0){
+					alert("还没有勾选要删除的学生!");
+					return ;
+				}
+				var cNos = "";
+				for (var i = 0; i < this.stuCheck.checkedValues.length; i++){
+					cNos += this.stuCheck.checkedValues[i] + "-";
+				}
+				this.delClazz(cNos);
+			},
+			delClazz : function(cNo){
+				if (confirm("确认要删除选中的记录吗？\n")==true){
+					$.post("${ctxPath}/happy-study/clazz/deleteClazz", {cNo : cNo}, response=>{
+						if (response.status == 0){
+							alert("删除成功");
+							vue.queryClazz();
+						}else{
+							alert("删除失败, error: " + response.status);
+						}
+					})
+					return true;
+				}else{
+					return false;
+				}
+			},
+			checkAll : function(){
+				var clazzArray = this.clazzQuery.array;
+				if (clazzArray != null){
+					//全选中
+					if (this.stuCheck.isCheckAll){
+						console.log(clazzArray);
+						this.stuCheck.checkedValues = [];
+						for (var i = 0; i < clazzArray.length; i++){
+							this.stuCheck.checkedValues.push(clazzArray[i].c_no);
+						}
+					}else{
+						this.stuCheck.checkedValues = [];
+					}
+				}
+			},
+			doUpdateClazz : function(cNo, cName, cEnterYear, cDepartFk){
+				//alert(this.clazzModal.cDepart);
+				$.post("${ctxPath}/happy-study/clazz/updateClazz", {
+					cNo : cNo,
+					cName : cName,
+					cEnterYear : cEnterYear,
+					cDepartFk : cDepartFk
+				}, response=>{
+					if (response.status==0){
+						alert("修改成功");
+						vue.queryClazz();
+						$("#editClazzModal").modal("hide");
+						this.clearClazzModal();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+				})
+			},
+			doAddClazz : function(cNo, cName, cEnterYear, cDepartFk){
+				//alert(cEnterYear);
+				$.post("${ctxPath}/happy-study/clazz/addClazz", {
+					cNo : cNo,
+					cName : cName,
+					cEnterYear : cEnterYear,
+					cDepartFk : cDepartFk
+				}, response=>{
+					if (response.status==0){
+						alert("添加成功");
+						vue.queryClazz();
+						$("#editClazzModal").modal("hide");
+						this.clearClazzModal();
+					}else{
+						alert("添加失败, code: " + response.status);
+					}
+				})
+			},
+			doAddOrUpdate : function(){
+				if (this.clazzModal.cNo=="" || this.clazzModal.cName=="" || this.clazzModal.cEnterYear==""){
+					alert("字段不能为空哦");
+					return ;
+				}
+				if (this.clazzModal.addOrUpdate == "add"){
+					this.doAddClazz(this.clazzModal.cNo, this.clazzModal.cName, this.clazzModal.cEnterYear, this.clazzModal.cDepart)
+				}else if (this.clazzModal.addOrUpdate == "update"){
+					this.doUpdateClazz(this.clazzModal.cNo, this.clazzModal.cName, this.clazzModal.cEnterYear, this.clazzModal.cDepart)
+				}else{
+					alert("error: " + this.clazzModal.addOrUpdate)
+				}
+			},
+			openClazzModal : function(editAction, cNo){
+				this.clearClazzModal();
+				this.queryDepart();
+				this.clazzModal.addOrUpdate = editAction;
+				if (this.clazzModal.addOrUpdate == "update"){
+					this.clazzModal.isCNoReadonly = true;
+				}
+				if (cNo != null && cNo != ""){
+					this.clazzModal.cNo = cNo;
+				}
+			},
+			clearClazzModal : function() {
+				this.clazzModal.cNo = "";
+				this.clazzModal.cName = "";
+				this.clazzModal.cEnterYear = "";
+				this.clazzModal.cDepart = "";
+				this.clazzModal.CNoReadonly = false;
+				this.clazzModal.addOrUpdate = "";
+			},
 			queryClazz : function(){
 				this.clazzQuery.array = [];
 				$.post("${ctxPath}/happy-study/clazz/queryClazz", {keyword : this.clazzQuery.keyword,
@@ -164,6 +467,17 @@
 			this.queryClazz();
 		},
 	});
+	
+	var btnText = anime({
+		  targets: '#btnBox .boxBtn',
+		  scale: [
+		    {value: .1, easing: 'easeOutSine', duration: 500},
+		    {value: 1, easing: 'easeInOutQuad', duration: 1200}
+		  ],
+		  delay: anime.stagger(100, {grid: [1, 5], from: 'center'})
+		  
+		  
+		});
 	$(function(){
 		$("#DynamicMarquee").text("Welcome to Happy-Study!"+"    "+"---ClassManagement");
 		

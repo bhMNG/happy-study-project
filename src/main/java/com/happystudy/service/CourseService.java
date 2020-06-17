@@ -31,5 +31,13 @@ public interface CourseService {
     public JSONObject queryCourseAllStu(String cNo);
     //查询该课程的学生人数
     public JSONObject queryCourseStudentCount(String coNo);
-
+    //根据课程状态码查询课程
+    public JSONObject queryCourseByStatus(String keyword, String orderBy, String orderWay, Integer pageNo, Integer pageSize, Integer status);
+    //置状态码
+    public JSONObject setCourseStatus(String tNo, String coNo, Integer status);
+    //学生选课
+    public JSONObject chooseCourseBySNo(String sNo, String coNo);
+    
+    
+    
 }

@@ -37,10 +37,61 @@
 		margin-left: 600px;
 		
 	}
+	#divPropPane table th, #divPropPane table td{
+		text-align: center;
+	}
+	#divPropPane table p{
+		margin-bottom: 0px;
+	}
+	#roleActionPane{
+		height: 90%;
+		width: 100%;
+		background: url("${ctxPath}/img/property/java-img.jpg")center center no-repeat;
+		background-size: contain;
+		
+		padding:0;
+	}
+	.perItem:hover {
+		background: rgba(0,0,0,0.2);
+	}
+	.delAHref{
+		color: red;
+		
+	}
+	.delAHref:hover {
+		color: blue;
+		cursor:pointer;
+		font-size: 22px;
+	}
+	.infobox-input{
+		width: 80%;
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 250px;
+        height: 50px;
+        padding-top: 7px;
+        margin-top: 20px; 
+	}
+	.arrowBtn{
+		font-size: 28px; 
+		color: #6666FF;
+	}
+	.arrowBtn:hover{
+		color: #FF00CC;
+		font-size: 32px;
+	}
+	#dialogPane{
+		background: url("${ctxPath}/img/dialog/summer-day.jpg") fixed center center no-repeat ;
+		background-repeat: repeat-x;
+	}
 	
 </style>
 
-<div id="outer-div">
+<div id="outer-div" style="height: 100%;">
 <!-- 悬浮按钮 -->
 <div class="helper" @click="openHelper">
 	
@@ -48,21 +99,22 @@
 <!-- 助手框 -->
 <div class="helperPane">
 	<div style="flex: 1;background: green;  display: flex; flex-direction: row;margin: 20px 20px 20px 20px;">
-		<div style="background: red;border-right: 10px; width: 300px; border: 10px solid;" class="topButton" id="giveProp">
-			<h3>权限授予</h3>
+		<div style="background: red;border-right: 10px; width: 300px; border: 10px solid;" 
+			class="topButton" id="giveProp">
+			<h3>管理日志</h3>
 			<div style="height: 171px;">
 				<span class="glyphicon glyphicon-paperclip" style="font-size: 100px; margin-top: 30px;"></span>
 			</div>
 		</div>
 		<div style="width: 300px; border: 10px solid;" class="topButton" id="queryProp">
-			<h3>查询权限</h3>
-			<div>
+			<h3>查看日志</h3>
+			<div @click="openDialogPane">
 				<span class="iconfont icon-chaxun" style="font-size: 120px;"></span>
 			</div>
 		</div>
 	
 	</div>
-	<div style="flex: 1; background: yellow; margin: 20px; border: 10px solid;" class="bottomButton" id="diyProp">
+	<div style="flex: 1; background: yellow; margin: 20px; border: 10px solid;" class="bottomButton" id="diyProp" @click="openDivPropertyPane">
 		<h1>自定义权限</h1>
 		<div style="height: 171px;">
 				<span class="glyphicon glyphicon-king" style="font-size: 100px; margin-top: 30px;"></span>
@@ -71,14 +123,18 @@
 </div>
 
 <!-- 创建+重置 -->
-<div id="propman-content" style="padding: 20px 40px 20px 40px;">
-	
+<div id="propman-content" style="padding: 20px 40px 20px 40px;" v-if="paneSwitch.isContentShow">
+	<div class="row">
   	<div class="col-lg-6" style="width: 100%; margin-top: 10px;" v-show="edit.showUsernameInput">
     	<div class="input-group">
-     		<span class="input-group-btn">
-        	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-      	</span>
-     	<input type="text" class="form-control" placeholder="用户名">
+     		<div class="input-group-btn">
+        	<button class="btn btn-default dropdown-toggle" type="button" @click="matchUsername" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="glyphicon glyphicon-ok"></span></button>
+      		<ul class="dropdown-menu">
+      			<li v-for="user in userMatch.userlist"><a href="#" @click="chooseUsername(user.u_username)">{{user.u_username}}</a></li>
+      		</ul>
+      	</div>
+      	
+     	<input type="text" class="form-control" placeholder="用户名" v-model="edit.username">
      	<span class="input-group-addon" id="sizing-addon1">用户名</span>
     	</div><!-- /input-group -->
   	</div><!-- /.col-lg-6 -->
@@ -87,19 +143,21 @@
      		<span class="input-group-btn ">
         	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-down"></span></button>
       	</span>
-     	<input type="text" class="form-control" placeholder="学生号">
-     	<span class="input-group-addon " id="sizing-addon1">学生号</span>
+     	<input type="text" class="form-control" placeholder="学生号/教师号" v-model="edit.sno">
+     	<span class="input-group-addon " id="sizing-addon1">师生号</span>
     	</div><!-- /input-group -->
   	</div><!-- /.col-lg-6 -->
   	<div class="col-lg-6" style="width: 100%; margin-top: 30px;" v-show="edit.showPasswordInput">
     	<div class="input-group">
      		<span class="input-group-btn ">
-        	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-eye-close"></span></button>
+        	<button class="btn btn-default" type="button" @click="changePasswordShow"><span class="glyphicon glyphicon-eye-close" v-show="showpassword"></span>
+        	<span class="glyphicon glyphicon-eye-open" v-show="!showpassword"></span></button>
       	</span>
-     	<input type="text" class="form-control" placeholder="新密码">
+     	<input type="text" class="form-control" placeholder="新密码" v-model="edit.password" id="passwordInput">
      	<span class="input-group-addon " id="sizing-addon1">新密码</span>
     	</div><!-- /input-group -->
   	</div><!-- /.col-lg-6 -->
+  	</div>
   	<!-- 按钮 -->
   	<div>
   		<!-- 下拉菜单选择操作 -->
@@ -120,14 +178,186 @@
 		</div>
 		<!-- 确认 -->
 		  <div style=" margin-bottom: 30px;" align="right">
-			<button class="btn btn-danger" style="margin-right: 15px; height: 88px; font-size: 16px;">执行操作<div style="margin-top: 8px;"><span class="glyphicon glyphicon-wrench"></span></div></button>
+			<button class="btn btn-danger" style="margin-right: 15px; height: 88px; font-size: 16px;" @click="userEdit">执行操作<div style="margin-top: 8px;"><span class="glyphicon glyphicon-wrench"></span></div></button>
 		  </div>
   	</div>
 
 	
 <!-- ./propman-content -->
 </div>
-
+<!-- 左边返回按钮 -->
+<div style="height: 94%; width: 100%; margin-top: 2px;" v-if="paneSwitch.isDivPropShow" id="divPropPane">
+	<div style="height: 100%; width: 100%; display: flex; flex-direction: row;">
+		<div style="width: 5%; display: flex;flex-direction: column;justify-content: center;">
+			<div style="padding-right: 50%; height: 15%;">
+				<button type="button" class="btn btn-default" style="height: 100%; border: 2px solid black;" @click="backToContent" >返回</button>
+			</div>
+		</div>
+		<div style="width: 35%; padding: 1% 1% 1% 1%; margin: 4% 4% 4% 4%; background: rgba(255, 255, 255, 0.3);">
+			<div style="height: 100%;width: 100%; background: #fff; padding-top: 3%; padding-bottom: 2%;">
+				<!-- 角色区 -->
+				<div style="height: 80%; width: 90%; margin-bottom: 3%; overflow-y: scroll; border: 2px solid black; border-right: 3px solid black;">
+					<table class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th v-show="paneSwitch.isRoleEditModel">删除</th>
+								<th>权限值</th>
+								<th>角色名称</th>
+								<th>修改权限</th>
+							</tr>
+						</thead>
+						<tbody v-for="role in roleQuery.array">
+							<tr :class="{'info' : role.r_prorperty==roleQuery.activeRow, 'warning' : role.r_prorperty!=roleQuery.activeRow}" class="roleRow">
+								<td style="padding-top: 16px;" v-show="paneSwitch.isRoleEditModel"><a class="delAHref" @click="deleteRole(role.r_property,role.r_name)"><span class="glyphicon glyphicon-remove"></span></a></td>
+								<td style="padding-top: 16px;"><p>{{role.r_property}}</p></td>
+								<td style="padding-top: 16px;"><p v-show="!paneSwitch.isRoleEditModel">{{role.r_name}}</p>
+									<a href="javascript://" v-show="paneSwitch.isRoleEditModel" @click="openRoleNameInput(role.r_property)">{{role.r_name}}</a>
+								</td>
+								<td>
+									<button type="button" class="btn btn-warning" @click="editProperty(role.r_property)">权限编辑</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- 角色操作按钮区 -->
+				<div style="height: 15%; width: 90%; display: flex;flex-direction: row;">
+					<div style="width: 50%; height: 100%;" align="left">
+						<button type="button" class="btn btn-default" style="height: 75%;width:50%; margin-top: 9%; font-size: 16px;" data-toggle="modal" data-target="#addRoleModal">创建角色</button>
+					</div>
+					<div style="width: 50%; height: 100%;" align="right">
+						<button type="button" class="btn btn-default" style="height: 75%;width:50%; margin-top: 9%; font-size: 16px;" @click="editRole">编辑角色</button>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div style="width: 60%; padding: 1% 1% 1% 1%; margin: 4% 5% 4% 3%;background: rgba(255, 255, 255, 0.3)" >
+			<div style="height: 100%;width: 100%; padding-top: 2%; padding-bottom: 2%; background: #fff;" >
+			<div id="roleActionPane">
+				<!-- 行为区 -->
+				<div style="height: 89%; width: 95%; margin-bottom: 2%; display: flex;flex-direction: row;">
+					<!-- left allActions -->
+					<div style="height: 100%; width: 48%; border: 2px solid black; margin-right: 2%; 
+						overflow-y: scroll; display: flex; flex-direction: column;" >
+						<div style="height: 18%; width: 100%; display: flex; flex-direction: row;" class="perItem" v-for="action in actionQuery.array">
+							<div style="height: 100%; width: 50%; padding-left: 10px;" align="left">
+								<h4>{{action.p_category}}</h4>
+								<p style="width: 200px;">{{action.p_duty_info}}</p>
+								
+							</div>
+							<div style="height: 100%; width: 50%; padding-right: 10px;"align="right">
+								<div style="margin-top: 11%; margin-right: 10px;">
+									<a href="javascript://" class="arrowBtn" @click="addToRightPane(action.p_no)"><span class="glyphicon glyphicon-chevron-right"></span></a>
+								</div>
+							</div>
+							
+						</div>
+						
+					</div>
+					<!-- right myActions -->
+					<div style="height: 100%; width: 48%; border: 2px solid black; margin-left: 2%; 
+						overflow-y: scroll; display: flex; flex-direction: column;">
+						<div style="height: 14%; width: 100%; display: flex; flex-direction: row;" class="perItem" v-for="action in actionQuery.ownedArray">
+						 	<div style="height: 100%; width: 90%; padding-left: 10px;display: flex;flex-direction: row;" align="left">
+						 		<div style="margin-top: 5%; margin-left: 10px; width: 10%" >
+									<a href="javascript://" class="arrowBtn" @click="removeToLeftPane(action.p_no)"><span class="glyphicon glyphicon-chevron-left"></span></a>
+								</div>
+								<div style="width: 70%; margin-left: 5%;">
+									<h4>{{action.p_category}}</h4>
+									<p >{{action.p_duty_info}}</p>
+								</div>
+						 	</div>
+						 	<div  style="height: 100%; width: 10%; padding-right: 10px;" align="left">
+						 		
+						 	</div>
+						</div>
+					</div>
+				</div>
+				<!-- 行为操作按钮区 -->
+				<div style="height: 19%; width: 95%; display: flex;flex-direction: row;">
+					<div style="width: 50%; height: 100%;" align="left">
+						<button type="button" class="btn btn-default" style="height: 75%;width:50%; margin-top: 7%; font-size: 16px;" @click="resetRoleProp">重置</button>
+					</div>
+					<div style="width: 50%; height: 100%;" align="right">
+						<button type="button" class="btn btn-default" style="height: 75%;width:50%; margin-top: 7%; font-size: 16px;" @click="saveProperty">保存</button>
+					</div>
+				</div>
+			</div>	
+			</div>
+		</div>
+	</div>
+</div>
+<div style=" height: 85%; width: 85%; margin-top: 3%; background: rgba(255,255,255,0.3); padding: 1% 1% 1% 1%;" v-if="paneSwitch.isDialogShow">
+<div style="height: 100%; width: 100%; display: flex;flex-direction: column;" id="dialogPane">
+	<div style="width: 100%; height: 80%; border: 5px solid rgb(139,0,139); border-bottom: none; overflow-y: scroll;">
+		<table class="table table-hover table-striped">
+			<thead>
+				<tr>
+					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">访问URL</p>
+					</th>
+					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">触发对象</p>
+					</th>
+					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">时间戳</p>
+					</th>
+				</tr>
+			</thead>
+			<tbody v-for="dialog in dialogQuery.array">
+				<tr class="info">
+					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlAction}}</p></td>
+					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlTriggerObj}}</p></td>
+					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlTime}}</p></td>
+				</tr>
+				
+			</tbody>
+		</table>
+	</div>
+	<div style="width: 100%; height: 20%; display: flex;flex-direction: row; border: 5px solid rgb(139,0,139); border-top: none;">
+		<div style="height: 100%; width: 50%; padding-left: 20px;" align="left">
+			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px;">返回</button>
+			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px; margin-left: 1%;">编辑</button>
+		</div>
+		<div style="height: 100%; width: 50%; padding-right: 20px;" align="right">
+			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px;">查找</button>
+		</div>
+	</div>
+</div>
+</div>
+<!-- inputBox -->
+<div class="inputBox" v-show="roleEdit.isNameInputShow" style="position: absolute; top: 500px;left: 500px;">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="修改角色名称" aria-describedby="basic-addon2" v-model="roleEdit.inputData">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="modifyRoleName">修改</button>
+      							</span>
+							</div>
+</div>
+<!-- 创造DIY角色 -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="addRoleModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">创建角色</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="input-group">
+      		<span class="input-group-addon" id="basic-addon1" style="width: 81px;">权限值</span>
+      		<input type="text" class="form-control" placeholder="权限值"
+      		aria-describedby="basic-addon1" v-model="addRoleModal.rProperty">
+      	</div>
+      	<div class="input-group">
+      		<span class="input-group-addon" id="basic-addon1" style="width: 81px;">角色名</span>
+      		<input type="text" class="form-control" placeholder="角色名"
+      		aria-describedby="basic-addon1" v-model="addRoleModal.rName">
+      	</div>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddRole">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </div>
 
@@ -137,25 +367,534 @@
 		data : {
 			helper : {
 				count : 0,
+				array : [],
 			},
 			edit : {
 				showUsernameInput : true,
 				showSnoInput : true,
-				showPasswordInput : true
+				showPasswordInput : true,
+				username : "",
+				sno : "",
+				password : "",
+				
+			},
+			userMatch : {
+				userlist : null,
+			},
+			showpassword : false,
+			defaultRegistNo : "",
+			paneSwitch : {
+				isDivPropShow : false,
+				isContentShow : true,
+				isRoleEditModel : false,
+				isDialogShow : false,
+			},
+			roleQuery : {
+				array : [],
+				activeArray : [],
+				activeRow : "",
+			},
+			roleEdit : {
+				isNameInputShow : false,
+				inputData : "",
+				rProperty : "",
+			},
+			actionQuery : {
+				array : [],
+				ownedArray : [],
+			},
+			actionEdit : {
+				addArray : [],
+				delArray : [],
+			},
+			addRoleModal : {
+				rProperty : "",
+				rName : "",
+			},
+			dialogQuery : {
+				array : [],
+				keyword : "",
 			}
 		},
 		methods : {
+			queryDialog : function(){
+				var keyword = this.dialogQuery.keyword;
+				this.dialogQuery.array = null;
+				$.get("${ctxPath}/dialog/queryDialog", {
+					keyword : keyword,
+				}, response=>{
+					if (response.status==0){
+						console.log(response.dialogArray[0].dlTime);
+						this.dialogQuery.array = response.dialogArray;
+					}
+				})
+			},
+			openDialogPane : function(){
+				if (!this.paneSwitch.isDialogShow){
+					this.queryDialog()
+					openHelperPaneBack.restart();
+					propermanLeftMove.play();
+					setTimeout(() => {
+						this.paneSwitch.isContentShow =false
+						
+					}, 500);
+					setTimeout(() =>{
+						this.paneSwitch.isDialogShow = true;
+					},1000)
+					
+				}else{
+					this.paneSwitch.isDialogShow = false;
+					this.paneSwitch.isContentShow =true;
+				}
+			},
+			resetRoleProp : function(){
+				var rProperty = this.roleQuery.activeRow//当前编辑的角色的权限值
+				if (rProperty==''||rProperty==undefined||rProperty==null){
+					alert("还未选择编辑的角色哦");
+					return ;
+				}
+				$.post("${ctxPath}/happy-study/user/resetRoleDuty", {
+					rProperty : rProperty
+				}, response=>{
+					if (response.status==0){
+						alert("重置成功");
+						this.editProperty(rProperty);
+					}else{
+						alert("重置失败, code: " + response.status);
+					}
+				});
+			},
+			savePropWithAdd : function(addPropArray, rProperty){
+				if (!(addPropArray.length>0)){
+					if (addPropArray.length==0){
+						alert("已经是最新了哦~");
+						return ;
+					}else{
+						alert("保存失败，队列错误");
+					}	
+				}
+				if (rProperty==''||rProperty==undefined||rProperty==null){
+					alert("角色权限值错误");
+					return ;
+				}
+				var pNos = "";
+				for (var i = 0; i < addPropArray.length; i++){
+					pNos += addPropArray[i] + "-";
+				}
+				if (pNos == ""){
+					alert("参数为空");
+					return ;
+				}
+				console.log(pNos)
+				$.post("${ctxPath}/happy-study/user/addRoleDuty", {
+					rProperty : rProperty,
+					pNo : pNos,
+				}, response=>{
+					if (response.status==0){
+						alert("保存成功");
+						this.actionEdit.addArray = [];
+					}
+				})
+			},
+			savePropWithDelete : function(delPropArray, rProperty){
+				if (!(delPropArray.length>0)){
+					if (delPropArray.length==0){
+						alert("已经是最新了哦~");
+						return ;
+					}else{
+						alert("保存失败，队列错误");
+						return ;
+					}
+					
+				}
+				if (rProperty==''||rProperty==undefined||rProperty==null){
+					alert("角色权限值错误");
+					return ;
+				}
+				var pNos = "";
+				for (var i = 0; i < delPropArray.length; i++){
+					pNos += delPropArray[i] + "-";
+				}
+				if (pNos == ""){
+					alert("参数为空");
+					return ;
+				}
+				console.log(pNos);
+				$.post("${ctxPath}/happy-study/user/deleteRoleDuty", {
+					rProperty : rProperty,
+					pNo : pNos,
+				}, response=>{
+					if (response.status==0){
+						alert("保存成功");
+						this.actionEdit.delArray = [];
+					}else{
+						alert(response.status);
+					}
+				})
+			},
+			saveProperty : function(){
+				var rProperty = this.roleQuery.activeRow//当前编辑的角色的权限值
+				if (rProperty==''||rProperty==undefined||rProperty==null){
+					alert("还未选择编辑的角色哦");
+					return ;
+				}
+				if (this.actionEdit.addArray.length>0 && this.actionEdit.delArray.length==0){
+					this.savePropWithAdd(this.actionEdit.addArray, rProperty);
+				}else if (this.actionEdit.delArray.length>0 && this.actionEdit.addArray.length==0){
+					this.savePropWithDelete(this.actionEdit.delArray, rProperty);
+				}else{
+					if (this.actionEdit.addArray.length==0||this.actionEdit.delArray.length==0){
+						alert("已经是最新了哦~");
+					}else{
+						alert("保存失败， 队列错误");
+					}
+					
+				}
+			},
+			addToRightPane : function(pNo){
+				var leftArray = this.actionQuery.array;
+				var rightArray = this.actionQuery.ownedArray;
+				//console.log(leftArray)
+				for (var leftIndex=leftArray.length-1; leftIndex >= 0; leftIndex--){
+					//console.log(leftArray[leftIndex])
+					if (leftArray[leftIndex].p_no==pNo){
+						var act = true; //标志变量
+						this.actionQuery.ownedArray.push(leftArray[leftIndex]);
+						this.actionQuery.array.splice(leftIndex,1);
+						for (var i = vue.actionEdit.delArray.length; i >= 0; i--){
+							if (vue.actionEdit.delArray[i]==pNo){
+								//删除队列里有，从删除队列里撤销
+								vue.actionEdit.delArray.splice(i,1);
+								act = false;
+								break;
+							}
+						}
+						if (act){
+							this.actionEdit.addArray.push(pNo);
+						}
+						break;
+					}
+				}
+				console.log(vue.actionEdit.addArray)
+				console.log(vue.actionEdit.delArray)
+			},
+			removeToLeftPane : function(pNo){
+				var leftArray = this.actionQuery.array;
+				var rightArray = this.actionQuery.ownedArray;
+				for (var rightIndex=rightArray.length-1; rightIndex >= 0; rightIndex--){
+					if (rightArray[rightIndex].p_no==pNo){
+						var act = true;	//标志变量
+						this.actionQuery.array.unshift(rightArray[rightIndex]);
+						this.actionQuery.ownedArray.splice(rightIndex, 1);
+						for (var i = vue.actionEdit.addArray.length; i >= 0 ; i--){
+							if (vue.actionEdit.addArray[i]==pNo){
+								//如果添加的数组里有的话从添加的数组里撤销
+								vue.actionEdit.addArray.splice(i,1);
+								act = false;
+								break;
+							}
+						}
+						if (act){
+							//如过添加的数组里没有则加入删除队列的末尾
+							this.actionEdit.delArray.push(pNo);
+						}
+						break;
+					}
+				}
+				console.log(vue.actionEdit.addArray)
+				console.log(vue.actionEdit.delArray)
+			},
+			editProperty : function(rProperty){
+				this.roleQuery.activeRow = null;
+				this.roleQuery.activeRow = rProperty;
+				//$(".roleRow td p").find("[innerText='"+rProperty+"']").parent().parent().attr("class", "info");
+				$.post("${ctxPath}/happy-study/user/queryRoleDuty",{rProperty : rProperty}, response=>{
+					if (response.status==0){
+						this.actionQuery.ownedArray = response.dutyList;
+						for (var index = 0; index < response.dutyList.length; index++){
+							for (var i=vue.actionQuery.array.length-1; i>=0; i--){
+								//console.log(index)
+								//console.log(response.dutyList[index].p_no + " " +vue.actionQuery.array[i].p_no)
+								if (response.dutyList[index].p_no == vue.actionQuery.array[i].p_no){
+									vue.actionQuery.array.splice(i,1);
+									continue;
+								}
+							}
+						}
+						
+					}
+				})
+
+			},
+			deleteRole : function(rProperty, rName){
+				if (confirm("确认要删除角色 "+rName+" 吗？")){
+					if (rProperty=="" || rProperty==undefined || rProperty==null){
+						alert("删除失败, 前端错误");
+					}
+					$.post("${ctxPath}/happy-study/user/deleteRole", {
+						rProperty : rProperty,
+					}, response=>{
+						if (response.status == 0){
+							alert("删除成功");
+							this.queryRole();
+						}else{
+							alert("删除失败, code: " + response.status);
+						}
+						return ;
+					});
+				}
+			},
+			doAddRole : function(){
+				var rProperty = this.addRoleModal.rProperty;
+				var rName = this.addRoleModal.rName;
+				if (rProperty == "" || rName == "" || rProperty == null || rName == null || 
+						rProperty == undefined || rName == undefined){
+					alert("输入框不能为空!");
+					return ;
+				}
+				$.post("${ctxPath}/happy-study/user/addRole", {
+					rProperty : rProperty,
+					rName : rName,
+				}, response=>{
+					if (response.status==0){
+						alert("创建成功");
+						this.queryRole();
+						$("#addRoleModal").modal('hide');
+						this.addRoleModal.rProperty = "";
+						this.addRoleModal.rName = "";
+					}else{
+						alert("创建失败, code: " + response.status);
+					}
+				})
+			},
+			modifyRoleName : function(){
+				var rProperty = this.roleEdit.rProperty;
+				var rName = this.roleEdit.inputData;
+				console.log(rProperty)
+				console.log(rName)
+				$.post("${ctxPath}/happy-study/user/updateRoleName", {
+					rProperty : rProperty,
+					rName : rName,
+				}, response=>{
+					if (response.status==0){
+						alert("修改成功");
+						this.queryRole();
+						this.openRoleNameInput();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+				})
+			},
+			openRoleNameInput : function(rProperty){
+				if (!this.roleEdit.isNameInputShow){
+					this.roleEdit.isNameInputShow = true;
+					this.roleEdit.rProperty = rProperty;
+				}else{
+					this.roleEdit.isNameInputShow = false;
+					this.roleEdit.inputData = "";
+				}
+			},
+			editRole : function(){
+				if (!this.paneSwitch.isRoleEditModel){
+					this.paneSwitch.isRoleEditModel = true;
+				}else{
+					this.paneSwitch.isRoleEditModel = false;
+				}
+			},
+			queryMyAction : function(){
+				this.actionQuery.ownedArray=null;
+				var rProperty = $("#property").val();
+				//if (rProperty == 0){
+				//	this.actionQuery.ownedArray = this.actionQuery.array;
+				//	console.log(this.actionQuery.ownedArray)
+				//	this.actionQuery.array = [];
+				//}else{
+					$.post("${ctxPath}/happy-study/user/queryRoleDuty", {rProperty : rProperty}, response=>{
+						if (response.status==0){
+							this.actionQuery.ownedArray = response.dutyList;
+						}
+					});
+				//}
+				
+			},
+			queryAction : function(){
+				this.actionQuery.array = null;
+				/*
+				$.post("${ctxPath}/happy-study/user/queryAllDuty",{}, response=>{
+					if (response.status==0){
+						this.actionQuery.array = response.dutyList;
+					}
+				})*/
+				$.ajax({
+					url : "${ctxPath}/happy-study/user/queryAllDuty",
+					type : "post",
+					async : false,
+					success : function(response){
+						if (response.status==0){
+							vue.actionQuery.array = response.dutyList;
+						}
+					}
+				})
+			},
+			queryRole : function(){
+				this.roleQuery.array = null;
+				$.post("${ctxPath}/happy-study/user/queryAllRole", {}, response=>{
+					if (response.status==0){
+						this.roleQuery.array=response.roleList;
+						//for (var i = 0; i < this.roleQuery.array.length; i++){
+						//	this.roleQuery.activeArray.push(false);
+						//}
+					}
+				});
+			},
+			backToContent : function(){
+				if (!this.paneSwitch.isContentShow){
+					this.helper.count++;
+					vue.actionEdit.addArray = [];
+					vue.actionEdit.delArray = [];
+					this.roleQuery.activeRow = "";
+					this.paneSwitch.isDivPropShow = false;
+					this.paneSwitch.isContentShow = true;
+					this.actionQuery.array = null;
+					this.actionQuery.ownedArray=null;
+				}
+			},
+			openDivPropertyPane : function(){
+				if (!this.paneSwitch.isDivPropShow){
+					this.queryAction();
+					this.queryMyAction();
+					this.queryRole();
+					
+					openHelperPaneBack.restart();
+					propermanLeftMove.play();
+					setTimeout(() => {
+						this.paneSwitch.isContentShow =false
+						
+					}, 500);
+					setTimeout(() =>{
+						this.paneSwitch.isDivPropShow = true;
+					},1000)
+				}
+				
+			},
+			changePasswordShow : function(){
+				if (this.showpassword == false){
+					this.showpassword=true;
+					$("#passwordInput").attr("type", "password");
+				}else{
+					this.showpassword=false;
+					$("#passwordInput").attr("type", "text");
+				}
+			},
+			chooseUsername : function(username){
+				this.edit.username=username;
+			},
+			matchUsername : function(){
+				if (this.edit.username==""){
+					return ;
+				}
+				this.userMatch.userlist=null;
+				var keyword = this.edit.username;
+				$.post("${ctxPath}/happy-study/user/queryUser", {keyword : keyword,
+					orderBy : "u_username",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 5}, response=>{
+						this.userMatch.userlist=response.userArray;
+						console.log(this.userMatch.userlist);
+					})
+			},
+			clearEditPane : function(){
+				this.edit.showUsernameInput = true;
+				this.edit.showSnoInput = true;
+				this.edit.showPasswordInput = true;
+				this.edit.username = "",
+				this.edit.sno = "",
+				this.edit.password = "",
+				$("#editModel").text("注册&修改&重置 ");
+			},
+			doReset: function(username){
+				//重置密码
+				$.post("${ctxPath}/happy-study/user/updateUserByRoot", {username : username, password : "reset"}, response=>{
+					if (response.status==0){
+						alert("修改成功");
+						this.clearEditPane();
+					}else{
+						alert("修改失败, error: " + response.status);
+					}
+				})
+			},
+			doUpdate : function(username, password){
+				//修改密码
+				$.post("${ctxPath}/happy-study/user/updateUserByRoot", {username : username, password : password},response=>{
+					if (response.status==0){
+						alert("修改成功");
+						this.clearEditPane();
+					}else{
+						alert("修改失败, error: " + response.status);
+					}
+				})
+			},
+			doRegist : function(username, sno, password){
+				//注册账号
+				$.post("${ctxPath}/happy-study/user/registUser", {username : username,
+					password : password,
+					no : sno}, response=>{
+						if (response.status==0){
+							alert("注册成功");
+							this.clearEditPane();
+						}else{
+							alert("修改失败, error: " + response.status);
+						}
+					})
+			},
+			userEdit : function(){
+				
+				var username = this.edit.username;
+				var sno = this.edit.sno;
+				var password = this.edit.password;
+				var showUsernameInput = this.edit.showUsernameInput;
+				var showSnoInput = this.edit.showSnoInput;
+				var showPasswordInput = this.edit.showPasswordInput;
+				console.log (username);
+				console.log (sno);
+				console.log (password);
+				if (showUsernameInput==true&&username==""){
+					alert("用户名不能未空哦~");
+					return ;
+				}
+				if (showSnoInput==true&&sno==""){
+					alert("学号不能为空哦~");
+					return ;
+				}
+				if (showPasswordInput==true&&password==""){
+					alert("密码不能为空哦~");
+					return ;
+				}
+				if (showUsernameInput==true&&showSnoInput==true&&showPasswordInput==true){
+					this.doRegist(username, sno, password);
+				}else if(showUsernameInput==true&&showSnoInput==false&&showPasswordInput==true){
+					this.doUpdate(username, password);
+				}else if(showUsernameInput==true&&showSnoInput==false&&showPasswordInput==false){
+					this.doReset(username);
+				}else{
+					alert("error");
+					return ;
+				}
+			},
 			chooseEditModel : function(editModel, modelCode){
 				checkEditModel.direction='alternate'
-				checkEditModel.restart();
+				
 				$("#editModel").text(editModel);
 				if (modelCode == 1){
 					this.edit.showSnoInput = true;
 					this.edit.PasswordInput = true;
 				}else if(modelCode == 2){
+					checkEditModel.restart();
 					this.edit.showSnoInput = false;
 					this.edit.showPasswordInput = true;
 				}else if(modelCode == 3){
+					checkEditModel.restart();
 					this.edit.showSnoInput = false;
 					this.edit.showPasswordInput = false;
 				}
@@ -169,16 +908,22 @@
 				this.helper.count++;
 				//console.log(openHelperPaneCome)
 				if ((this.helper.count % 2) != 0){
-					openHelperPaneCome.play();
+					openHelperPaneCome.restart();
 				}else{
-					openHelperPaneBack.play();
+					openHelperPaneBack.restart();
 				}
 				callHelper.restart();
 				
 			}
 		},
 		mounted : function(){
-			
+			var registNo = $("#registNo").val();
+			if (registNo != null && registNo != ""){
+				this.defaultRegistNo = registNo;
+				this.edit.sno = this.defaultRegistNo;
+				this.chooseEditModel("注册账号", 1);
+				$("#registNo").val("");
+			}
 		},
 	})
 	
@@ -208,6 +953,13 @@
 		duration: 3000,
 		autoplay : false
 	});
+	var propermanLeftMove = anime({
+		targets : '#propman-content',
+		translateX : 1000,
+		autoplay : false,
+	})
+	
+	
 	
 	$(function(){
 		openHelperPaneBack.play();

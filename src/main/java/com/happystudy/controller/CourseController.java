@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.happystudy.constants.Constants;
+import com.happystudy.model.Role;
 import com.happystudy.service.CourseService;
+import com.happystudy.service.UserService;
 import com.happystudy.service.impl.CourseServiceImpl;
 
 import cn.hutool.json.JSONObject;
@@ -19,7 +21,9 @@ import cn.hutool.json.JSONObject;
 @RequestMapping("/happy-study/course")
 public class CourseController {
 	@Autowired
-    CourseServiceImpl courseService;
+    CourseService courseService;
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping("")
 	public String index() {
@@ -78,7 +82,7 @@ public class CourseController {
     }
 
     //修改课程名
-    @PostMapping("/updateCourseByNo")
+    @PostMapping("/updateCourse")
     @ResponseBody
     public  JSONObject updateCourseByNo(String coNo, String coName){
         if (coNo==null||coName==null||coName.isEmpty()||coNo.isEmpty()||coNo.trim().isEmpty()||coName.trim().isEmpty()){
@@ -89,7 +93,7 @@ public class CourseController {
     }
 
     //根据课程号删除课程
-    @PostMapping("/deleteCourseByNo")
+    @PostMapping("/deleteCourse")
     @ResponseBody
     public JSONObject deleteCourseByNo(String coNo){
         if (coNo==null||coNo.trim().isEmpty()){
@@ -150,5 +154,127 @@ public class CourseController {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else return this.courseService.queryCourseStudentCount(coNo);
+    }
+    
+    //查询状态为0的课程
+    @PostMapping("/queryInitStateCourse")
+    @ResponseBody
+    public JSONObject queryInitStateCourse(String keyword, String orderBy, String orderWay, String pageNo, String pageSize) {
+    	if (keyword == null) {
+    		keyword="";
+    	}
+    	if (orderBy == null || orderBy.equals("")) {
+    		orderBy="co_no";
+    	}
+    	if (orderWay == null || orderWay.equals("")) {
+    		orderWay="asc";
+    	}
+    	if (pageNo == null || pageNo.equals("")) {
+    		pageNo="1";
+    	}
+    	if (pageSize == null || pageSize.equals("")) {
+    		pageSize="5";
+    	}
+    	return courseService.queryCourseByStatus(keyword, orderBy, orderWay, Integer.parseInt(pageNo), Integer.parseInt(pageSize), 0);
+    }
+    //查询状态为1的课程
+    @PostMapping("/queryApplyingStateCourse")
+    @ResponseBody
+    public JSONObject queryApplyingStateCourse(String keyword, String orderBy, String orderWay, String pageNo, String pageSize) {
+    	if (keyword == null) {
+    		keyword="";
+    	}
+    	if (orderBy == null || orderBy.equals("")) {
+    		orderBy="co_no";
+    	}
+    	if (orderWay == null || orderWay.equals("")) {
+    		orderWay="asc";
+    	}
+    	if (pageNo == null || pageNo.equals("")) {
+    		pageNo="1";
+    	}
+    	if (pageSize == null || pageSize.equals("")) {
+    		pageSize="5";
+    	}
+    	return courseService.queryCourseByStatus(keyword, orderBy, orderWay, Integer.parseInt(pageNo), Integer.parseInt(pageSize), 1);
+    }
+    //查询状态为2的课程
+    @PostMapping("/queryChoosedStateCourse")
+    @ResponseBody
+    public JSONObject queryChoosedStateCourse(String keyword, String orderBy, String orderWay, String pageNo, String pageSize) {
+    	if (keyword == null) {
+    		keyword="";
+    	}
+    	if (orderBy == null || orderBy.equals("")) {
+    		orderBy="co_no";
+    	}
+    	if (orderWay == null || orderWay.equals("")) {
+    		orderWay="asc";
+    	}
+    	if (pageNo == null || pageNo.equals("")) {
+    		pageNo="1";
+    	}
+    	if (pageSize == null || pageSize.equals("")) {
+    		pageSize="5";
+    	}
+    	return courseService.queryCourseByStatus(keyword, orderBy, orderWay, Integer.parseInt(pageNo), Integer.parseInt(pageSize), 2);
+    }
+    //负责课程申请
+    @PostMapping("/teacherApplyCourse")
+    @ResponseBody
+    public JSONObject teacherApplyCourse(String username, String coNo) {
+    	Object role = userService.queryUserRole(username).get("role");
+    	if (role==null) {
+    		return new JSONObject().set("status", Constants.NULL_RESULT_ERROR);
+    	}
+    	System.out.println(role.toString());
+    	Integer property = ((JSONObject)role).getInt("rProperty");
+    	if (property!=1&&property!=0) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	JSONObject userJson = userService.queryUsertNo(username);
+    	if (userJson.getInt("status")!=Constants.SUCCESS) {
+    		return new JSONObject().set("status", Constants.DB_ERROR);
+    	}
+    	String tNo = userJson.getStr("tNo");
+    	return courseService.setCourseStatus(tNo, coNo, 1);
+    }
+    //批准课程负责申请
+    @PostMapping("/passCourseApply")
+    @ResponseBody
+    public JSONObject passCourseApply(String tNo, String coNo) {
+    	if (tNo == null || tNo.equals("")) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	if (coNo == null || coNo.equals("")) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	return courseService.setCourseStatus(tNo, coNo, 2);
+    }
+    //驳回课程负责申请
+    @PostMapping("/rejectCourseApply")
+    @ResponseBody
+    public JSONObject rejectCourseApply(String tNo, String coNo) {
+    	if (tNo == null || tNo.equals("")) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	if (coNo == null || coNo.equals("")) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	return courseService.setCourseStatus(tNo, coNo, 0);
+    }
+    
+    //查询负责课程申请
+    @PostMapping("/queryApplyingCourse")
+    @ResponseBody
+    public JSONObject queryApplyingCourse(String username) {
+    	if (username == null || "".equals(username)) {
+    		return new JSONObject().set("status", Constants.NULL_PARAM_ERROR);
+    	}
+    	Integer property = ((JSONObject)userService.queryUserRole(username).get("role")).getInt("rProperty");
+    	if (property != 1 && property != 0) {
+    		return new JSONObject().set("status", Constants.NULL_RESULT_ERROR);
+    	}
+    	return userService.queryApplyingCourseByUsername(username);
     }
 }

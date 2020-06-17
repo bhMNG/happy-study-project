@@ -3,6 +3,8 @@ package com.happystudy.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.happystudy.constants.Constants;
+import com.happystudy.dao.ClazzMapper;
+import com.happystudy.dao.CourseMapper;
 import com.happystudy.dao.TeacherMapper;
 import com.happystudy.model.Clazz;
 import com.happystudy.model.Course;
@@ -11,6 +13,7 @@ import com.happystudy.model.Teacher;
 import com.happystudy.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +27,11 @@ import java.util.Map;
 public class TeacherServiceImpl implements TeacherService {
 	@Autowired
     private TeacherMapper teacherMapper;
-    
+	@Autowired
+	private ClazzMapper clazzMapper;
+    @Autowired
+    private CourseMapper courseMapper;
+	
     //查询教师（5个参数）
     @Override
     public JSONObject queryTeacher(String keyword,String orderby,String asc,Integer pageNo,Integer pageSize) {
@@ -80,7 +87,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     //添加教师
     @Override
-    public JSONObject addTeacher(String tNo, String tName) {
+    public JSONObject addTeacher(String tNo, String tName, String tSex, String tDepartFk) {
         JSONObject json=new JSONObject();
         Teacher existTeacher = teacherMapper.findTeacherByNo(tNo);
         if (existTeacher!=null){//教师号已存在
@@ -90,6 +97,8 @@ public class TeacherServiceImpl implements TeacherService {
             Teacher teacher=new Teacher();
             teacher.settNo(tNo);
             teacher.settName(tName);
+            teacher.settSex(tSex);
+            teacher.settDepartFk(tDepartFk);
             teacherMapper.addTeacher(teacher);
             json.set("status",Constants.SUCCESS);
             return json;
@@ -98,11 +107,11 @@ public class TeacherServiceImpl implements TeacherService {
 
     //更新教师
     @Override
-    public JSONObject updateTeacher(String tNo,String tName,String tSex) {
+    public JSONObject updateTeacher(String tNo,String tName,String tSex,String tDepartFk) {
         JSONObject json=new JSONObject();
         Teacher existTeacher = teacherMapper.findTeacherByNo(tNo);
         if (existTeacher!=null){//教师号存在
-            teacherMapper.updateTeacherByNo(tNo,tName,tSex);
+            teacherMapper.updateTeacherByNo(tNo,tName,tSex,tDepartFk);
             json.set("status",Constants.SUCCESS);
             return json;
         }else {
@@ -112,17 +121,32 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     //删除教师
+    @Transactional
     @Override
-    public JSONObject deleteClazzByNo(String tNo) {
+    public JSONObject deleteTeacherByNo(String[] tNos) {
         JSONObject json=new JSONObject();
-        Teacher existTeacher = teacherMapper.findTeacherByNo(tNo);
-        if (existTeacher!=null){//教师号存在
-            teacherMapper.deleteTeacherByNo(tNo);
+        try {
+        	for (String tNo : tNos) {
+        		Teacher existTeacher = teacherMapper.findTeacherByNo(tNo);
+                if (existTeacher!=null){//教师号存在
+                    teacherMapper.deleteTeacherByNo(tNo);
+                    clazzMapper.setClazzFk(Constants.C_TEACHER_FK, tNo, null);
+                    courseMapper.deleteCourseApplyDataRow(Constants.CAL_TEACHER_FK, tNo);
+                    //如果该老师有负责的课程则给该课程的状态置为1
+                    Course teacherCourse = courseMapper.getTeacherCourse(tNo);
+                    if (teacherCourse!=null) {
+                    	courseMapper.setCourseStatus(teacherCourse.getCoNo(), 0);
+                    }
+                }else {
+                    json.set("status",Constants.NULL_TEACHER);
+                    return json;
+                }
+        	}
             json.set("status",Constants.SUCCESS);
             return json;
-        }else {
-            json.set("status",Constants.NULL_TEACHER);
-            return json;
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	return json.set("status", Constants.DB_ERROR);
         }
     }
 
@@ -130,14 +154,19 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public JSONObject findTeacherByClazz(String cNo) {
         JSONObject json=new JSONObject();
-        Teacher teacher = teacherMapper.findTeacherByClazz(cNo);
-        if (teacher!=null){
-            json.set("status",Constants.SUCCESS);
-            json.set("teacher",teacher);
-            return json;
-        }else {
-            json.set("status",Constants.NULL_TEACHER);
-            return json;
+        try {
+        	Teacher teacher = teacherMapper.findTeacherByClazz(cNo);
+            if (teacher!=null){
+                json.set("status",Constants.SUCCESS);
+                json.set("teacher",teacher);
+                return json;
+            }else {
+                json.set("status",Constants.NULL_TEACHER);
+                return json;
+            }
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	return json.set("status", Constants.DB_ERROR);
         }
     }
 

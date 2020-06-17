@@ -6,6 +6,19 @@
 		width: 25%;
 		height: 40%;
 	}
+	.infobox-input{
+		width: 80%;
+	}
+	.inputBox{
+		background: rgba(0, 0, 0, 0.5); 
+		box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box; 
+        border-bottom: 1px solid;
+        width: 60%;
+        height: 50px;
+        padding-top: 7px;
+        margin-top: 20px;
+	}
 </style>
 <div id="main-div" style="height: 100%">
 <div style="width: 80%;" id="course-content">
@@ -34,19 +47,39 @@
 		<table class="table table-bordered table-hover">
 			<thead>
 				<tr>
+					<th id="check_all_td" style="text-align: center;" v-if="courseEdit.isEditModel">
+						<input id="check_all" type='checkbox' v-model="courseCheck.isCheckAll" @change="checkAll"/></th>
 					<th style="text-align: center;">课程编号</th>
 					<th style="text-align: center;">课程名称</th>
 					<th style="text-align: center;">任课老师</th>
 					<th style="text-align: center;">报课人数</th>
+					<th style="text-align: center;" v-if="courseEdit.isEditModel">操作</th>
 				</tr>
 			</thead>
-			<tbody v-for="course in courseQuery.courseArray">
+			<tbody v-for="course in courseQuery.courseArray" v-if="courseQuery.courseArray[0]!=null">
 				<tr>
+					<td align="center" v-if="courseEdit.isEditModel">
+						<input type="checkbox" v-model="courseCheck.checkedValues" :value="course.co_no"/></td>
 					<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{course.co_no}}</p></td>
 					<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{course.co_name}}</p></td>
-					<td style="text-align: center;"><p v-if="course.courseTeacher!='empty'" style="margin-bottom: 5px;margin-top: 5px;">{{course.courseTeacher}}</p>
-						<button class="btn btn-warning" v-if="course.courseTeacher=='empty'">暂缺</button></td>
-					<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{course.courseStuCount}}</p></td>
+					<td style="text-align: center;" v-if="course.t_name==undefined||course.t_name==null||course.t_name==''"><p v-if="course.co_status==2" style="margin-bottom: 5px;margin-top: 5px;">
+					{{course.courseTeacher}}</p>
+						<button class="btn btn-warning" v-if="course.co_status ==0||course.co_status==1" :disabled="courseQuery.isMineCourseArrayNull" @click="teacherApplyCourse(course.co_no)">
+							<p v-show="!courseQuery.isMineCourseArrayNull" style="margin: 0px;">可申请</p>
+							<p v-show="courseQuery.isMineCourseArrayNull" style="margin: 0px;">暂无</p>
+						</button>
+						
+						</td>
+					<td v-if="course.t_name!=undefined&&course.t_name!=null&&course.t_name!=''"><p style="margin-top: 5px; margin-bottom: 5px;">{{course.t_name}}</p></td>
+					<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-if="course.stuCount==null">{{course.courseStuCount}}</p>
+						<p v-if="course.stuCount!=null">{{course.stuCount}}</p>
+					</td>
+					<td style="text-align: center;" v-if="courseEdit.isEditModel">
+						<div class="btn-group" role="group" aria-label="...">
+						<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editCourseModal" @click="openCourseEditModal('update', course.co_no)">更新</button>
+	  					<button type="button" class="btn btn-default" @click="delCourse(course.co_no)">删除</button>
+						</div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
@@ -95,16 +128,80 @@
   			</ul>
 		</nav>
 		</div>
+		<div align="right" style="margin-bottom: 10px; margin-right: 10px; display: flex; flex-direction: row;" id="courseTableBtnGroup" >
+			<div style="margin-right: 65%; margin-left: 1%;">
+			<button class="btn btn-default" @click="openQueryInputBox">
+				<p style="margin: 0px;">查询课程</p>
+			</button>
+			<button class="btn btn-default"  @click="checkEditModel">
+				<p style="margin: 0px;" v-show="!courseEdit.isEditModel">编辑模式</p>
+				<p style="margin: 0px;" v-show="courseEdit.isEditModel">结束编辑</p>
+			</button>
+			</div>
+			
+			<div style="margin-left: 8%;">
+			<button class="btn btn-default" @click="showMyCourseOnTable">
+				<p v-show="!this.courseQuery.isShowMyCourseOnTable" style="margin: 0px;">我的课程</p>
+				<p v-show="this.courseQuery.isShowMyCourseOnTable" style="margin: 0px;">所有课程</p>
+			</button>
+			<button class="btn btn-default" @click="showInitStatusCourseOnTable">
+				<p v-show="!this.courseQuery.isShowInitStatusCourseOnTable" style="margin: 0px;">可选课程</p>
+				<p v-show="this.courseQuery.isShowInitStatusCourseOnTable" style="margin: 0px;">所有课程</p>
+			</button>
+			</div>
+			
+		</div>
+		<div align="left" style="padding-left: 1%;padding-bottom: 1%; width: 100%;" v-show="courseEdit.isEditModel">
+			<button class="btn btn-default" @click="openCourseEditModal('add', '')" data-toggle="modal" data-target="#editCourseModal">
+				<p style="margin: 0px;">添加课程</p>
+			</button>
+			<button class="btn btn-default" ><p style="margin: 0px;" >批量删除</p></button>
+		</div>
 	</div>
 </div>
+<!-- 添加课程 模态框 -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="editCourseModal">
+  <div class="modal-dialog modal-sm" role="document">	
+    <div class="modal-content">
+      <div class="modal-header">
+  		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      	<h4 class="modal-title">添加&修改课程</h4>
+  	  </div>
+      <div class="input-group">
+      	<span class="input-group-addon" id="basic-addon1" style="width: 81px;">课程号</span>
+      	<input type="text" class="form-control" placeholder="课程号"
+      		aria-describedby="basic-addon1" v-model="courseEdit.coNo" :readonly="courseEdit.isCoNoReadonly">
+      </div>
+      <div class="input-group">
+      	<span class="input-group-addon" id="basic-addon1" style="width: 81px;">课程名</span>
+      	<input type="text" class="form-control" placeholder="课程名"
+      		aria-describedby="basic-addon1" v-model="courseEdit.coName">
+      </div>
+      <div class="modal-footer">
+   		<button type="button" class="btn btn-primary btn-lg btn-block" @click="doAddOrUpdate">保存</button>
+   	  </div>
+    </div>
+  </div>
+</div>
+
 <div>
 	<button class="btn btn-warning btn-lg" @click="closeCoursePane" v-show="courseTable.coursePaneShow"
 		style="margin-top: 50px; width: 200px;"><span class="glyphicon glyphicon-chevron-left"></span>
 		返回</button>
 </div>
+
+<!-- inputBox -->
+<div class="inputBox" v-show="courseQuery.inputBoxShow">
+	<div class="input-group infobox-input" >
+  								<input type="text" class="form-control" placeholder="根据课程号/课程名进行查询" aria-describedby="basic-addon2" v-model="courseQuery.keyword">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="queryCourse">查询</button>
+      							</span>
+							</div>
+</div>
+
 <!-- ./Coursetable -->
 
-	
 </div>
 <!-- ./course-content -->
 <!-- 我的课程 -->
@@ -121,12 +218,13 @@
 				<th style="text-align: center;">报课人数</th>
 			</tr>
 		</thead>
-		<tbody v-for="course in rightMesDiv.MyCourseArray">
-			<tr>
+		<tbody v-for="course in rightMesDiv.MyCourseArray" >
+			<tr v-if="course!=null">
 				<td style="text-align: center;">{{course.co_no}}</td>
+				<td></td>
 				<td style="text-align: center;">{{course.co_name}}</td>
 				<td style="text-align: center;">{{course.t_name}}</td>
-				<td style="text-align: center;">TODO</td>
+				<td style="text-align: center;">{{course.stuCount}}</td>
 			</tr>
 		</tbody>	
 		
@@ -138,26 +236,27 @@
 <!-- ./我的课程 -->
 <!-- 查询课程 -->
 <div style="background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; border-bottom: 1px solid; 
-	align-items: center; width: 25%; height: 24%; position: absolute; top: 40%;right: 92%;" id="queryCoursePane" class="row right-div" v-show="rightMesDiv.isQueryCourseShow">
+	align-items: center; width: 25%; height: 24%; position: absolute; top: 60%;right: 92%;" id="queryCoursePane" class="row right-div" v-show="rightMesDiv.isQueryCourseShow">
 	<div class="col-lg-6" style="width: 100%;">
     <div class="input-group" style="width: 90%;">
       <div class="input-group-btn">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">课程号 <span class="caret"></span></button>
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">课程名 <span class="caret"></span></button>
-        <ul class="dropdown-menu">
-          <li><a href="#">Action</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="#">Separated link</a></li>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" 
+        aria-haspopup="true" aria-expanded="false" @click="queryCourseByNoOrName('co_no')">课程号 <span class="caret"></span></button>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" 
+        aria-haspopup="true" aria-expanded="false" @click="queryCourseByNoOrName('co_name')">课程名 <span class="caret"></span></button>
+        <ul class="dropdown-menu" >
+          <li v-for="course in rightMesDiv.queryCourseArray"><a href="#" @click="fillKeywordInput(course.co_no)">{{course.co_no}} {{course.co_name}}</a></li>
         </ul>
       </div><!-- /btn-group -->
-      <input type="text" class="form-control" aria-label="...">
+      <input type="text" class="form-control" aria-label="..." v-model="rightMesDiv.queryKeyword">
     </div><!-- /input-group -->
   </div><!-- /.col-lg-6 -->
-  <div  align="right"><button style="margin-right: 8%; margin-top: 20px;" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-search" style="margin-right: 5px;"></span>搜索</button></div>
+  <div align="right"><button style="margin-right: 8%; margin-top: 20px;" 
+  type="button" class="btn btn-danger" @click="doQueryByKeyword"><span class="glyphicon glyphicon-search" style="margin-right: 5px;"></span>搜索</button></div>
 </div>
 
+
+</div>
 <script>
 	var vue = new Vue({
 		el : "#main-div",
@@ -180,9 +279,14 @@
 			},
 			courseQuery : {
 				courseArray : null,
+				applyingCourseArray : null,
+				isMineCourseArrayNull : true,
 				keyword : "",
 				orderBy : "co_no",
-				orderWay : "asc"
+				orderWay : "asc",
+				isShowMyCourseOnTable : false,
+				isShowInitStatusCourseOnTable : false,
+				inputBoxShow : false,
 			},
 			rightMesDiv : {
 				isShow : false,
@@ -191,18 +295,243 @@
 				orderWay : "",
 				isQueryCourseShow : false,
 				queryCourseArray : null,
+				queryKeyword : ""
+			},
+			courseEdit : {
+				coNo : "",
+				coName : "",
+				isCoNoReadonly : false,
+				addOrUpdate : "",
+				courseEditArray : [],
+				isEditModel : false,
+			},
+			courseCheck : {
+				isCheckAll : false,
+				checkedValues : [],
 			}
 		},
 		methods : {
+			openQueryInputBox : function(){
+				if (!this.courseQuery.inputBoxShow){
+					this.courseQuery.inputBoxShow = true;
+				}else{
+					this.courseQuery.inputBoxShow = false;
+				}
+			},
+			checkAll : function(){
+				var courseArray = this.courseQuery.courseArray;
+				if (courseArray != null){
+					//全选中
+					if (this.courseCheck.isCheckAll){
+						//console.log(departArray);
+						this.courseCheck.checkedValues = [];
+						for (var i = 0; i < courseArray.length; i++){
+							this.courseCheck.checkedValues.push(courseArray[i].co_no);
+						}
+					}else{
+						this.courseCheck.checkedValues = [];
+					}
+				}
+			},
+			checkEditModel : function(){
+				if (!this.courseEdit.isEditModel){
+					this.courseEdit.isEditModel = true;
+				}else{
+					this.courseEdit.isEditModel = false;
+				}
+			},
+			delCourse : function(coNo){
+				$.post("${ctxPath}/happy-study/course/deleteCourse", {coNo : coNo}, response=>{
+					if (response.status==0){
+						alert("删除成功");
+						vue.queryCourse();
+					}else{
+						alert("删除失败, code: " + response.status);
+					}
+				})
+			},
+			doAddCourse : function(coNo, coName){
+				$.post("${ctxPath}/happy-study/course/addCourse", {coNo : coNo, coName : coName}, response=>{
+					if (response.status == 0){
+						alert("添加成功");
+						vue.queryCourse();
+						$("#editCourseModal").modal('hide');
+						this.clearCourseEditModal();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+				})
+			},
+			doUpdateCourse : function(coNo, coName) {
+				$.post("${ctxPath}/happy-study/course/updateCourse", {coNo : coNo, coName : coName}, response=>{
+					if (response.status == 0){
+						alert("修改成功");
+						vue.queryCourse();
+						$("#editCourseModal").modal('hide');
+						this.clearCourseEditModal();
+					}else{
+						alert("修改失败, code: " + response.status);
+					}
+				})
+			},
+			doAddOrUpdate : function(){
+				if (this.courseEdit.coNo == "" || this.courseEdit.coName == ""){
+					alert("字段不能为空哦 " + this.courseEdit.coNo + " " + this.courseEdit.coName);
+					return ;
+				}
+				if (this.courseEdit.addOrUpdate == "add"){
+					this.doAddCourse(this.courseEdit.coNo, this.courseEdit.coName);
+				}else if(this.courseEdit.addOrUpdate == "update"){
+					this.doUpdateCourse(this.courseEdit.coNo, this.courseEdit.coName);
+				}else{
+					alert("error: " + this.courseEdit.addOrUpdate);
+				}
+			},
+			openCourseEditModal : function(editType, coNo){
+				this.clearCourseEditModal();
+				this.courseEdit.addOrUpdate = editType;
+				if (this.courseEdit.addOrUpdate == "update"){
+					this.courseEdit.isCoNoReadonly = false;
+				}
+				if (coNo != null && coNo != ""){
+					this.courseEdit.coNo = coNo
+				}
+			},
+			clearCourseEditModal : function(){
+				this.courseEdit.coNo = "";
+				this.courseEdit.coName = "";
+				this.courseEdit.isCoNoReadonly = false;
+				this.courseEdit.addOrUpdate = "";
+				this.courseEdit.courseEditArray = [];
+			},
+			/*
+			queryApplyingCourse : function(){
+				var username = $("#username").val();
+				this.courseQuery.applyingCourseArray = null;
+				$.post("${ctxPath}/happy-study/course/teacherApplyCourse", {
+					username : username
+				}, response=>{
+					if (response.status==0){
+						this.courseQuery.applyingCourseArray = response.applyingCourseList;
+					}
+				})
+			},*/
+			teacherApplyCourse : function(coNo){
+				var username = $("#username").val();
+				$.post("${ctxPath}/happy-study/course/teacherApplyCourse", {
+					username : username,
+					coNo : coNo
+				}, response=>{
+					if (response.status==0){
+						alert("课程申请已提交");
+						if (!this.courseQuery.isShowInitStatusCourseOnTable){
+							this.queryCourse();
+							//this.queryApplyingCourse();
+						}else{
+							this.queryInitStateCourse();
+						}
+					}
+				})
+			},
+			showInitStatusCourseOnTable : function(){
+				this.courseQuery.inputBoxShow = false;
+				this.clearCourseQuery();
+				if (!this.courseQuery.isShowInitStatusCourseOnTable){
+					this.courseQuery.isShowInitStatusCourseOnTable = true;
+					this.queryInitStateCourse();
+				}else{
+					this.courseQuery.isShowInitStatusCourseOnTable = false;
+					this.queryCourse();
+				}
+			},
+			queryInitStateCourse : function(){
+				this.courseQuery.courseArray = null;
+				var keyword = this.courseQuery.keyword;
+				var orderBy = this.courseQuery.orderBy;
+				var orderWay = this.courseQuery.orderWay;
+				var pageNo = this.queryPage.currentPage;
+				var pageSize = this.queryPage.pageSize;
+				$.post("${ctxPath}/happy-study/course/queryInitStateCourse", {
+					keyword : keyword,
+					orderBy : orderBy,
+					orderWay : orderWay,
+					pageNo : pageNo,
+					pageSize : pageSize,
+				}, response=>{
+					if (response.status==0){
+						this.courseQuery.courseArray = response.courseArray;
+						console.log(this.courseQuery.courseArray);
+					}
+				})
+			},
+			showMyCourseOnTable : function(){
+				this.clearCourseQuery();
+				this.courseQuery.inputBoxShow = false;
+				if (!this.courseQuery.isShowMyCourseOnTable){
+					this.courseQuery.isShowMyCourseOnTable = true;		
+					this.queryMineCourse();
+				}else{
+					this.courseQuery.isShowMyCourseOnTable = false;
+					this.queryCourse();
+				}
+			},
+			clearCourseQuery : function(){
+				this.courseQuery.courseArray = null;
+				this.courseQuery.keyword = "";
+				this.courseQuery.orderBy = "co_no";
+				this.courseQuery.orderWay = "asc";
+				this.queryPage.currentPage = 1;
+				this.queryPage.pageSize = 5;
+			},
+			queryMineCourse : function(){
+				this.clearCourseQuery
+				//this.courseQuery.courseArray = null;
+				var username = $("#username").val();
+				var orderBy = this.courseQuery.orderBy;
+				var orderWay = this.courseQuery.orderWay;
+				$.post("${ctxPath}/happy-study/user/queryUserCourse", {
+					username : username,
+					orderBy : orderBy,
+					orderWay : orderWay
+				}, response=>{
+					if (response.status==0){
+						this.courseQuery.courseArray = response.courseArray;
+						console.log(this.courseQuery.courseArray[0].t_name);
+					}
+				});
+				
+			},
+			doQueryByKeyword : function(){
+				this.showCoursePane();
+				this.courseQuery.keyword = this.rightMesDiv.queryKeyword;
+				this.queryCourse();
+			},
+			fillKeywordInput : function(keywordValue){
+				this.rightMesDiv.queryKeyword = keywordValue;
+			},
+			queryCourseByNoOrName : function(keyword){
+				this.rightMesDiv.queryCourseArray = null;
+				var keywordValue = this.rightMesDiv.queryKeyword
+				if (keywordValue == null || keywordValue == undefined || keywordValue == ""){
+					return ;
+				}
+				$.post("${ctxPath}/happy-study/course/queryCourse", {keyword : keywordValue,
+					orderBy : keyword,
+					orderWay : 'asc',
+					pageNo : 1,
+					pageSize : 5}, response=>{
+						this.rightMesDiv.queryCourseArray = response.courseArray;
+					})
+			},
 			showQueryCourse : function(){
 				if (!this.rightMesDiv.isQueryCourseShow){
 					$("#queryCoursePane").attr("style", "background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; border-bottom: 1px solid; "+
-						"align-items: center; width: 25%; height: 24%; position: absolute; top: 40%;right: 92%;")
+						"align-items: center; width: 25%; height: 24%; position: absolute; top: 70%;right: 92%;")
 					this.rightMesDiv.isQueryCourseShow = true;
 					queryCoursePaneCome.restart();
 				}else{
 					$("#queryCoursePane").attr("style", "background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);box-sizing: border-box; border-bottom: 1px solid; "+
-					"align-items: center; width: 25%; height: 24%; position: absolute; top: 40%;right: 5%;")
+					"align-items: center; width: 25%; height: 24%; position: absolute; top: 70%;right: 5%;")
 					queryCoursePaneBack.restart();
 					setTimeout(()=>{
 						this.rightMesDiv.isQueryCourseShow = false;
@@ -217,7 +546,12 @@
 					orderBy : this.rightMesDiv.orderBy,
 					orderWay : this.rightMesDiv.orderWay
 				},response=>{
+					if (response.courseArray == null){
+						this.rightMesDiv.MyCourseArray = null;
+						return ;
+					}
 					this.rightMesDiv.MyCourseArray = response.courseArray;
+					this.courseQuery.isMineCourseArrayNull=false;
 					console.log(response.courseArray);
 				})
 			},
@@ -249,6 +583,7 @@
 			closeCoursePane : function(){
 				this.courseTable.coursePaneShow = false;
 				this.courseWelcomePaneShow = true;
+				this.courseQuery.inputBoxShow = false;
 			},
 			showCoursePane : function(){
 				this.courseWelcomePaneShow = false;
@@ -320,6 +655,7 @@
 		},mounted : function(){
 			this.queryCourse();
 			this.queryMyCourse();
+			//this.queryApplyingCourse();
 			
 		}
 
@@ -340,6 +676,7 @@
 		    //{ value: 1, duration: 900 }
 		  ],
 		  
+		  
 		  easing: 'easeOutElastic(1, .8)',
 		  //loop: true
 		  autoplay : false,
@@ -359,6 +696,8 @@
 		    { value: 1, duration: 900 },
 		    //{ value: 1, duration: 900 }
 		  ],
+		  
+		  
 		  
 		  easing: 'easeOutElastic(1, .8)',
 		  //loop: true

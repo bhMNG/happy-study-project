@@ -18,7 +18,7 @@ public interface UserService {
 		//修改密码
 		public JSONObject updateUser(String username,String oldPassword,String newPassword);
 		//注册用户
-		public JSONObject registUser(String username,String password);
+		public JSONObject registUser(String username,String password, String no);
 	    //绑定手机
 	    public JSONObject bindPhone(String username, String phonenum);
 	    //修改用户个人信息
@@ -45,4 +45,43 @@ public interface UserService {
     
     //查询用户的课程
     public JSONObject queryUserCourse(String username, String orderBy, String orderWay);
+    //查询用户的班级 （老师->负责的班级   学生->所在的班级）
+    public JSONObject queryUserClazz(String username);
+    
+    //修改用户（root）
+    public JSONObject updateUserByRoot(String username, String password);
+    
+    //根据用户名查询我的成绩
+    public JSONObject queryMyGrade(String username, String orderBy, String orderWay);
+    
+    //根据用户名查询教师用户的教师号
+    public JSONObject queryUsertNo(String username);
+    
+    //查询该（教师）用户正在申请中的课程
+    public JSONObject queryApplyingCourseByUsername(String username);
+    
+    //拆线呢学生用户的学生号
+    public JSONObject queryUserSNo(String username);
+    
+    
+//  ----权限----
+    //创建一个diy角色
+    public JSONObject addRole(Integer rProperty, String rName);
+    //删除一个div角色
+    public JSONObject deleteRole(Integer rProperty);
+    //修改一个div角色的角色名
+    public JSONObject updateRoleName(Integer rProperty, String rName);
+    //查询所有存在的角色
+    public JSONObject queryAllRole();
+    //查询所有存在的职责行为
+    public JSONObject queryAllDuty();
+    //查询某个角色的职责行为(有的+没有的)
+    public JSONObject queryRoleDuty(Integer rProperty);
+    //给某个角色添加一个职责行为
+    public JSONObject addRoleDuty(Integer rProperty, String[] pNos);
+    //给某个角色减少一个职责行为
+    public JSONObject deleteRoleDuty(Integer rProperty, String[] pNos);
+    //清空某个角色的所有职责行为
+    public JSONObject deleteRoleAllDuty(Integer rProeprty);
+    
 }

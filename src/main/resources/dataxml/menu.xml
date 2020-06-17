@@ -7,6 +7,7 @@
 		<menu id="clazz" name="班级管理" icon="iconfont icon-banjiguanli"/>
 		<menu id="depart" name="学院管理" icon="iconfont icon-zhaoxueyuan"/>
 		<menu id="course" name="课程管理" icon="iconfont icon-kecheng"/>
+		<menu id="grade" name="成绩录入" icon="iconfont icon-liuyan"/>
 	</menu>
 	<menu id="userMan" name="用户管理" icon="iconfont icon-yonghushezhi-">
 		<menu id="user" name="个人信息" icon="iconfont icon-gerenxinxi-"/>
@@ -15,5 +16,5 @@
 	<menu id="welcome-quickQuery" name="快速查询" icon="iconfont icon-chaxun"></menu>
 	<menu id="welcome-chartStatistics" name="图表统计" icon="iconfont icon-tubiao"></menu>
 	<menu id="welcome-systemSettings" name="系统设置" icon="iconfont icon-shezhi"></menu>
-	<menu id="welcome-campusWall" name="校园墙" icon="iconfont icon-liuyanjianyi"></menu>
+	<menu id="welcome-applyList" name="申请列表" icon="iconfont icon-liuyanjianyi"></menu>
 </menus>

@@ -61,9 +61,9 @@
 	</select>
 	<!-- 获取学生已选课程 -->
 	<select id="getStudentCourse" resultType="com.happystudy.model.Course">
-		select co_no,co_name from t_student left join t_depart on t_student.s_depart_fk=t_depart.d_no left join t_teacher on t_teacher.t_depart_fk=t_depart.d_no
-		left join t_course on t_teacher.t_course_fk=t_course.co_no
-		where s_no=#{sNo}
+		select co_no, co_name from t_course where co_no 
+		in (select csl_course_fk from t_course_stulist where t_course_stulist.csl_student_fk 
+		in (select s_no from t_student where s_no=#{sNo}))
 	</select>
 	<!-- 获取学生的学院 -->
 	<select id="getStudentDepart" resultType="com.happystudy.model.Depart">
@@ -75,5 +75,18 @@
 		insert into t_student (s_no,s_name,s_sex,s_birthday,s_enter_year,s_clazz_fk,s_depart_fk) 
 		values (#{sNo},#{sName},#{sSex},#{sBirthday},#{sEnterYear},#{sClazzFk},#{sDepartFk})
 	</insert>
+	<!-- 设置学生账号外键 -->
+	<insert id="setStudentUsername">
+		update t_student set s_user_fk=#{username} where s_no=#{sno}
+	</insert>
 	
+	<!-- 设置学生的班级外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setStudentClazzFk">
+		update t_student set s_clazz_fk = #{newClazzFk} where s_clazz_fk=#{oldClazzFk}
+	</update>
+	
+	<!-- 设置学生表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setStudentFk">
+		update t_student set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
 </mapper>

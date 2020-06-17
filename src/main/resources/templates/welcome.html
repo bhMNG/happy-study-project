@@ -62,6 +62,8 @@
 <input hidden="hidden" id="property" value="${currentUser.userProperty}">
 <input hidden="hidden" id="position" value="${currentUser.userPosition}">
 <input hidden="hidden" id="userphone" value="${currentUser.phonenum}">
+<!-- 功能隐藏框 -->
+<input hidden="hidden" id='registNo' value="">
 <div id="test">
     <div class="wrapper" id="bodydiv">
         <header class="main-header">
@@ -89,13 +91,13 @@
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown user user-menu">
                             <a href="javascript://" class="dropdown-toggle" data-toggle="dropdown" />
-                                <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'"  class="user-image" alt="User Image">
+                                <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'"  class="user-image user-head-img" alt="User Image">
                                 <span class="hidden-xs">${currentUser.username}</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
                                 <li class="user-header">
-                                    <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle" >
+                                    <img src="${ctxPath}/${currentUser.userPhoto}" onerror="this.src='${ctxPath}/img/default_student.jpg'" class="img-circle user-head-img" >
                                     <p>
                                         ${currentUser.username}
                                         <small>${currentUser.userIdcard}</small>
@@ -141,7 +143,7 @@
                   <!--  <li class="header">主导航</li> --> 
                     
                     <li class="treeview" >
-                 		<a href="javascript://" @click="navigateTo(menu.id)">
+                 		<a href="javascript://" @click="navigateTo(menu.id)" >
                         	<!-- <i class="menu.icon"></i> -->
                         	<span :class="menu.icon" style="margin-left: 10px;margin-right: 5px;"></span>
                         	<span>{{menu.name}}</span>
@@ -256,10 +258,10 @@
         </div>
         
     </div>
-	<div>
+	<div style="background: rgba(0, 0, 0, 0.3);">
 		<!-- /.content-wrapper -->
         <footer class="main-footer" style="background: rgba(0, 0, 0, 0.3); 
-        box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4); margin: 0 0 0 0;">
+        box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4); margin: 0 0 0 0; border: 2px solid rgba(0, 0, 0, 0.3);">
             <div class="pull-right hidden-xs">
                 <b>Version</b> 1.0
             </div>
@@ -278,6 +280,9 @@
 		data : {
 			menus : null,
 			icon : "iconfont icon-daohangshouye",
+			currentUser : {
+				property : "",
+			}
 		},
 		methods : {
 			navigateTo : function(menuId){
@@ -316,6 +321,7 @@
 		},
 		mounted : function(){
 			this.getMenu();
+			this.currentUser.property=$("#property").val();
 		}
 	})
 	

@@ -18,7 +18,7 @@ public interface DepartService {
     //修改学院名字
     public JSONObject updateDepartByNo(String dNo,String dName);
     //根据学院号删除学院
-    public JSONObject deleteDepartByNo(String dNo);
+    public JSONObject deleteDepartByNo(String[] dNos);
     //根据学院号精准匹配学院
     public JSONObject findDepartByNo(String dNo);
     //查找某个学生的学院

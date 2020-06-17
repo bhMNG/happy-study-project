@@ -1,0 +1,217 @@
+<style>
+	.flexPane {
+		flex: 1;
+	}
+	.flexPane .innerPane{
+		background:  rgba(255, 255, 255, 0.3); 
+		border: 6px solid rgba(0, 0, 0, 0.8);
+		height: 90%;
+		width: 90%;
+		padding-left: 20px;
+		padding-right: 20px;
+		margin-top: 14px;
+		overflow-y : scroll;
+		display: flex;
+		flex-direction: column;
+	}
+	.flexPane .innerPane .perApplying{
+		flex: 1;
+		width: 100%;
+		height: 15%;
+		margin-bottom: 10px;
+		
+	}
+
+</style>
+
+<div style="width: 80%; height: 100%;" id="applypane-content">
+
+<!-- ������� -->
+<div style="background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
+             box-sizing: border-box; border-bottom: 1px solid; height: 80%; width: 100%; margin-top: 5%;">
+<div style="width: 100%; height: 96%; margin-top: 2%; display: flex; flex-direction: row;">
+	<!-- flex left -->
+	<div class="flexPane">
+		<div class="innerPane">
+		<div class="perApplying">
+		<div class="row" style="width: 100%; margin-bottom: 10px; " v-for="apply in applyQuery.applyArray">
+  			<div class="col-sm-6 row-md-4" style="width: 100%; ">
+    			<div class="thumbnail" style="display: flex; flex-direction: row; width: 100%; margin-top: 20px;">
+      				<div class="caption" style="width: 60%; height: 100%; border: 1px solid;" >
+        				<h3>申请 -负责课程</h3>
+        				<h4>申请人 -{{apply.t_no}} {{apply.t_name}}</h4>
+        				<h4>班级 -{{apply.co_no}} {{apply.co_name}}</h4>
+      				</div>
+      				<div class="caption">
+        				<div style="display: flex; flex-direction: column; width: 200px; height: 100%; border-radius: 5px;">
+        					<div style="flex: 1; width: 100%; border-radius: 5px;">
+        						<button class="btn btn-primary btn-lg btn-block" style="height: 100%; margin-bottom: 4px;" @click="toConfirmBuffer(apply)">添加</button>
+        					</div>
+        					<div style="flex: 1; width: 100%; border-radius: 5px;">
+        						<button class="btn btn-default btn-lg btn-block" style="height: 100%; margin-top: 4px;" @click="applyReject(apply.t_no, apply.co_no)">驳回</button>
+        					</div>
+        				</div>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+		</div>
+		<!-- ./perApplying -->
+		</div>
+		<div align="left" style="margin-left: 5%; margin-top: 5px;">
+			<button class="btn btn-default" @click="rejectAll">一键驳回</button>
+			<button class="btn btn-default" @click="addAllToConfirmBuffer">一键添加</button>
+		</div>
+	</div>
+	<!-- ./flex left -->
+	<!-- flex right -->
+	<div class="flexPane">
+		<div class="innerPane">
+		<div class="perApplying">
+		<div class="row" style="width: 100%; margin-bottom: 10px; " v-for="apply in confirmBuffer.applyArray">
+  			<div class="col-sm-6 row-md-4" style="width: 100%; ">
+    			<div class="thumbnail" style="display: flex; flex-direction: row; width: 100%; margin-top: 20px;">
+      				<div class="caption" style="width: 60%; height: 100%; border: 1px solid;" >
+        				<h3>申请 -负责课程</h3>
+        				<h4>申请人 -{{apply.t_no}} {{apply.t_name}}</h4>
+        				<h4>班级 -{{apply.co_no}} {{apply.co_name}}</h4>
+      				</div>
+      				<div class="caption">
+        				<div style="display: flex; flex-direction: column; width: 200px; height: 100%; border-radius: 5px;">
+        					<div style="flex: 1; width: 100%; border-radius: 5px;">
+        						<button class="btn btn-primary btn-lg btn-block" style="height: 100%; margin-bottom: 4px;" @click="applyPass(apply.t_no, apply.co_no)">确认授予</button>
+        					</div>
+        					<div style="flex: 1; width: 100%; border-radius: 5px;">
+        						<button class="btn btn-default btn-lg btn-block" style="height: 100%; margin-top: 4px;" @click="toPrepareBuffer(apply)">取消</button>
+        					</div>
+        				</div>
+      				</div>
+    			</div>
+  			</div>
+		</div>
+		</div>
+		<!-- ./perApplying -->
+		</div>
+		<div align="right" style="margin-right: 5%; margin-top: 5px;">
+			<button class="btn btn-default" @click="removeAllFromConfirmBuffer">一键清空</button>
+			<button class="btn btn-default" @click="passAll">一键授予</button>
+		</div>
+	</div>
+	<!-- ./flex right -->
+</div>
+	
+</div>
+
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#applypane-content",
+		data : {
+			applyQuery : {
+				applyArray : [],
+			},
+			confirmBuffer : {
+				applyArray : [],
+			}
+		},
+		methods : {
+			passAll : function(){
+				if (this.confirmBuffer.applyArray == null || this.confirmBuffer.applyArray==undefined || 
+						this.confirmBuffer.applyArray.length==0){
+					return ;
+				}
+				var tNos = "";
+				var coNos = "";
+				for (var i = this.confirmBuffer.applyArray.length-1; i >= 0; i--){
+					tNos += this.confirmBuffer.applyArray[i].t_no + "-";
+					coNos += this.confirmBuffer.applyArray[i].co_no + "-";
+				}
+				this.applyPass(tNos, coNos);
+			},
+			rejectAll : function(){
+				if (this.applyQuery.applyArray == null || this.applyQuery.applyArray==undefined || 
+						this.applyQuery.applyArray.length==0){
+					return ;
+				}
+				var tNos = "";
+				var coNos = "";
+				for (var i = this.applyQuery.applyArray.length-1; i >= 0 ; i--){
+					tNos += this.applyQuery.applyArray[i].t_no + "-";
+					coNos += this.applyQuery.applyArray[i].co_no + "-";
+				}
+				this.applyReject(tNos, coNos);
+			},
+			removeAllFromConfirmBuffer : function(){
+				for (var i = this.confirmBuffer.applyArray.length-1; i>=0; i--){
+					this.applyQuery.applyArray.unshift(this.confirmBuffer.applyArray[i]);
+				}
+				this.confirmBuffer.applyArray=[];
+			},
+			addAllToConfirmBuffer : function(){
+				for (var i = this.applyQuery.applyArray.length-1; i >= 0 ; i--){
+					this.confirmBuffer.applyArray.unshift(this.applyQuery.applyArray[i]);
+				}
+				this.applyQuery.applyArray=[];
+			},
+			applyReject : function(tNo, coNo){
+				$.post("${ctxPath}/happy-study/course/rejectCourseApply", {
+					tNo : tNo,
+					coNo : coNo,
+				}, response=>{
+					if (response.status==0){
+						alert("请求处理成功");
+						this.queryApply();
+					}else{
+						alert("请求处理失败, code: " + response.status);
+					}
+				})
+			},
+			applyPass : function(tNo, coNo){
+				if (confirm("确认要同意这个请求吗？")){
+					$.post("${ctxPath}/happy-study/course/passCourseApply", {
+						tNo : tNo,
+						coNo : coNo,
+					}, response=>{
+						if (response.status==0){
+							alert("请求处理成功");
+							this.queryApply();
+						}else{
+							alert("请求处理失败, code: " + response.status);
+						}
+					})
+					return true;
+				}else{
+					return false;
+				}
+			},
+			toPrepareBuffer : function(apply){
+				this.applyQuery.applyArray.unshift(apply);
+				this.confirmBuffer.applyArray.splice(vue.confirmBuffer.applyArray.indexOf(apply), 1);
+			},
+			toConfirmBuffer : function(apply){
+				this.confirmBuffer.applyArray.unshift(apply);
+				this.applyQuery.applyArray.splice(vue.applyQuery.applyArray.indexOf(apply), 1);
+			},
+			queryApply : function(){
+				this.applyQuery.applyArray = null;
+				confirmBuffer.applyArray = [];
+				$.post("${ctxPath}/happy-study/course/queryApplyingStateCourse", {
+					keyword : '',
+					orderBy : '',
+					orderWay : '',
+					pageNo : '1',
+					pageSize : '1000'
+				}, response=>{
+					if (response.status==0){
+						this.applyQuery.applyArray = response.courseArray;
+						console.log(this.applyQuery.applyArray);
+					}
+				})
+			}
+		},
+		mounted : function(){
+			this.queryApply();
+		}
+	})
+</script>

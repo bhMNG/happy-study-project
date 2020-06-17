@@ -1,18 +1,24 @@
 package com.happystudy.service.impl;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.happystudy.constants.Constants;
-import com.happystudy.dao.DepartMapper;
-import com.happystudy.model.Course;
-import com.happystudy.model.Depart;
-import com.happystudy.service.DepartService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.happystudy.constants.Constants;
+import com.happystudy.dao.DepartMapper;
+import com.happystudy.dao.StudentMapper;
+import com.happystudy.dao.TeacherMapper;
+import com.happystudy.dao.ClazzMapper;
+import com.happystudy.model.Course;
+import com.happystudy.model.Depart;
+import com.happystudy.service.DepartService;
+
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 
 /**
  * @author LJS
@@ -22,6 +28,12 @@ import java.util.Map;
 public class DepartServiceImpl implements DepartService {
 	@Autowired
     private DepartMapper departMapper;
+	@Autowired
+	private TeacherMapper teacherMapper;
+	@Autowired
+	private StudentMapper studentMapper;
+	@Autowired
+	private ClazzMapper clazzMapper;
 
     //查询学院(5个参数）
     @Override
@@ -98,17 +110,28 @@ public class DepartServiceImpl implements DepartService {
     }
 
     //根据学院号删除学院
+    @Transactional
     @Override
-    public JSONObject deleteDepartByNo(String dNo) {
+    public JSONObject deleteDepartByNo(String[] dNos) {
         JSONObject json=new JSONObject();
-        Depart existDepart = departMapper.findDepartByNo(dNo);
-        if (existDepart==null){//学院不存在
-            json.set("status",Constants.NULL_DEPART);
-            return json;
-        }else {
-            departMapper.deleteDepartByNo(dNo);
-            json.set("status",Constants.SUCCESS);
-            return json;
+        try {
+        	for (String dNo : dNos) {
+        		Depart existDepart = departMapper.findDepartByNo(dNo);
+                if (existDepart==null){//学院不存在
+                    json.set("status",Constants.NULL_DEPART);
+                    return json;
+                }else {
+                    departMapper.deleteDepartByNo(dNo);
+                    teacherMapper.setTeacherFk(Constants.T_DEPART_FK, dNo, null);
+                    studentMapper.setStudentFk(Constants.S_DEPART_FK, dNo, null);
+                    clazzMapper.setClazzFk(Constants.C_DEPART_FK, dNo, null);
+                }
+        	}
+        	json.set("status",Constants.SUCCESS);
+        	return json;
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	return json.set("status", Constants.DB_ERROR);
         }
     }
 

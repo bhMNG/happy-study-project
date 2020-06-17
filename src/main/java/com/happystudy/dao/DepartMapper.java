@@ -40,4 +40,6 @@ public interface DepartMapper {
     public Integer queryDepartAllCourse(String dNo);
     //统计该学院的老师人数
     public Integer queryDepartAllTeaCount(String dNo);
+    
+
 }

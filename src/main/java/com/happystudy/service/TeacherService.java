@@ -17,11 +17,11 @@ public interface TeacherService {
     //查询教师人数（默认所有教师人数）
     public JSONObject queryTeacherCount(Map<String,Object> param);
     //添加教师
-    public JSONObject addTeacher(String tNo,String tName);
+    public JSONObject addTeacher(String tNo,String tName, String tSex, String tDepartFk);
     //更新教师
-    public JSONObject updateTeacher(String tNo,String tName,String tSex);
+    public JSONObject updateTeacher(String tNo,String tName,String tSex,String tDepartFk);
     //删除教师
-    public JSONObject deleteClazzByNo(String tNo);
+    public JSONObject deleteTeacherByNo(String[] tNos);
     //根据班级获取老师
     public JSONObject findTeacherByClazz(String cNo);
     //根据课程找老师

@@ -1,0 +1,394 @@
+<style>
+	#gradeTableBody p{
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	#gradeTableBody td{
+		text-align: center;
+	}
+	#gradeTableHead th {
+		text-align: center;
+	}
+</style>
+
+<div  style="width: 80%; height: 100%;" id="grademan-content">
+
+<!-- 成绩查询与录入 -->
+<div style="width: 100%;height: 80%;margin-top: 4%; background: rgba(255, 255, 255, 0.3); padding: 1% 1% 1% 1%;">
+	<!-- input框组和按钮组 栏 -->
+	<div style="width: 100%; height: 100%;">
+		<!-- input框 & 下拉菜单 & 按钮 -->
+		<div style="width: 100%; height: 30%; background: #fff;">
+			<!-- 按钮 -->
+			<div align="right" style="width: 100%;">
+				<button class="btn btn-default" style=" margin-right: 5px; margin-top: 5px;">导入</button>
+				<button class="btn btn-default" style=" margin-right: 10px; margin-top: 5px;">导出</button>
+			</div>
+			<!-- input框 & 下拉菜单 -->
+			<div style="width: 100%; padding: 10px 10px 10px 10px; display: flex; flex-direction: column;">
+				<div class="row" style="flex: 1; padding-top: 5px;">
+				<div class="col-lg-6">
+    				<div class="input-group">
+      					<div class="input-group-btn">
+        					<button type="button" class="btn btn-default dropdown-toggle" @click="matchCourse"
+        					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">课程 <span class="caret"></span></button>
+        					<ul class="dropdown-menu">
+          					<li v-for="course in courseMatch.array"><a href="#" @click="chooseQueryCondition('course',course.co_no)">{{course.co_no}} {{course.co_name}}</a></li>
+          					<li role="separator" class="divider"></li>
+          					<li><a href="#">匹配课程号/名</a></li>
+        					</ul>
+      					</div><!-- /btn-group -->
+      					<input type="text" class="form-control" placeholder="课程" v-model="courseMatch.keyword">
+    				</div><!-- /input-group -->
+  				</div><!-- /.col-lg-6 -->
+  				<div class="col-lg-6">
+    				<div class="input-group">
+      					<div class="input-group-btn">
+        					<button type="button" class="btn btn-default dropdown-toggle" @click="matchClazz"
+        					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">班级 <span class="caret"></span></button>
+        					<ul class="dropdown-menu">
+          					<li v-for="clazz in clazzMatch.array"><a href="#" @click="chooseQueryCondition('clazz',clazz.c_no)">{{clazz.c_no}} {{clazz.c_name}}</a></li>
+          					<li role="separator" class="divider"></li>
+          					<li><a href="#">匹配班级号/名</a></li>
+        					</ul>
+      					</div><!-- /btn-group -->
+      					<input type="text" class="form-control" placeholder="班级" v-model="clazzMatch.keyword">
+    				</div><!-- /input-group -->
+  				</div><!-- /.col-lg-6 -->
+  				</div>
+  				
+  				<div class="row" style="flex: 1; padding-top: 20px;">
+				<div class="col-lg-6">
+    				<div class="input-group">
+      					<div class="input-group-btn">
+        					<button type="button" class="btn btn-default dropdown-toggle" @click="matchTeacher"
+        					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">教师 <span class="caret"></span></button>
+        					<ul class="dropdown-menu">
+          					<li v-for="teacher in teacherMatch.array"><a href="#" @click="chooseQueryCondition('teacher',teacher.t_no)">{{teacher.t_no}} {{teacher.t_name}}</a></li>
+          					<li role="separator" class="divider"></li>
+          					<li><a href="#">匹配教师号/名</a></li>
+        					</ul>
+      					</div><!-- /btn-group -->
+      					<input type="text" class="form-control" placeholder="教师" v-model="teacherMatch.keyword">
+    				</div><!-- /input-group -->
+  				</div><!-- /.col-lg-6 -->
+  				<div class="col-lg-6">
+    				<div class="input-group">
+      					<div class="input-group-btn">
+        					<button type="button" class="btn btn-default dropdown-toggle" @click="matchDepart"
+        					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">学院 <span class="caret"></span></button>
+        					<ul class="dropdown-menu">
+          					<li v-for="depart in departMatch.array"><a href="#" @click="chooseQueryCondition('depart',depart.d_no)">{{depart.d_no}} {{depart.d_name}}</a></li>
+          					<li role="separator" class="divider"></li>
+          					<li><a href="#">匹配学院号/名</a></li>
+        					</ul>
+      					</div><!-- /btn-group -->
+      					<input type="text" class="form-control" placeholder="学院" v-model="departMatch.keyword">
+    				</div><!-- /input-group -->
+  				</div><!-- /.col-lg-6 -->
+  				</div>
+  				
+			</div>
+			<div align="right" style="margin-right: 10px;">
+				<button class="btn btn-default" style="margin-right: 5px;" @click="queryGrade">查询</button>
+				<button class="btn btn-default" @click="changeEditModel">{{edit.btnInnerTest}}</button>
+			</div>
+			
+		</div>
+		
+		<!-- table -->
+		<div style="width: 100%; height: 67%; background: #fff; margin-top: 20px; overflow-y:scroll;">
+			<table class="table table-striped table-hover">
+				<thead id="gradeTableHead">
+					<tr>
+						<th>学号</th>
+						<th>姓名</th>
+						<th>课程</th>
+						<th>学院</th>
+						<th>教师</th>
+						<th>分数</th>
+						<th>状态</th>
+						<th v-show="edit.editModelActive">操作</th>
+					</tr>
+				</thead>
+					
+				<tbody v-for="grade in gradeQuery.array" id="gradeTableBody">		
+					<tr :class="{'info' : grade.g_score!=null&&grade.g_score>=60, 
+						'danger' : grade.g_score!=null&&grade.g_score!=''&&grade.g_score<60, 'warning' : grade.g_score==''}">
+						<td><p>{{grade.s_no}}</p></td>
+						<td><p>{{grade.s_name}}</p></td>
+						<td><p>{{grade.co_name}}</p></td>
+						<td><p>{{grade.d_name}}</p>
+							<p v-show="grade.d_name==null||grade.d_name==''">暂无</p></td>
+						<td><p>{{grade.t_name}}</p>
+							<p v-show="grade.t_name==null||grade.t_name==''">暂无</p></td>
+						<td><p>{{grade.g_score}}</p>
+							<p v-show="grade.g_score==null||grade.g_score==''">暂无</p></td>
+						<td><p v-show="grade.g_score!=null&&grade.g_score>=60">合格</p>
+							<p v-show="grade.g_score!=null&&grade.g_score<60&&grade.g_score!=''">挂科</p>
+							<p v-show="grade.g_score==''">暂无</p></td>
+						<td  v-show="edit.editModelActive"><button class="btn btn-default" @click="openScoreEnter(grade.s_no, grade.co_no)">录入成绩</button></td>
+					</tr>
+				</tbody>
+				
+			</table>
+		</div>
+	</div>
+	
+</div>
+<!-- inputBox 填分数 -->
+<div class="inputBox"  v-show="scoreEnter.boxShow">
+	<div class="input-group infobox-input">
+  								<input type="text" class="form-control" placeholder="请填入分数？" aria-describedby="basic-addon2" v-model="scoreEnter.score">
+  								<span class="input-group-btn">
+        							<button class="btn btn-default" type="button" @click="enterScore">录入</button>
+      							</span>
+							</div>
+</div>
+<!-- ./inputBox 填分数 -->
+
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#grademan-content",
+		data : {
+			courseMatch : {
+				array : [],
+				keyword : "",
+				orderBy : "co_name",
+				orderWay : "asc",
+				pageNo : 1,
+				pageSize : 5,
+			},
+			clazzMatch : {
+				array : [],
+				keyword : "",
+				orderBy : "c_name",
+				orderWay : "asc",
+				pageNo : 1,
+				pageSize : 5,
+			},
+			teacherMatch : {
+				array : [],
+				keyword : "",
+				orderBy : "t_name",
+				orderWay : "asc",
+				pageNo : 1,
+				pageSize : 5,
+			},
+			departMatch : {
+				array : [],
+				keyword : "",
+				orderBy : "d_name",
+				orderWay : "asc",
+				pageNo : 1,
+				pageSize : 5,
+			},
+			gradeQuery : {
+				array : [],
+				orderBy : "co_no",
+				orderWay : "asc",
+				
+			},
+			edit : {
+				btnInnerText : "编辑",
+				editModelActive : false,
+			},
+			scoreEnter : {
+				sNo : "",
+				coNo : "",
+				score : "",
+				boxShow : false,
+			}
+		},
+		methods : {
+			enterScore : function(){
+				var sNo = this.scoreEnter.sNo;
+				var coNo = this.scoreEnter.coNo;
+				var score = this.scoreEnter.score;
+				if (sNo=="" || coNo=="" || score==""){
+					alert("字段不能为空哦");
+					return ;
+				}
+				$.post("${ctxPath}/happy-study/grade/enterScore", {
+					sNo : sNo,
+					coNo : coNo,
+					score : score,
+				},response=>{
+					if (response.status==0){
+						alert("成绩录入成功");
+						this.queryGrade();
+						this.openScoreEnter();
+						return ;
+					}
+					alert("成绩录入失败, code: " + response.status);
+					return ;
+				});
+			},
+			clearScoreEnter : function(){
+				this.scoreEnter.sNo="";
+				this.scoreEnter.coNo="";
+				this.scoreEnter.score="";
+				this.scoreEnter.boxShow=false;
+			},
+			openScoreEnter : function(sNo, coNo){
+				if (this.scoreEnter.boxShow){
+					this.clearScoreEnter();
+				}else{
+					this.scoreEnter.sNo = sNo;
+					this.scoreEnter.coNo = coNo;
+					this.scoreEnter.boxShow = true;
+					console.log(this.scoreEnter.sNo);
+					console.log(this.scoreEnter.coNo);
+				}
+				
+			},
+			changeEditModel : function(){
+				if (this.edit.editModelActive){
+					this.edit.editModelActive=false;
+					this.edit.btnInnerTest="编辑";
+				}else{
+					this.edit.editModelActive=true;
+					this.edit.btnInnerTest="返回";
+				}
+				console.log(this.edit.btnInnerTest)
+			},
+			queryGrade : function(){
+				this.gradeQuery.array = null;
+				var coNo = this.courseMatch.keyword;
+				var cNo = this.clazzMatch.keyword;
+				var tNo = this.teacherMatch.keyword;
+				var dNo = this.departMatch.keyword;
+				var orderBy = this.gradeQuery.orderBy;
+				var orderWay = this.gradeQuery.orderWay;
+				$.post("${ctxPath}/happy-study/grade/queryGradeWithNull", {
+					coNo : coNo,
+					cNo : cNo,
+					tNo : tNo,
+					dNo : dNo,
+					orderBy : orderBy,
+					orderWay : orderWay
+				}, response=>{
+					if (response.status==0){
+						this.gradeQuery.array = response.gradeList;
+						console.log(response.gradeList)
+						return ;
+					}else{
+						alert("查询失败, error: " + response.status);
+						return ;
+					}
+				})
+			},
+			chooseQueryCondition : function(keywordType, keyword){
+				if (keywordType == "course"){
+					this.courseMatch.keyword = keyword;
+					return ;
+				}else if (keywordType == "clazz"){
+					this.clazzMatch.keyword = keyword;
+					return ;
+				}else if (keywordType == "teacher"){
+					this.teacherMatch.keyword = keyword;
+					return ;
+				}else if(keywordType == "depart"){
+					this.departMatch.keyword = keyword;
+					return ;
+				}
+			},
+			matchCourse : function(){
+				this.courseMatch.array = null;
+				var keyword = this.courseMatch.keyword;
+				var orderBy = this.courseMatch.orderBy;
+				var orderWay = this.courseMatch.orderWay;
+				var pageNo = this.courseMatch.pageNo;
+				var pageSize = this.courseMatch.pageSize;
+				$.post("${ctxPath}/happy-study/course/queryCourse", {
+					keyword : keyword,
+					orderBy : orderBy,
+					orderWay : orderWay,
+					pageNo : pageNo,
+					pageSize : pageSize
+				}, response=>{
+					if (response.status==0){
+						this.courseMatch.array = response.courseArray;
+					}else{
+						return ;
+					}
+				})
+			},
+			matchClazz : function(){
+				this.clazzMatch.array = null;
+				var keyword = this.clazzMatch.keyword;
+				var orderBy = this.clazzMatch.orderBy;
+				var orderWay = this.clazzMatch.orderWay;
+				var pageNo = this.clazzMatch.pageNo;
+				var pageSize = this.clazzMatch.pageSize;
+				$.post("${ctxPath}/happy-study/clazz/queryClazz", {
+					keyword : keyword,
+					orderBy : orderBy,
+					orderWay : orderWay,
+					pageNo : pageNo,
+					pageSize : pageSize
+				}, response=>{
+					if (response.status==0){
+						this.clazzMatch.array = response.clazzArray;
+					}else{
+						return ;
+					}
+				})
+			},
+			matchTeacher : function(){
+				this.teacherMatch.array = null;
+				var keyword = this.teacherMatch.keyword;
+				var orderBy = this.teacherMatch.orderBy;
+				var orderWay = this.teacherMatch.orderWay;
+				var pageNo = this.teacherMatch.pageNo;
+				var pageSize = this.teacherMatch.pageSize;
+				$.post("${ctxPath}/happy-study/teacher/queryTeacher", {
+					keyword : keyword,
+					orderBy : orderBy,
+					orderWay : orderWay,
+					pageNo : pageNo,
+					pageSize : pageSize
+				}, response=>{
+					if (response.status==0){
+						this.teacherMatch.array = response.teacherArray;
+					}else{
+						return ;
+					}
+				})
+			},			
+			matchDepart : function(){
+				this.departMatch.array = null;
+				var keyword = this.departMatch.keyword;
+				var orderBy = this.departMatch.orderBy;
+				var orderWay = this.departMatch.orderWay;
+				var pageNo = this.departMatch.pageNo;
+				var pageSize = this.departMatch.pageSize;
+				$.post("${ctxPath}/happy-study/depart/queryDepart", {
+					keyword : keyword,
+					orderBy : orderBy,
+					orderWay : orderWay,
+					pageNo : pageNo,
+					pageSize : pageSize
+				}, response=>{
+					if (response.status==0){
+						this.departMatch.array = response.departArray;
+					}else{
+						return ;
+					}
+				})
+			},
+			queryCourse : function(){
+				var coNo = this.courseMatch.keyword;
+				var cNo = this.clazzMatch.keyword;
+				var tNo = this.teacherMatch.keyword;
+				var dNo = this.departMatch.keyword;
+			},
+		},
+		mounted : function(){
+			this.queryGrade();
+			this.edit.btnInnerTest="编辑";
+		}
+	})
+</script>

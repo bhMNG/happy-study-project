@@ -14,11 +14,11 @@ public interface ClazzService {
     //查询班级个数（默认班级人数）
     public JSONObject queryClazzCount(Map<String,Object> param);
     //添加班级
-    public JSONObject addClazz(String cNo,String cName,String cEnterYear);
+    public JSONObject addClazz(String cNo,String cName,String cEnterYear, String cDepartFk);
     //修改班级信息
     public JSONObject updateClazzByNo(String cNo,Map<String,Object> param);
     //删除班级
-    public JSONObject deleteClazzByNo(String cNo);
+    public JSONObject deleteClazzByNo(String[] cNos);
     //通过老师找班级
     public JSONObject findClazzByTeacher(String tNo);
     //查询该班级的所有学生

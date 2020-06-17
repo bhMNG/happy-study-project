@@ -1,18 +1,25 @@
 package com.happystudy.service.impl;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.happystudy.constants.Constants;
-import com.happystudy.dao.ClazzMapper;
-import com.happystudy.model.Clazz;
-import com.happystudy.model.Student;
-import com.happystudy.service.ClazzService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.happystudy.constants.Constants;
+import com.happystudy.dao.ClazzMapper;
+import com.happystudy.dao.StudentMapper;
+import com.happystudy.dao.TeacherMapper;
+import com.happystudy.model.Clazz;
+import com.happystudy.model.Depart;
+import com.happystudy.model.Student;
+import com.happystudy.model.Teacher;
+import com.happystudy.service.ClazzService;
+
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 
 /**
  * @author LJS
@@ -22,6 +29,10 @@ import java.util.Map;
 public class ClazzServiceImpl implements ClazzService {
 	@Autowired
     private ClazzMapper clazzMapper;
+	@Autowired
+	private TeacherMapper teacherMapper;
+	@Autowired
+	private StudentMapper studentMapper;
     //查询班级
     @Override
     public JSONObject queryClazz(String keyword,String orderby,String asc,Integer pageNo,Integer pageSize) {
@@ -35,7 +46,7 @@ public class ClazzServiceImpl implements ClazzService {
         param.put("offset",offsert);
         param.put("pageSize",pageSize);
         //查询结果并分页
-        List<Clazz> mapList = clazzMapper.queryClazz(param);
+        List<Map<String, Object>> mapList = clazzMapper.queryClazz(param);
         //查询总条数
         Integer recCount = clazzMapper.queryClazzCount(param);
         //总页数
@@ -43,6 +54,23 @@ public class ClazzServiceImpl implements ClazzService {
         if (recCount%pageSize>0){
             pageCount++;
         }
+        for (Map<String, Object> map : mapList) {
+        	Teacher teacher = teacherMapper.findTeacherByClazz((String)map.get("c_no"));
+        	if (teacher != null && teacher.gettName() != null) {
+        		map.put("t_name", teacher.gettName());
+        	}
+        	Depart depart = clazzMapper.queryClazzDepart((String)map.get("c_no"));
+        	if (depart != null && depart.getdName() != null) {
+        		map.put("d_name", depart.getdName());
+        	}
+        	Map<String, Object> p = new HashMap<>();
+        	p.put("cNo", (String)map.get("c_no"));
+        	Integer stuCount = clazzMapper.queryClazzStuCount(p);
+        	if (stuCount != null) {
+        		map.put("stu_count", stuCount);
+        	}
+        }
+        
         json.set("status", Constants.SUCCESS);
         json.set("clazzArray", JSONUtil.parseArray(mapList));
         json.set("recCount",recCount);
@@ -62,20 +90,27 @@ public class ClazzServiceImpl implements ClazzService {
 
     //添加班级
     @Override
-    public JSONObject addClazz(String cNo, String cName,String cEnterYear) {
+    public JSONObject addClazz(String cNo, String cName,String cEnterYear, String cDepartFk) {
         JSONObject json=new JSONObject();
         Clazz existClazz = clazzMapper.findClazzByNo(cNo);
-        if (existClazz!=null){//班级号已存在
-            json.set("status",Constants.CNO_EXIST);
-            return json;
-        }else {
-            Clazz clazz=new Clazz();
-            clazz.setcNo(cNo);
-            clazz.setcName(cName);
-            clazz.setcEnterYear(cEnterYear);
-            clazzMapper.addClazz(clazz);
-            json.set("status",Constants.SUCCESS);
-            return json;
+        try {
+        	if (existClazz!=null){//班级号已存在
+                json.set("status",Constants.CNO_EXIST);
+                return json;
+            }else {
+                Clazz clazz=new Clazz();
+                clazz.setcNo(cNo);
+                clazz.setcName(cName);
+                clazz.setcEnterYear(cEnterYear);
+                clazz.setcDepartFk(cDepartFk);
+                clazzMapper.addClazz(clazz);
+                json.set("status",Constants.SUCCESS);
+                return json;
+            }
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	json.set("status", Constants.DB_ERROR);
+        	return json;
         }
     }
 
@@ -97,17 +132,28 @@ public class ClazzServiceImpl implements ClazzService {
     }
 
     //删除班级
+    @Transactional
     @Override
-    public JSONObject deleteClazzByNo(String cNo) {
+    public JSONObject deleteClazzByNo(String[] cNos) {
         JSONObject json=new JSONObject();
-        Clazz existClazz = clazzMapper.findClazzByNo(cNo);
-        if (existClazz!=null){
-            clazzMapper.deleteClazzByNo(cNo);
-            json.set("status",Constants.SUCCESS);
+        try {
+        	for (String cNo : cNos) {
+        		Clazz existClazz = clazzMapper.findClazzByNo(cNo);
+                if (existClazz!=null){
+                    clazzMapper.deleteClazzByNo(cNo);
+                    //studentMapper.setStudentClazzFk(cNo, null);
+                    studentMapper.setStudentFk(Constants.S_CLAZZ_FK, cNo, null);
+                    
+                }else {
+                    json.set("status",Constants.NULL_CLAZZ);
+                    return json;
+                }
+        	}
+        	json.set("status",Constants.SUCCESS);
             return json;
-        }else {
-            json.set("status",Constants.NULL_CLAZZ);
-            return json;
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	return json.set("status", Constants.DB_ERROR);
         }
     }
 

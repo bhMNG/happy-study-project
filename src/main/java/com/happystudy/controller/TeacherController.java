@@ -54,6 +54,7 @@ public class TeacherController {
     }
 
     //查询教师人数（默认为所有教师人数）
+	@PostMapping("/queryTeacherCount")
     @ResponseBody
     public JSONObject queryTeacherCount(String keyword){
     	Map<String, Object> param = new HashMap<>();
@@ -72,19 +73,26 @@ public class TeacherController {
     //添加教师   !!!!!!有些字段没赋值
     @PostMapping("/addTeacher")
     @ResponseBody
-    public JSONObject addTeacher(String tNo, String tName)
+    public JSONObject addTeacher(String tNo, String tName, String tSex, String tDepartFk)
     {
         if (tName==null||tNo==null||tNo.trim().isEmpty()||tName.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        else return this.teacherService.addTeacher(tNo,tName);
+        if (tSex == null || tSex.equals("")) {
+        	tSex = "";
+        }
+        if (tDepartFk == null || tDepartFk.equals("")) {
+        	tDepartFk = "";
+        }
+        
+        return this.teacherService.addTeacher(tNo,tName,tSex,tDepartFk);
     }
 
     //更新教师
     @PostMapping("/updateTeacher")
     @ResponseBody
-    public JSONObject updateTeacher(String tNo,String tName,String tSex){
+    public JSONObject updateTeacher(String tNo,String tName,String tSex,String tDepartFk){
     	
         if (tNo==null||tNo.trim().isEmpty())
         {
@@ -93,19 +101,25 @@ public class TeacherController {
         if ((tName==null||tName.trim().isEmpty())&&(tSex==null||tSex.trim().isEmpty())){
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
-        else return this.teacherService.updateTeacher(tNo,tName,tSex);
+        if (tDepartFk==null) {
+        	tDepartFk = "";
+        }
+        
+        return this.teacherService.updateTeacher(tNo,tName,tSex,tDepartFk);
     }
 
     //删除教师
-    @PostMapping("/deleteClazzByNo")
+    @PostMapping("/deleteTeacher")
     @ResponseBody
-    public JSONObject deleteClazzByNo(String tNo){
-        if (tNo.isEmpty()||tNo.trim().isEmpty())
+    public JSONObject deleteTeacherByNo(String tNo){
+    	
+        if (tNo==null||tNo.isEmpty()||tNo.trim().isEmpty())
         {
             return new JSONObject().set("status",Constants.NULL_PARAM_ERROR);
         }
         else {
-            return this.teacherService.deleteClazzByNo(tNo);
+        	String[] tNos = tNo.split("-");
+            return this.teacherService.deleteTeacherByNo(tNos);
         }
     }
 

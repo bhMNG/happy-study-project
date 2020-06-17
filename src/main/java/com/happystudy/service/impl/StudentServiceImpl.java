@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.happystudy.constants.Constants;
 import com.happystudy.dao.ClazzMapper;
+import com.happystudy.dao.CourseMapper;
 import com.happystudy.dao.DepartMapper;
+import com.happystudy.dao.GradeMapper;
 import com.happystudy.dao.StudentMapper;
 import com.happystudy.model.Clazz;
 import com.happystudy.model.Course;
@@ -34,6 +36,10 @@ public class StudentServiceImpl implements StudentService {
     private ClazzMapper clazzMapper;
     @Autowired
     private DepartMapper departMapper;
+    @Autowired
+    private GradeMapper gradeMapper;
+    @Autowired
+    private CourseMapper courseMapper;
     
     @Transactional
     @Override
@@ -158,17 +164,27 @@ public class StudentServiceImpl implements StudentService {
     }
 
     //根据学号删除学生
+    @Transactional
     @Override
-    public JSONObject deleteStudentByNo(String sNo) {
+    public JSONObject deleteStudentByNo(String[] sNos) {
         JSONObject json=new JSONObject();
-        Student existStudent = studentMapper.findStudentByNo(sNo);
-        if (existStudent==null){//学号不存在
-            json.set("status",Constants.NULL_STU);
+        try {
+        	for (String sNo : sNos) {
+        		Student existStudent = studentMapper.findStudentByNo(sNo);
+                if (existStudent==null){//学号不存在
+                    json.set("status",Constants.NULL_STU);
+                    return json;
+                }else {
+                    studentMapper.deleteStudentByNo(sNo);
+                    gradeMapper.setGradeFk(Constants.G_STUDENT_FK, sNo, null);
+                    courseMapper.setCourseStuListFk(Constants.CSL_STUDENT_FK, sNo, null);
+                }
+        	}
+        	json.set("status",Constants.SUCCESS);
             return json;
-        }else {
-            studentMapper.deleteStudentByNo(sNo);
-            json.set("status",Constants.SUCCESS);
-            return json;
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	return json.set("status", Constants.DB_ERROR);
         }
     }
 
@@ -226,5 +242,39 @@ public class StudentServiceImpl implements StudentService {
         json.set("status",Constants.SUCCESS);
         json.set("depart",depart);
         return json;
+    }
+    
+  //根据学生学号获取学生的详细信息
+    @Override
+    public JSONObject getStudentInfoByNo(String sNo) {
+    	JSONObject result = new JSONObject();
+    	JSONObject stuInfo = new JSONObject();
+    	try {
+    		Student stu = studentMapper.findStudentByNo(sNo);
+        	stuInfo.set("sNo", sNo);
+        	stuInfo.set("sName", stu.getsName());
+        	stuInfo.set("sSex", stu.getsSex());
+        	stuInfo.set("sBirthday", stu.getsBrithday());
+        	stuInfo.set("sEnterYear", stu.getsEnterYear());
+        	Clazz stuClazz = studentMapper.getStudentClazz(sNo);
+        	if (stuClazz==null) {
+        		stuInfo.set("cName", "暂无");
+        	}else {
+        		stuInfo.set("cName", stuClazz.getcName());
+        	}
+        	Depart stuDepart = studentMapper.getStudentDepart(sNo);
+        	if (stuDepart==null) {
+        		stuInfo.set("dName", "暂无");
+        	}else {
+        		stuInfo.set("dName", stuDepart.getdName());
+        	}
+        	
+        	result.set("stuInfo", stuInfo);
+        	result.set("status", Constants.SUCCESS);
+        	return result;
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return result.set("status", Constants.DB_ERROR);
+    	}
     }
 }

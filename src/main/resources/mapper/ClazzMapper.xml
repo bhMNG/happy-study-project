@@ -8,7 +8,7 @@
 		t_clazz.id, c_no, c_name, c_enter_year
 	</sql>
 	<!--查询班级（5个参数） -->
-	<select id="queryClazz" resultType="com.happystudy.model.Clazz" parameterType="map">
+	<select id="queryClazz" resultType="map" parameterType="map">
 		select t_clazz.* from t_clazz
 		<if test="keyword !=''">where c_no like '%${keyword}%' or c_name like '%${keyword}%'</if>
 		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
@@ -19,14 +19,15 @@
 	</select>
 	<!-- 添加班级 -->
 	<insert id="addClazz">
-		insert into t_clazz(c_no,c_name,c_enter_year)
-		values (#{cNo},#{cName},#{cEnterYear})
+		insert into t_clazz(c_no,c_name,c_enter_year,c_depart_fk)
+		values (#{cNo},#{cName},#{cEnterYear},#{cDepartFk})
 	</insert>
 	<!-- 修改班级信息 -->
 	<update id="updateClazzByNo" parameterType="map">
 		update t_clazz
 		set t_clazz.c_name=#{cName},
 		t_clazz.c_enter_year=#{cEnterYear}
+		<if test="cDepartFk != null and cDepartFk !=''">, t_clazz.c_depart_fk=#{cDepartFk}</if>
 		where c_no=#{cNo}
 	</update>
 	<!-- 删除班级 -->
@@ -50,10 +51,27 @@
 	</select>
 	<!-- 查询该班级的学生人数 -->
 	<select id="queryClazzStuCount" resultType="java.lang.Integer">
-		select COUNT(s_no) from t_clazz left join t_student on t_student.s_clazz_fk=t_clazz.c_no
-		<if test="cNo !='' and cNo !=null">
-			where
-		</if>
-		<if test="cNo !='' and cNo !=null">c_no=#{cNo}</if>
-	</select>	
+		select count(c_no) from t_clazz left join t_student on t_clazz.c_no=t_student.s_clazz_fk where c_no=#{c_no}
+	</select>
+	<!-- 根据班级找学院 -->
+	<!-- <select id="queryClazzDepart" resultType="com.happystudy.model.Depart">
+		select DISTINCT t_depart.* from t_clazz left join t_teacher on t_clazz.c_teacher_fk=t_teacher.t_no left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
+		where c_no = #{cNo}
+	</select> -->
+	<!-- 根据班级找学院 -->
+	<select id="queryClazzDepart" resultType="com.happystudy.model.Depart">
+		select t_depart.* from t_depart left join t_clazz on t_depart.d_no=t_clazz.c_depart_fk 
+		where t_clazz.c_no=#{cNo}
+	</select>
+	
+	<!-- 设置学生表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setClazzFk">
+		update t_clazz set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	
+	<select id="queryClazzStuCountByTeacherNo" parameterType="map" resultType="java.lang.Integer">
+		select count(c_no) as stuCount from t_clazz right join t_teacher on t_clazz.c_teacher_fk=t_teacher.t_no 
+		left join t_student on t_clazz.c_no=t_student.s_clazz_fk
+		where not ISNULL(c_no) and t_no = #{t_no}
+	</select>
 </mapper>

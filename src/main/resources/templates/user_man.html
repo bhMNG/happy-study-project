@@ -30,9 +30,7 @@
 	}
 	.infobox-input{
 		width: 80%;
-		
-		
-		
+	
 	}
 	.infobox-input input {
 		
@@ -110,7 +108,7 @@
     				</div>
     			</div>
     			<form id="upload_form" enctype="multipart/form-data" method="post" action="" hidden="hidden">
-    				<input type="file" class="user_photo_file" name="file" accept="image/*" id="user_photo">
+    				<input type="file" class="user_photo_file" name="file" accept="image/*" id="user_photo" @change="loadFiles">
     			</form>
     		</div>
   		</div>
@@ -181,12 +179,12 @@
 						this.userinfo.user.i_idcard="身份证号< 待完善 >";
 						this.userinfo.user.i_address="现住地址< 待完善 >";
 					}
-					if (response.user.iName == "" || response.user.iName == null || response.user.iName == undefined){
+					if (response.user.iName == undefined || response.user.iName == "" || response.user.iName == null ){
 						this.userinfo.user.i_name="姓名< 待完善 >";
 					}else{
 						this.userinfo.user.i_name=response.user.iName;
 					}
-					if (response.user.iSex == "" || response.user.iSex == null || response.user.iSex == undefined){
+					if (response.user.iSex == undefined || response.user.iSex == "" || response.user.iSex == null ){
 						this.userinfo.user.i_sex = "性别< 待完善 >";
 					}else{
 						if (response.user.iSex == 1){
@@ -197,20 +195,25 @@
 							this.userinfo.user.i_sex = "性别< 待完善 >";
 						}
 					}
-					if (response.user.iBirthday == "" || response.user.iBirthday == null || response.user.iBirthday == undefined){
+					if (response.user.iBirthday == undefined || response.user.iBirthday == "" || response.user.iBirthday == null){
 						this.userinfo.user.i_birthday = "出生日期< 待完善 >";
 					}else{
 						this.userinfo.user.i_birthday = response.user.iBirthday;
 					}
-					if (response.user.iIdcard == "" || response.user.iIdcard == null || response.user.iIdcard == undefined){
+					if (response.user.iIdcard == undefined || response.user.iIdcard == "" || response.user.iIdcard == null){
 						this.userinfo.user.i_idcard="身份证号< 待完善 >";
 					}else{
 						this.userinfo.user.i_idcard = response.user.iIdcard;
 					}
-					if (response.user.iAddress == "" || response.user.iAddress == null || response.user.iAddress == undefined){
+					if (response.user.iAddress == undefined || response.user.iAddress == "" || response.user.iAddress == null){
 						this.userinfo.user.i_address = "现住地址< 待完善 >";
 					}else{
 						this.userinfo.user.i_address = response.user.iAddress;
+					}
+					if (response.user.iPhoto == undefined || response.user.iPhoto == "" || response.user.iPhoto == null){
+						this.userinfo.user.i_photo = "${ctxPath}/img/default_student.jpg"
+					}else{
+						this.userinfo.user.i_photo = "${ctxPath}" + response.user.iPhoto;
 					}
 				})
 			},
@@ -238,22 +241,28 @@
 				
 				$.ajax({
 					type : "post",
-					url : "${ctxPath}/management/student/uploadFiles", 
+					url : "${ctxPath}/happy-study/user/uploadUserHeadImg", 
 					processData : false,
 					contentType : false,
 					data : formData,
 					success : function(ret){
-						if (ret.indexOf("error:") > 1){
-							alert(ret);
+						if (ret.status==0){
+							vue.imgData.imgUrl = ret.fileUrl;
+							console.log(vue.imgData.imgUrl);
+							vue.storeHeadImgUrl(vue.imgData.imgUrl);
+							$("#user_photo").val("");
+							alert("文件上传成功");
+							vue.queryUser();
+							$(".user-head-img").attr("src", "${ctxPath}"+ret.fileUrl);
+							vue.clearInputShow();
 							return ;
 						}
+						alert("上传失败, code: " + ret.status);
 						
-						alert("文件上传成功");
-						vue.imgData.imgUrl = ret;
-						$("#user_photo").val("");
+						
 					},
 					error : function(err){
-						alert(err);
+						alert("失败了");
 						$("#user_photo").val("");
 					}
 				});
@@ -265,6 +274,11 @@
 				}else{
 					return false;
 				}
+			},
+			storeHeadImgUrl : function(url){
+				this.inputShow.value = url;
+				this.inputShow.updateDataType = "i_photo";
+				this.updateInfo();
 			},
 			updateInfo : function(){
 				var value = this.inputShow.value;

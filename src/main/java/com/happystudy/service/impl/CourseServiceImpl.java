@@ -6,10 +6,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.happystudy.constants.Constants;
 import com.happystudy.dao.CourseMapper;
 import com.happystudy.dao.DepartMapper;
+import com.happystudy.dao.GradeMapper;
+import com.happystudy.dao.StudentMapper;
 import com.happystudy.dao.TeacherMapper;
 import com.happystudy.model.Course;
 import com.happystudy.model.Student;
@@ -31,7 +34,11 @@ public class CourseServiceImpl implements CourseService {
 	    private DepartMapper departMapper;
 	    @Autowired
 	    private TeacherMapper teacherMapper;
-
+	    @Autowired
+	    private GradeMapper gradeMapper;
+	    @Autowired
+	    private StudentMapper studentMapper;
+	    
 	    //查询课程
 	    @Override
 	    public JSONObject queryCourse(String keyword,String orderby,String asc,Integer pageNo,Integer pageSize) {
@@ -113,19 +120,31 @@ public class CourseServiceImpl implements CourseService {
 	    }
 
 	    //根据课程号删除课程
+	    @Transactional
 	    @Override
 	    public JSONObject deleteCourseByNo(String coNo) {
 	        JSONObject json=new JSONObject();
-	        Course existCourse = courseMapper.findCourseByNo(coNo);
-	        if (existCourse==null){//课程不存在
-	            json.set("status",Constants.NULL_COURSE);
-	            return json;
-	        }else {
-	            courseMapper.deleteCourseByNo(coNo);
-	            json.set("status",Constants.SUCCESS);
-	            return json;
+	        try {
+	        	Course existCourse = courseMapper.findCourseByNo(coNo);
+		        if (existCourse==null){//课程不存在
+		            json.set("status",Constants.NULL_COURSE);
+		            return json;
+		        }else {
+		        	gradeMapper.setGradeFk(Constants.G_COURSE_FK, coNo, null);
+		        	teacherMapper.setTeacherFk(Constants.T_COURSE_FK, coNo, null);
+		        	//删除课程表与学生表的中间表中的数据 （当某门课程被删除时）
+		        	courseMapper.deleteCourseStuListDataRow(coNo);
+		        	courseMapper.deleteCourseApplyDataRow(Constants.CAL_COURSE_FK, coNo);
+		            courseMapper.deleteCourseByNo(coNo);
+		            json.set("status",Constants.SUCCESS);
+		            return json;
+		        }
+	        }catch(Exception e) {
+	        	e.printStackTrace();
+	        	return json.set("status", Constants.DB_ERROR);
 	        }
 	    }
+	    
 
 	    //根据课程号精确匹配课程
 	    @Override
@@ -197,4 +216,114 @@ public class CourseServiceImpl implements CourseService {
 	        json.set("count",count);
 	        return json;
 	    }
+	    
+	    //根据状态码查询课程
+	    @Override
+	    public JSONObject queryCourseByStatus(String keyword, String orderBy, String orderWay, 
+	    		Integer pageNo, Integer pageSize, Integer status) {
+	    	JSONObject result = new JSONObject();
+	    	try {
+	    		if (status == 0 || status == 1 || status == 2) {
+	    			Integer offset=(pageNo-1)*pageSize;
+		    		List<Map<String, Object>> courseList = courseMapper.queryCourseByStatus(keyword, orderBy, orderWay, 
+		    				offset, pageSize, status);
+		    		for (Map<String, Object> course : courseList) {
+		    			if (course==null) {
+		    				break;
+		    			}
+		    			course.put("courseStuCount", courseMapper.queryCourseStudentCount((String)course.get("co_no")));
+		    		}
+		    		result.set("courseArray", JSONUtil.parseArray(courseList));
+		    	}else {
+		    		result.set("status", Constants.NULL_PARAM_ERROR);
+		    	}
+		    	result.set("status", Constants.SUCCESS);
+		    	return result;
+	    	}catch(Exception e) {
+	    		e.printStackTrace();
+	    		result.set("status", Constants.DB_ERROR);
+	    		return result;
+	    		
+	    	}
+	    }
+	    //设置课程的状态码 (否定申请，执行申请，同意申请)
+	    @Transactional
+	    @Override
+	    public JSONObject setCourseStatus(String tNo, String coNo, Integer status) {
+	    	JSONObject result = new JSONObject();
+	    	try {
+	    		String[] tNos = tNo.split("-");
+		    	String[] coNos = coNo.split("-");
+		    	if (tNos.length!=coNos.length) {
+		    		return result.set("status", Constants.PARAM_FORMATE_ERROR);
+		    	}
+		    	int size = tNos.length;
+		    	for (int i = 0; i < size; i++) {
+		    		tNo = tNos[i];
+		    		coNo = coNos[i];
+		    		courseMapper.setCourseStatus(coNo, status);
+			    	if (status == 1) {
+			    		try {
+			    			try {
+				    			courseMapper.insertCourseApplyDataRow(tNo, coNo);
+				    		}catch(Exception e) {
+				    			//已经存在
+				    			courseMapper.deleteCourseApplyDataRow(Constants.CAL_COURSE_FK, coNo);
+				    			courseMapper.insertCourseApplyDataRow(tNo, coNo);
+				    		}
+			    		}catch(Exception e2) {
+			    			e2.printStackTrace();
+			    			return result.set("status", Constants.DB_ERROR);
+			    		}
+			    		result.set("status", Constants.SUCCESS);
+			    	}else if(status == 2) {
+			    		try {
+			    			if (teacherMapper.getTeacherCourse(tNo)!=null) {
+			    				return result.set("status", Constants.ALREADY_PICK);
+			    			}
+			    			courseMapper.setCourseStatus(coNo, 2);
+			    			courseMapper.deleteCourseApplyDataRow(Constants.CAL_COURSE_FK, coNo);
+			    			teacherMapper.setTeacherCourseFkByTNo(tNo, coNo);
+			    		}catch(Exception e) {
+			    			e.printStackTrace();
+			    			return result.set("status", Constants.DB_ERROR);
+			    		}
+			    		result.set("status", Constants.SUCCESS);
+			    	}else if(status == 0) {
+			    		try {
+			    			courseMapper.setCourseStatus(coNo, 0);
+			    			courseMapper.deleteCourseApplyDataRow(Constants.CAL_COURSE_FK, coNo);
+			    		}catch(Exception e) {
+			    			e.printStackTrace();
+			    			return result.set("status", Constants.DB_ERROR);
+			    		}
+			    		result.set("status", Constants.SUCCESS);
+			    	}else {
+			    		result.set("status", Constants.NULL_PARAM_ERROR);
+			    	}
+			    	//return result;
+			    }
+		    	return result;
+		    }catch(Exception ee) {
+	    		ee.printStackTrace();
+	    		return new JSONObject().set("status", Constants.DB_ERROR);
+	    	}
+	    }
+	    
+	    //学生选课（根据学号）
+	    @Transactional
+	    @Override
+	    public JSONObject chooseCourseBySNo(String sNo, String coNo) {
+	    	JSONObject result = new JSONObject();
+	    	try {
+	    		courseMapper.chooseCourseBySNo(sNo, coNo);
+	    		return result.set("status", Constants.SUCCESS);
+	    	}catch(Exception e) {
+	    		e.printStackTrace();
+	    		return result.set("status", Constants.DB_ERROR);
+	    	}
+	    }
+	    
+	    
+	    
 }

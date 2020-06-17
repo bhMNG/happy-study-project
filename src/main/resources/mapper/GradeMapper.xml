@@ -14,22 +14,82 @@
 	</select>
 	<!-- 查询某个学生的成绩单 -->
 	<select id="findGradeByStudent" resultType="com.happystudy.model.Grade">
-		select g_score from t_grade left join t_student on t_grade.g_student_fk=t_student.s_no 
-		where s_no=#{sNo}
+		select t_grade.g_score from t_grade where t_grade.g_course_fk in (select co_no from t_course where co_no 
+		in (select csl_course_fk from t_course_stulist where t_course_stulist.csl_student_fk 
+		in (select s_no from t_student where s_no=#{sNo}))) and t_grade.g_student_fk=#{sNo}
 	</select>
-	<!-- 查询某个学生某门课程的成绩单 || 查询某门课程某个学生的成绩单 -->
+	<!-- 查询某个学生某门课程的成绩单 -->
 	<select id="findGradeByCS" resultType="com.happystudy.model.Grade">
-		select g_score from t_grade left join t_student on t_grade.g_student_fk=t_student.s_no left join t_course on t_grade.g_course_fk=t_course.co_no 
-		where s_no=#{sNo} and co_no=#{coNo}
+		select t_grade.g_score from t_grade where t_grade.g_course_fk in (select co_no from t_course where co_no 
+		in (select csl_course_fk from t_course_stulist where t_course_stulist.csl_student_fk 
+		in (select s_no from t_student where s_no=#{sNo})) and co_no=#{coNo}) and t_grade.g_student_fk=#{sNo}
 	</select>
 	
+	<!-- 根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setGradeFk">
+		update t_grade set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
 	
+	<!--模糊匹配查询成绩-->
+	<!--代码添加或修改-->
+	<select id="queryGrade" resultType="map" parameterType="java.util.Map">
+		select s_no,s_name,g_score,t_name,d_name,co_no,co_name from t_grade right JOIN t_student on t_student.s_no=t_grade.g_student_fk LEFT JOIN
+		t_teacher on t_teacher.t_course_fk=t_grade.g_course_fk LEFT JOIN t_depart on t_depart.d_no=t_teacher.t_depart_fk LEFT JOIN
+		t_course ON t_course.co_no=t_grade.g_course_fk
+		<where>
+			<if test="coNo !=''">
+				(t_grade.g_course_fk like "%${coNo}%" or t_course.co_name like "%${coNo}%") 
+			</if>
+			<if test="cNo !=''">
+				and (t_student.s_clazz_fk like "%${cNo}%" or t_clazz.c_name like "%${cNo}%")
+			</if>
+			<if test="tNo !=''">
+				and (t_teacher.t_no like "%${tNo}%" or t_teacher.t_name like "%${tNo}%")
+			</if>
+			<if test="dNo !=''">
+				and (t_depart_fk like "%${dNo}%" or t_depart.d_name like "%${dNo}%") 
+			</if>
+			<if test="coNo !='' or cNo !='' or tNo !='' or dNo!=''">and (co_no != null or co_no !='')</if>
+		</where>
+		<if test="coNo == '' and cNo == '' and tNo == '' and dNo == ''">where co_no != null or co_no !=''</if>  
+		order by ${orderBy}, s_no ${orderWay}
+	</select>
 	
+	<!-- 录入成绩 -->
+	<insert id="setStudentScore">
+		insert into t_grade (g_score, g_course_fk, g_student_fk) values 
+		(#{score}, #{coNo}, #{sNo})
+	</insert>
+	<!-- 修改成绩 -->
+	<update id="updateStudentScore">
+		update t_grade set g_score=#{score}
+		where g_student_fk=#{sNo} and g_course_fk=#{coNo}
+	</update>
 	
-	
-	
-	
-	
+	<!-- 查找没有成绩但是选了课程的学生 -->
+	<select id="queryNullGradeButHasCourseRow" resultType="map">
+		select s_no, s_name, c_no, c_name, co_no, co_name, t_name, d_name from (t_course left join t_course_stulist on t_course.co_no = t_course_stulist.csl_course_fk
+		left join t_student on t_course_stulist.csl_student_fk=t_student.s_no)
+		left join t_teacher on t_course.co_no=t_teacher.t_course_fk
+		left join t_depart on t_student.s_depart_fk=t_depart.d_no
+		left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no 
+		where s_no not in (select s_no from (t_grade left join t_student on t_grade.g_student_fk=t_student.s_no
+		left join t_course on t_grade.g_course_fk=t_course.co_no))
+
+		<if test="coNo !=''">
+			and (co_no like "%${coNo}%" or co_name like "%${coNo}%") 
+		</if>
+		<if test="cNo !=''">
+			and (c_no like "%${cNo}%" or c_name like "%${cNo}%")
+		</if>
+		<if test="tNo !=''">
+			and (t_no like "%${tNo}%" or t_no like "%${tNo}%")
+		</if>
+		<if test="dNo !=''">
+			and (d_no like "%${dNo}%" or d_no like "%${dNo}%") 
+		</if>
+		order by ${orderBy}, s_no ${orderWay}	
+	</select>
 	
 	
 	

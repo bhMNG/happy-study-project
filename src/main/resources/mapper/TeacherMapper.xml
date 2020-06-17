@@ -11,7 +11,7 @@
 	<select id="queryTeacher" resultType="map" parameterType="map">
 		select t_teacher.*,d_no,d_name,co_no,co_name,r_property,r_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no
 		left join t_course on t_teacher.t_course_fk=t_course.co_no left join t_role on t_teacher.t_role_fk=t_role.id
-		<if test="keyword !=''">where (t_no like '%${keyword}%' or t_name like '%${keyword}')</if>
+		<if test="keyword !=''">where (t_no like '%${keyword}%' or t_name like '%${keyword}%')</if>
 		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
 	</select>
 	<!-- 查询教师人数（默认为所有教师人数） -->
@@ -25,8 +25,12 @@
 	</select>
 	<!-- 添加教师 -->
 	<insert id="addTeacher">
-		insert into t_teacher(t_no,t_name,t_sex,t_depart_fk,t_course_fk)
-		values (#{tNo},#{tName},#{tSex},#{tDepartFk},#{tCourseFk})
+		insert into t_teacher(t_no,t_name,t_sex,
+		<if test="tDepartFk!=null and tDepartFk!=''">t_depart_fk,</if>
+		t_course_fk)
+		values (#{tNo},#{tName},#{tSex},
+		<if test="tDepartFk!=null and tDepartFk!=''">#{tDepartFk},</if>
+		#{tCourseFk})
 	</insert>
 	<!-- 更新教师 -->
 	<update id="updateTeacherByNo">
@@ -34,6 +38,7 @@
 		set
 		<if test=" tName != null and tName!= '' ">t_teacher.t_name=#{tName},</if>
 		<if test=" tSex != null and tSex!= '' ">t_teacher.t_sex=#{tSex}</if>
+		<if test=" tDepartFk != ''">,t_teacher.t_depart_fk=#{tDepartFk}</if>
 		where t_no=#{tNo}
 	</update>
 	<!-- 删除教师 -->
@@ -42,8 +47,7 @@
 	</delete>
 	<!-- 根据班级获取老师 -->
 	<select id="findTeacherByClazz" resultType="com.happystudy.model.Teacher">
-		select t_teacher.id,t_no, t_name, t_sex from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no left join t_student on t_student.s_depart_fk=t_depart.d_no
-		left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no where t_clazz.c_no=#{cNo}
+		select t_teacher.* from t_clazz right join t_teacher on t_clazz.c_teacher_fk = t_teacher.t_no where c_no=#{cNo}
 	</select>
 	<!-- 根据课程找老师 -->
 	<select id="findTeacherByCourse" resultType="com.happystudy.model.Teacher">
@@ -57,8 +61,7 @@
 	</select>
 	<!-- 获得该老师所负责的班级-->
 	<select id="getTeacherClazz" resultType="com.happystudy.model.Clazz">
-		select DISTINCT c_no, c_name from t_teacher left join t_depart on t_teacher.t_depart_fk=t_depart.d_no left join t_student on t_student.s_depart_fk=t_depart.d_no
-		left join t_clazz on t_student.s_clazz_fk=t_clazz.c_no where t_teacher.t_no=#{tNo}
+		select t_clazz.* from t_teacher right JOIN t_clazz on t_teacher.t_no = t_clazz.c_teacher_fk where t_teacher.t_no=#{tNo}
 	</select>
 	<!-- 获得该老师所负责的课程 -->
 	<select id="getTeacherCourse" resultType="com.happystudy.model.Course">
@@ -96,5 +99,21 @@
 		set t_course.co_no=#{coNo}
 		from t_teacher left join t_course on t_teacher.t_course_fk=t_course.co_no
 		where t_no=#{tNo}
-	</update>		
+	</update>
+	<!-- 设置教师账号外键 -->
+	<update id="setTeacherUsername">
+		update t_teacher set t_user_fk=#{username} where t_no=#{tno}
+	</update>
+	
+	<!-- 设置教师表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setTeacherFk">
+		update t_teacher set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	<!--  -->
+	<update id="setTeacherCourseFkByTNo">
+		update t_teacher set t_course_fk = #{coNo} where t_no=#{tNo}
+	
+	</update>
+	
+			
 </mapper>

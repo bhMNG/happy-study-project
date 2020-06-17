@@ -31,12 +31,12 @@
 	<!-- 查询已存在用户(5个参数) -->
 	<select id="queryUser" resultType="map" parameterType="map">
 		select t_user.*,r_property,r_name from t_user left join t_role on t_user.u_role_fk=t_role.r_property
-		<if test="keyword !=''">where (t_user.u_phone like '%${keyword}%' or u_username like '%${keyword}')</if>
+		<if test="keyword !=''">where (t_user.u_phone like '%${keyword}%' or u_username like '%${keyword}%')</if>
 		order by ${orderBy} ${orderWay} limit ${offset},${pageSize}
 	</select>
 	<!-- 查询用户个人信息 -->
 	<select id="queryUserInfo" resultType="com.happystudy.model.UserInfo">
-		select i_name,i_sex,i_photo,i_address,i_birthday,i_idcard from t_user
+		select i_name,i_sex,i_photo,i_address,i_birthday,i_idcard, i_username_fk from t_user
 		right join t_user_info on t_user.u_username=t_user_info.i_username_fk
 		where t_user.u_username=#{username}
 	</select>
@@ -70,8 +70,8 @@
 	</select>
 	<!-- 添加用户 -->
 	<insert id="addUser">
-		insert into t_user (u_username, u_userpass, u_phone)
-		values (#{uUsername},#{uUserpass},#{uPhone})
+		insert into t_user (u_username, u_userpass, u_phone, u_role_fk)
+		values (#{uUsername},#{uUserpass},#{uPhone}, #{uRoleFk})
 	</insert>
 	<!-- 根据电话查找用户 -->
 	<select id="findUserByPhone"  resultType="com.happystudy.model.User">
@@ -110,17 +110,141 @@
 	<select id="queryTeacherUserCourse" resultType="map">
 		select co_no, co_name, t_name from t_user left join t_teacher on t_user.u_username = t_teacher.t_user_fk 
 		left join t_course ON t_teacher.t_course_fk = t_course.co_no 
-		where u_username=#{username} and t_user.u_role_fk = 1 order by #{orderBy} #{orderWay}
+		where u_username=#{username} and t_user.u_role_fk in (0,1) order by #{orderBy} #{orderWay}
 	</select>
 	<!-- 查询学生用户的已选课程 -->
 	<select id="queryStudentUserCourse" resultType="map">
-		select co_no, co_name, t_name from t_user inner join t_student on t_user.u_username = t_student.s_user_fk 
-		inner JOIN t_depart on t_student.s_depart_fk = t_depart.d_no inner JOIN t_teacher on t_depart_fk = t_teacher.t_depart_fk
-		inner JOIN t_course on t_teacher.t_course_fk = t_course.co_no = t_user.u_username 
-		where u_username=#{username} and t_user.u_role_fk = 2 order by #{orderBy} #{orderWay}
+		select co_no, co_name, t_name from t_user inner join t_student on t_user.u_username=t_student.s_user_fk
+		right join t_course_stulist on t_student.s_no=t_course_stulist.csl_student_fk
+		right join t_course on t_course_stulist.csl_course_fk = t_course.co_no
+		left join t_teacher on t_course.co_no=t_teacher.t_course_fk where u_username=#{username}
+	</select>
+	<!-- 查询老师用户的负责班级 -->
+	<select id="queryTeacherUserClazz" resultType="map">
+		select u_username, c_no, c_name, t_name, d_name, c_enter_year from t_user 
+		left join t_teacher on t_user.u_username = t_teacher.t_user_fk 
+		right join t_clazz on t_teacher.t_no = t_clazz.c_teacher_fk 
+		LEFT JOIN t_depart ON t_clazz.c_depart_fk = t_depart.d_no where u_username=#{username}
+	</select>
+	<!-- 查询学生用户的所在班级 -->
+	<select id="queryStudentUserClazz" resultType="map">
+		SELECT u_username, c_no, c_name, t_name, d_name, c_enter_year, s_no from t_user 
+		LEFT JOIN t_student on t_user.u_username=t_student.s_user_fk 
+		RIGHT JOIN t_clazz on t_student.s_clazz_fk=t_clazz.c_no left join t_depart on t_clazz.c_depart_fk=t_depart.d_no
+		LEFT JOIN t_teacher on t_clazz.c_teacher_fk=t_teacher.t_no where u_username=#{username}
 	</select>
 	<insert id="insertUserInfo">
 		insert into t_user_info (${key}, i_username_fk)
 		values (#{value},#{username})
 	</insert>
+	
+	<!-- 设置user表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setUserFk">
+		update t_user set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	<!-- 设置property表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setPropertyFk">
+		update t_property set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	<!-- 设置学生表的某个外键   根据旧外键设置新外键(删除外键对象的时候用) -->
+	<update id="setUserinfoFk">
+		update t_user_info set ${FKName} = #{newFk} where ${FKName}=#{oldFk}
+	</update>
+	
+	<!--根据用户名查询我的成绩-->
+	<!--代码添加或修改-->
+	<select id="queryMyGrade" resultType="map">
+		select co_no, co_name, g_score from t_user 
+		inner join t_student on t_user.u_username=t_student.s_user_fk
+		left join t_grade on t_student.s_no=t_grade.g_student_fk
+		left join t_course on t_grade.g_course_fk=t_course.co_no
+		left join t_teacher on t_course.co_no=t_teacher.t_course_fk
+		where u_username=#{username} order by #{orderBy} #{orderWay}
+	</select>
+	<!-- 查询学生用户的成绩表条数 -->
+	<select id="queryUserCourseCount" resultType="java.lang.Integer">
+		select co_no, co_name, t_name from t_user inner join t_student on t_user.u_username=t_student.s_user_fk
+		right join t_course_stulist on t_student.s_no=t_course_stulist.csl_student_fk
+		right join t_course on t_course_stulist.csl_course_fk = t_course.co_no
+		left join t_teacher on t_course.co_no=t_teacher.t_course_fk 
+		where u_username=#{username} and t_user.u_role_fk = 2
+	</select>
+	
+	<!-- 根据用户名获取教师用户的教师号 -->
+	<select id="getTeacherNoByUsername" resultType="java.lang.String">
+		select t_no from t_user left join t_teacher on t_user.u_username=t_teacher.t_user_fk where u_username=#{username}
+	</select>
+	<select id="getStudentNoByUsername" resultType="java.lang.String">
+		select s_no from t_user left join t_student on t_user.u_username=t_student.s_user_fk where u_username=#{username}
+	</select>
+	
+	<insert id="addUserInfo">
+		insert into t_user_info (i_username_fk)
+		values (#{username})
+	</insert>
+	<delete id="deleteUserInfo">
+		delete from t_user_info where i_username_fk=#{username}
+	</delete>
+	
+	
+	
+	<!-- 删除t_role_actionlist表中的多条记录（删除自定义role角色的时候用） -->
+	<delete id="deleteRoleActionListDataRow">
+		delete from t_role_actionlist where t_role_actionlist.ral_role_fk=#{ralRoleFk} 
+	</delete>
+	<!-- 除t_role_actionlist表中的一条记录（给role角色减少职责行为的时候用） -->
+	<delete id="deleteRoleActionListDataOneRow">
+		delete from t_role_actionlist 
+		where t_role_actionlist.ral_role_fk=#{ralRoleFk} and t_role_actionlist.ral_prop_fk=#{ralPropFk}
+	</delete>
+	<!-- 添加t_role_actionlist表中的一条记录（给role角色添加职责行为的时候使用） -->
+	<insert id="addRoleActionListDataRow">
+		insert into t_role_actionlist (ral_role_fk, ral_prop_fk) values (#{ralRoleFk}, #{ralPropFk})
+	</insert>
+	<!-- 查询角色的所有的职责行为 有的-->
+	<select id="queryPropByRole" resultType="map">
+		select r_name, r_property, p_duty, p_category, p_duty_info, p_no from t_role 
+		right join t_role_actionlist on t_role.r_property=t_role_actionlist.ral_role_fk
+		right join t_property on t_role_actionlist.ral_prop_fk=t_property.p_no 
+		where r_property=#{rProperty} order by p_no asc
+	</select>
+	<!-- 查询该系统中的所有职责行为 -->
+	<select id="queryAllPropDuty" resultType="map">
+		select p_no, p_duty, p_category, p_duty_info from t_property order by p_category, p_no asc
+	</select>
+	<!-- 查询系统中所有的角色 -->
+	<select id="queryAllRole" resultType="map">
+		select r_property, r_name from t_role order by r_property asc
+	</select>
+	<!-- 添加一个角色 -->
+	<insert id="addRole">
+		insert into t_role (r_property, r_name) values (#{rProperty}, #{rName})
+	</insert>
+	<!-- 删除一个角色 -->
+	<delete id="deleteRole">
+		delete from t_role 
+		where t_role.r_property=#{rProperty} and r_property != 0 and r_property != 1 and r_property!= 2
+	</delete>
+	<update id="updateRoleName">
+		update t_role set r_name=#{rName} where r_property=#{rProperty}
+	</update>
+	<!-- 根据角色的权限值 精确查找一个角色 -->
+	<select id="findRoleByProperty" resultType="com.happystudy.model.Role">
+		select * from t_role where r_property=#{rProperty}
+	</select>
+	<!-- 根据职责行为编号 精确查询一个职责行为 -->
+	<select id="findPropertyByPNo" resultType="com.happystudy.model.Property">
+		select * from t_property where p_no=#{pNo}
+	</select>
+	<!-- 查询某个角色的某个职责 -->
+	<select id="findRolePropertyByPNo" resultType="com.happystudy.model.Property">
+		select * from t_property where p_no 
+		in (select t_role_actionlist.ral_prop_fk from t_role_actionlist where t_role_actionlist.ral_role_fk=#{rProperty}) 
+		and p_no=#{pNo}
+	</select>
+	<!-- 根据p_duty获取p_No -->
+	<select id="getpNoByDuty" resultType="java.lang.String">
+		select p_no from t_property where p_duty=#{pDuty}
+	</select>
+	
 </mapper>

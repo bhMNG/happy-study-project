@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<role>
+	<role id="1" name="教师">
+		<roleprop pNo="p0"/>
+		<roleprop pNo="p1"/>
+		<roleprop pNo="p3"/>
+		<roleprop pNo="p5"/>
+		<roleprop pNo="p100"/>
+		<roleprop pNo="p101"/>
+		<roleprop pNo="p102"/>
+		<roleprop pNo="p103"/>
+		<roleprop pNo="p104"/>
+		<roleprop pNo="p105"/>
+		<roleprop pNo="p107"/>
+		<roleprop pNo="p108"/>
+		<roleprop pNo="p200"/>
+		<roleprop pNo="p201"/>
+		<roleprop pNo="p300"/>
+		<roleprop pNo="p301"/>
+		<roleprop pNo="p302"/>
+		<roleprop pNo="p303"/>
+		<roleprop pNo="p304"/>
+		<roleprop pNo="p305"/>
+		<roleprop pNo="p306"/>
+		<roleprop pNo="p400"/>
+		<roleprop pNo="p401"/>
+		<roleprop pNo="p402"/>
+		<roleprop pNo="p403"/>
+		<roleprop pNo="p404"/>
+		<roleprop pNo="p405"/>
+		<roleprop pNo="p406"/>
+		<roleprop pNo="p500"/>
+		<roleprop pNo="p501"/>
+		<roleprop pNo="p600"/>
+		<roleprop pNo="p601"/>
+		<roleprop pNo="p602"/>
+		<roleprop pNo="p603"/>
+		<roleprop pNo="p604"/>
+		<roleprop pNo="p605"/>
+		<roleprop pNo="p606"/>
+		<roleprop pNo="p608"/>
+		<roleprop pNo="p609"/>
+		<roleprop pNo="p610"/>
+	</role>
+	<role id="2" name="学生">
+		<roleprop pNo="p0"/>
+		<roleprop pNo="p1"/>
+		<roleprop pNo="p5"/>
+		<roleprop pNo="p100"/>
+		<roleprop pNo="p101"/>
+		<roleprop pNo="p105"/>
+		<roleprop pNo="p107"/>
+		<roleprop pNo="p200"/>
+		<roleprop pNo="p201"/>
+		<roleprop pNo="p301"/>
+		<roleprop pNo="p302"/>
+		<roleprop pNo="p303"/>
+		<roleprop pNo="p304"/>
+		<roleprop pNo="p305"/>
+		<roleprop pNo="p400"/>
+		<roleprop pNo="p402"/>
+		<roleprop pNo="p406"/>
+		<roleprop pNo="p600"/>
+		<roleprop pNo="p605"/>
+		<roleprop pNo="p606"/>
+		<roleprop pNo="p609"/>
+		<roleprop pNo="p610"/>
+		<roleprop pNo="p611"/>
+	</role>
+</role>

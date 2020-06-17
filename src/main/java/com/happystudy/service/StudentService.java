@@ -18,7 +18,7 @@ public interface StudentService {
     //添加学生
     public JSONObject addStudent(String sNo,String sName, String sSex, String sEnterYear);
     //根据学号删除学生
-    public JSONObject deleteStudentByNo(String sNo);
+    public JSONObject deleteStudentByNo(String[] sNos);
     //根据学号修改学生
     public JSONObject updateStudentByNo(Map<String,Object> param);
     //获取学生所在班级
@@ -32,5 +32,8 @@ public interface StudentService {
     
     //批量导入
     public String addStudentBatch(List<JSONObject> stuList);
+    
+    //根据学生学号查询学生详细信息
+    public JSONObject getStudentInfoByNo(String sNo);
     
 }

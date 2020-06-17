@@ -36,4 +36,13 @@ public interface StudentMapper {
 	public Depart getStudentDepart(String sNo);
 	//添加学生（完整信息）
 	public void doAddStudent(String sNo, String sName, String sBirthday, String sSex, String sEnterYear, String sClazzFk, String sDepartFk);
+	//设置学生账号外键
+	public void setStudentUsername(String sno, String username);
+	
+	//根据旧外键设置新外键(删除外键对象的时候用)
+	public void setStudentClazzFk(String oldClazzFk, String newClazzFk);
+	//设置学生的学院外键
+	//public void setStudentDepart(String sNo, String sDepartFk);
+	//根据旧外键设置新外键(删除外键对象的时候用)
+	public void setStudentFk(String FKName, String oldFk, String newFk);
 }
