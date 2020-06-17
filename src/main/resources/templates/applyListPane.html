@@ -187,15 +187,15 @@
 			},
 			toPrepareBuffer : function(apply){
 				this.applyQuery.applyArray.unshift(apply);
-				this.confirmBuffer.applyArray.splice(vue.confirmBuffer.applyArray.indexOf(apply), 1);
+				this.confirmBuffer.applyArray.splice(this.confirmBuffer.applyArray.indexOf(apply), 1);
 			},
 			toConfirmBuffer : function(apply){
 				this.confirmBuffer.applyArray.unshift(apply);
-				this.applyQuery.applyArray.splice(vue.applyQuery.applyArray.indexOf(apply), 1);
+				this.applyQuery.applyArray.splice(this.applyQuery.applyArray.indexOf(apply), 1);
 			},
 			queryApply : function(){
 				this.applyQuery.applyArray = null;
-				confirmBuffer.applyArray = [];
+				this.confirmBuffer.applyArray = [];
 				$.post("${ctxPath}/happy-study/course/queryApplyingStateCourse", {
 					keyword : '',
 					orderBy : '',
