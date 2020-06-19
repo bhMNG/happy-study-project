@@ -1,0 +1,126 @@
+<div style="height: 95%;width: 100%">
+    <div id="echart-pieChart" style="height:50%"></div>
+    <div id="echart-pieChart2" style="height:50%"></div>
+</div>
+<script>
+
+    var url="${ctxPath}/happy-study/chart/getDepartMsg";
+    var vue=new Vue({
+        el:'echart-pieChart',
+        data:{
+            departs:null
+        },
+        methods:{
+            getMsg : function () {
+                $.post(url,{},response=>{
+                    this.departs=response.departs;
+                    var departNames=[];
+                    var studentNum = [];
+                    var teacherNum = [];
+                    for(var i = 0; i < response.departs.length; i++){
+                        departNames.push(response.departs[i].d_name);
+                        studentNum.push({value : response.departs[i].stuCount, name : response.departs[i].d_name});
+                        teacherNum.push({value : response.departs[i].teacherCount, name : response.departs[i].d_name})
+                    }
+                    console.log(teacherNum);
+                    var myChart = echarts.init(document.getElementById('echart-pieChart'));
+                    option = {
+                        title: {
+                            text: '各个学院学生人数综合统计',
+                            subtext: 'HappyStudy',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b} : {c} ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: departNames,
+                        },
+                        series: [
+                            {
+                                name: '学院学生数',
+                                type: 'pie',
+                                radius: '55%',
+                                center: ['50%', '60%'],
+                                data: studentNum,
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    // var myChart2 = echarts.init(document.getElementById('echart-pieChart2'));
+                    // option2 = {
+                    //     title: {
+                    //         text: '各个学院老师人数综合统计',
+                    //         subtext: 'HappyStudy',
+                    //         left: 'center'
+                    //     },
+                    //     tooltip: {
+                    //         trigger: 'item',
+                    //         formatter: '{a} <br/>{b} : {c} ({d}%)'
+                    //     },
+                    //     legend: {
+                    //         orient: 'vertical',
+                    //         right: 'right',
+                    //         data: departNames,
+                    //     },
+                    //     series: [
+                    //         {
+                    //             name: '学院老师数',
+                    //             type: 'pie',
+                    //             radius: '55%',
+                    //             center: ['50%', '60%'],
+                    //             data: teacherNum,
+                    //             emphasis: {
+                    //                 itemStyle: {
+                    //                     shadowBlur: 10,
+                    //                     shadowOffsetX: 0,
+                    //                     shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    //                 }
+                    //             }
+                    //         }
+                    //     ]
+                    // };
+
+
+                    var myChart2 = echarts.init(document.getElementById('echart-pieChart2'));
+                    option2 = {
+                        title: {
+                            text: '各个学院老师人数对比',
+                            subtext: 'HappyStudy',
+                            left: 'center'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: departNames
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [{
+                            data: teacherNum,
+                            type: 'line'
+                        }]
+                    };
+
+                    myChart.setOption(option);
+
+                    myChart2.setOption(option2);
+
+                })
+            }
+        },
+        mounted : function(){
+            this.getMsg();
+        }
+    });
+
+</script>

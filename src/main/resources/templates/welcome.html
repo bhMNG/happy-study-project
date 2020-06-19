@@ -31,6 +31,11 @@
     <script src="${ctxPath}/adminlte/js/app.min.js"></script>
     <!-- anime -->
     <script type="text/javascript" src="${ctxPath}/js/anime.min.js"></script>
+    <!--echarts-->
+    <script src="${ctxPath}/js/echarts-4.8.0.min.js"></script>
+    <!--layui-->
+    <script src="${ctxPath}/js/layui.all.js"></script>
+    <link rel="stylesheet" href="${ctxPath}/css/welcome/layui.css">
     
     <style type="text/css">
     body #test{
@@ -54,6 +59,44 @@
   		@opacity-ie: (@opacity * 100);
   		filter: ~"alpha(opacity=@{opacity-ie})";
 	}
+	.list-unstyled li a{
+        font-family: "copperplate gothic light";
+        font-size: 18px;
+        color: rgba(192,14,235,0.6);
+
+    }
+    .list-unstyled li{
+        margin-top: 8px;
+        margin-left: 5px;
+    }
+    .noticePane {
+    	padding-top: 1%;
+    	padding-left: 1%;
+    }
+    .noticePane ul li a{
+    	color: black;
+    	
+    }
+    .noticePane ul li a:hover{
+    	color: red;
+    }
+    .teamMemberItem h3{
+    	font-size: 43px;
+    }
+    .teamMemberItem h4{
+    	font-size: 32px; 
+    	margin-top: 20px;
+    }
+    .teamMemberItem h5{
+    	font-size: 28px;
+    	margin-top: 15px;
+    }
+    .teamMemberItem p{
+    	font-size: 16px;
+    }
+    .rollImg:hover{
+    	cursor: pointer;
+    }
     </style>
 </head>
 
@@ -62,6 +105,7 @@
 <input hidden="hidden" id="property" value="${currentUser.userProperty}">
 <input hidden="hidden" id="position" value="${currentUser.userPosition}">
 <input hidden="hidden" id="userphone" value="${currentUser.phonenum}">
+
 <!-- 功能隐藏框 -->
 <input hidden="hidden" id='registNo' value="">
 <div id="test">
@@ -110,7 +154,7 @@
                                         <a href="javascript://" class="btn btn-default btn-flat">个人档案</a>
                                     </div>
                                     <div class="pull-right">
-                                        <a href="${ctxPath}/happy-study/loginout" class="btn btn-default btn-flat">退出</a>
+                                        <a href="${ctxPath}/happy-study/loginOut" class="btn btn-default btn-flat">退出</a>
                                     </div>
                                 </li>
                             </ul>
@@ -173,86 +217,203 @@
             </section>
             <!-- Main content -->
             <div id="maindiv" align="center" style="height: 100%">
-            <div id="contentPane" style="width: 90%; ">
-            	<div class="tit">
-            		<header>
-            			<h3></h3>
-            		</header>
-            	</div>
-            
-            	<div class="row row-pane" >
-            		<div class="col-lg-3 col-6">
-            		<div class="small-box bg-info">
-            			<div class="inner">
-            				<h3>150</h3>
-            				<p>
-            					<trans oldtip="New Orders" newtip="新订单">新订单</trans>
-            				</p>
-            			</div>
-            			<div class="icon">
-            				<i class="ion ion-bag">
-            				
-            				</i>
-            			</div>
-            			<a href="#" class="small-box-footer"><trans oldtip="More info " newtip="更多信息" style="">更多信息</trans><i class="fas fa-arrow-circle-right"></i></a>
-            		</div>
-            		</div>
-            		
-            		<div class="col-lg-3 col-6">
-            		<div class="small-box bg-success">
-            			<div class="inner">
-            				<h3>150</h3>
-            				<p>
-            					<trans oldtip="New Orders" newtip="新订单">新订单</trans>
-            				</p>
-            			</div>
-            			<div class="icon">
-            				<i class="ion ion-bag">
-            				
-            				</i>
-            			</div>
-            			<a href="#" class="small-box-footer"><trans oldtip="More info " newtip="更多信息" style="">更多信息</trans><i class="fas fa-arrow-circle-right"></i></a>
-            		</div>
-            		</div>
-            		
-            		<!-- 用户注册 -->
-            		<div class="col-lg-3 col-6">
-            		<div class="small-box bg-warning">
-            			<div class="inner">
-            				<h3>150</h3>
-            				<p>
-            					<trans oldtip="User Registrations" newtip="用户注册" style="">用户注册</trans>
-            				</p>
-            			</div>
-            			<div class="icon">
-            				<i class="ion ion-person-add"></i>
-            			</div>
-            			<a href="#" class="small-box-footer"><trans oldtip="More info " newtip="更多信息" style="">更多信息</trans><i class="fas fa-arrow-circle-right"></i></a>
-            		</div>
-            		</div>
-            		
-            		<div class="col-lg-3 col-6">
-            		<div class="small-box bg-info">
-            			<div class="inner">
-            				<h3>150</h3>
-            				<p>
-            					<trans oldtip="New Orders" newtip="新订单">新订单</trans>
-            				</p>
-            			</div>
-            			<div class="icon">
-            				<i class="ion ion-bag">
-            				
-            				</i>
-            			</div>
-            			<a href="#" class="small-box-footer"><trans oldtip="More info " newtip="更多信息" style="">更多信息</trans><i class="fas fa-arrow-circle-right"></i></a>
-            		</div>
-            		</div>
-            	</div>
- 				
- 				
- 				
- 				
-            </div>
+           		<!-- homepage content -->
+           		<div style="height: 94%; width: 100%; margin-top: 2px;
+           			overflow-y: scroll;">
+           			<!-- 上 轮播图+超链接块 -->
+           			<div style="width: 100%; height: 50%; display: flex; flex-direction: row;">
+           				<!-- 上左 -->
+           				<div style="height: 100%; width: 50%; background: rgba(0,0,0,0.8); padding-top: 5%; padding-bottom: 5%; padding-left: 10px; padding-right: 10px;" 
+           				id="rotation" class="layui-carousel">
+           					<div style="height: 100%; width: 100%; background: gray;" carousel-item>
+           						<div><img src="${ctxPath}/img/welcome/index1.gif" width="100%" height="100%" class="rollImg" @click="toJinCheng"></div>
+                            	<div><img src="${ctxPath}/img/welcome/index2.gif" width="100%" height="100%" class="rollImg" @click="toJinCheng"></div>
+                            	<div><img src="${ctxPath}/img/welcome/index3.jpg" width="100%" height="100%" class="rollImg" @click="toJinCheng"></div>
+           						
+           					</div>
+           				</div>
+           				<!-- 上右 -->
+           				<div style="height: 100%; width: 50%; background: white; padding: 2% 2% 2% 2%;">
+           					<div style="height: 100%; width: 100%; background: rgba(209,210,211,0.3); display: flex;flex-direction: row;">
+           						<div style=" height: 100%; width: 46%; background: white; padding-top: 2%;">
+           							<img src="${ctxPath}/img/team/jingcheng.jpg" style="width: 352px; height: 300px;" >
+           						</div>
+           						<div style="height: 100%; width: 54%;" align="left" class="noticePane">
+           							<div align="center"><h3>公告栏</h3></div>
+           							<hr>
+           							<ul class="list-unstyled">
+		                                <li> <a href="http://zs.scujcc.edu.cn/gklq/" target="_blank">2020年艺术类校考合格证查询</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6342.html" target="_blank">关于举办第六届“互联网+”大学生创新</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6298.html" target="_blank">四川大学锦城学院2020年拟参加“专升本</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6286.html" target="_blank">2020年艺术类专业校考合格名单公示</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6287.html" target="_blank">关于举办2020年（第六届）四川省大学生</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6238.html" target="_blank">企业微信 用户使用通知</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6185.html" target="_blank">四川大学锦城学院 2020 年“专升本”招</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/6162.html" target="_blank">四川大学锦城学院  关于2020年春季学期</a> </li>
+		                                <li> <a href="http://www.scujcc.edu.cn/contents/94/5923.html" target="_blank">就建校十五周年庆祝事宜致“锦城”师生</a> </li>
+		                            </ul>
+           						</div>
+           					</div>
+           				</div>
+           			</div>
+     <!-- 下边的div高度这儿调整 -->	<!-- 下 盒子布局（一堆数据） -->
+           			<div style="width: 100%; height: 3000px;">
+           				<!-- 团队介绍 -->
+           				<div style="height: 400px; width: 100%;  padding-top: 40px;">
+           					<div style="width: 100%; background: rgba(255,255,255,0.3); padding-top: 50px;" align="center">
+           						<h2 style="font-size: 42px;">团队介绍</h2>
+           					</div>
+           					<!-- 团队介绍body -->
+           					<div style="width: 100%; padding: 3% 3% 0% 3%; background: rgba(255,255,255,0.3); ">
+           						<!-- 队长 -->
+           						<div class="teamMemberItem" style="width: 100%; height: 500px; display: flex; flex-direction: row; background: rgba(255,255,255,0.3); margin-bottom: 20px;">
+           							<!-- 左 照片 -->
+           							<div style="width: 50%; height: 100%; background: rgba(176,224,230,0.8);display: flex;flex-direction: row;" align="left" >
+           								<img src="${ctxPath}/img/team/ywh.png" style="height: 100%;">
+           								<!-- 颜色渐变块 -->
+           								<div style="width: 100%; height: 100%; background: #428EDA; background-image: linear-gradient(to right, #428EDA , skyblue);">
+           								</div>
+           							</div>
+           							<!--  右 介绍 -->
+           							<div style="width: 50%; height: 100%; background: rgba(230,83,160,0.3); padding: 2% 2% 2% 2%;">
+           								<div align="left">
+           									<h3>队长</h3>
+  											<h4>Java方向</h4>
+  											<h5>杨伟豪</h5>
+  											<hr>
+  											<br>
+  											<h5>项目职责</h5>
+  											<p style="margin-top: 10px;">前端页面编写；后台代码编写、修改；sql编写、修改；前后端整合，数据库设计</p>
+  											<hr>
+  											<br>
+  											<h5>个人简介</h5>
+  											<p style="margin-top: 10px;">生于浮华闹世之中，需宁静致远；</p>
+  											<p style="margin-top: 10px; text-indent: 2em;">行于冲波逆折之上，要砥砺前行。</p>
+										 </div>
+           							</div>
+           						</div>
+           						<!-- ./队长 -->
+           						<!-- 外援 -->
+           						<div class="teamMemberItem" style="width: 100%; height: 500px; display: flex; flex-direction: row;">
+           							<!-- 左 介绍 -->
+           							<div style="width: 50%; height: 100%; background: rgba(216,178,175,0.6); padding: 2% 2% 2% 2%;">
+           								<div align="left">
+           									<h3>技术外援</h3>
+  											<h4>大数据方向</h4>
+  											<h5>赖海标</h5>
+  											<hr>
+  											<br>
+  											<h5>项目职责</h5>
+  											<p style="margin-top: 10px;">后台代码编写；统计图设计；数据载入、测试；后台单元代码测试</p>
+  											<hr>
+  											<br>
+  											<h5>个人简介</h5>
+  											<p style="margin-top: 10px;">永远年轻，永远激情</p>
+										 </div>
+           							</div>
+           							<!-- 右 照片 -->
+           							<div style="width: 50%; height: 100%; background: pink; display: flex;flex-direction: row;" align="right">
+           								<!-- 颜色渐变块 -->
+           								<div style="width: 100%; height: 100%; background-image: linear-gradient(to left, #428EDA , skyblue);">
+           								</div>
+           								<img src="${ctxPath}/img/team/lhb.png" style="height: 100%;">
+           								
+           							</div>
+           						</div>
+           						<!-- 队员1 -->
+           						<div class="teamMemberItem" style="width: 100%; height: 500px; display: flex; 
+           						flex-direction: row; margin-bottom: 20px;">
+           							<!-- 左 照片 -->
+           							<div style="width: 50%; height: 100%; background: #438EDB; display: flex;flex-direction: row;" align="left">
+           								<img src="${ctxPath}/img/team/ljp.png" height="100%" >
+           								<!-- 颜色渐变块 -->
+           								<div style="width: 100%; height: 100%; background-image: linear-gradient(to right, #438EDB , skyblue);">
+           								</div>
+           							</div>
+           							<!-- 右 介绍 -->
+           							<div style="width: 50%; height: 100%; background: rgba(132,203,234,0.6);  padding: 2% 2% 2% 2%;">
+           								<div align="left">
+           									<h3>小组干员</h3>
+  											<h4>Java方向</h4>
+  											<h5>李家平</h5>
+  											<hr>
+  											<br>
+  											<h5>项目职责</h5>
+  											<p style="margin-top: 10px;">后台代码编写；sql编写；后台单元代码测试</p>
+  											<hr>
+  											<br>
+  											<h5>个人简介</h5>
+  											<p style="margin-top: 10px;">我们应该重视团队的精神，一个人作用再大，也不过是一碗水中比较大的一粒水珠而已</p>
+										 </div>
+           							</div>
+           						</div>
+           						<!-- 队员2 -->
+           						<div class="teamMemberItem" style="width: 100%; height: 500px; display: flex; 
+           						flex-direction: row; ; margin-bottom: 20px;">
+           							<!-- 左介绍 -->
+           							<div style="width: 50%; height: 100%; background: rgba(229,144,33,0.3);  padding: 2% 2% 2% 2%;">
+           								<div align="left">
+           									<h3>小组干员</h3>
+  											<h4>Java方向</h4>
+  											<h5>邹仁鑫</h5>
+  											<hr>
+  											<br>
+  											<h5>项目职责</h5>
+  											<p style="margin-top: 10px;">sql编写；需求分析文档，接口设计文档编写、修改、整合；后台单元代码测试</p>
+  											<hr>
+  											<br>
+  											<h5>个人简介</h5>
+  											<p style="margin-top: 10px;">团队精神和个人努力都是一个方案里的灵魂，我们一旦缺少其中之一，都会少了灵魂。</p>
+										 </div>
+           							</div>
+           							<!-- 右 照片 -->
+           							<div  style="width: 50%; height: 100%; background: pink; display: flex;flex-direction: row;" align="right">
+           								<!-- 颜色渐变块 -->
+           								<div style="width: 100%; height: 100%; background: #1A8EF6; background-image: linear-gradient(#1A8EF6, #5CBFFF);">
+           								</div>
+           								<img src="${ctxPath}/img/team/zrx.png" style="height: 100%;">
+           								
+           							</div>
+           						</div>
+           						<!-- 队员3 -->
+           						<div class="teamMemberItem" style="width: 100%; height: 500px; display: flex; 
+           						flex-direction: row; margin-bottom: 20px;">
+           							<!-- 左 照片 -->
+           							<div style="width: 50%; height: 100%; background: rgb(247,188,8); display: flex;flex-direction: row;" align="left">
+           								<img src="${ctxPath}/img/team/zy.png" height="100%" >
+           								<!-- 颜色渐变块 -->
+           								<div style="width: 100%; height: 100%; background-image: linear-gradient(to right, rgb(247,188,8) , rgb(255,255,205));">
+           								</div>
+           							</div>
+           							<!-- 右 介绍 -->
+           							<div style="width: 50%; height: 100%; background: rgba(8,247,8,0.3);  padding: 2% 2% 2% 2%;">
+           								<div align="left">
+           									<h3>小组干员</h3>
+  											<h4>Java方向</h4>
+  											<h5>祝易</h5>
+  											<hr>
+  											<br>
+  											<h5>项目职责</h5>
+  											<p style="margin-top: 10px;">前端代码编写；图片上传后台代码编写；ppt制作</p>
+  											<hr>
+  											<br>
+  											<h5>个人简介</h5>
+  											<p style="margin-top: 10px;">路漫漫其修远兮，</p>
+  											<p style="margin-top: 10px; text-indent: 2em;">吾将上下而求索。</p>
+										 </div>
+           							</div>
+           						</div>
+           					</div>
+           					<!-- ./团队介绍body -->
+           					<!-- 专业团队 -->
+           					<div style="width: 100%; height: 250px; background: #fff;
+           						background-image: linear-gradient(gray, #fff, gray);">
+           						<img src="${ctxPath}/img/team/zhuanyeteam.jpg" height="100%">
+           					</div>
+           				</div>
+           			</div>
+           		</div>
+            	<!-- ./homepage content-->
             </div>
             <!-- /.content -->
         </div>
@@ -285,6 +446,10 @@
 			}
 		},
 		methods : {
+			toJinCheng : function(){
+				//$("#jincheng-page").trigger("click");
+				window.open("http://www.scujcc.edu.cn/")
+			},
 			navigateTo : function(menuId){
 				console.log(menuId);
 				var s = menuId+"";
@@ -341,4 +506,19 @@
 		setInterval(()=>{show()}, 1000);
 	})
 	
+	//轮播图
+	layui.use('carousel', function(){
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#rotation'
+            ,width: '830px' //设置容器宽度
+            ,height:'100%'
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+
+        var carousel = layui.carousel;
+        
+    });
 </script>

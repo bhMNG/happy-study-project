@@ -1,0 +1,88 @@
+<div style="height: 95%;width: 100%">
+    <div id="echart" style="width: 100%;height:100%;float: left"></div>
+</div>
+
+<script>
+
+
+    var vue=new Vue({
+        el:'#echart',
+        data:{
+
+        },
+        methods:{
+            getMsg:function () {
+                var url="${ctxPath}/happy-study/chart/getSchoolMsg";
+                $.post(url, {},response => {
+                    var myChart = echarts.init(document.getElementById('echart'));
+                    var option = {
+                        tooltip: {
+                            trigger: 'item',
+                            triggerOn: 'mousemove'
+                        },
+
+                        series: [
+                            {
+                                layout: 'orthogonal',
+                                type: 'tree',
+                                id: 0,
+                                name: 'tree1',
+                                data: [response.data],
+
+                                top: '10%',
+                                left: '15%',
+                                bottom: '22%',
+                                right: '25%',
+
+                                symbolSize: 10,
+                                edgeShape: 'polyline',
+                                edgeForkPosition: '63%',
+                                initialTreeDepth: 1,
+
+                                lineStyle: {
+                                    width: 5,
+                                    color: 'rgb(128,128,128,0.5)',
+                                    curveness: 0.5,
+                                },
+
+                                label: {
+                                    shadowColor: 'transparent',
+                                    position: 'left',
+                                    verticalAlign: 'middle',
+                                    align: 'right',
+                                    color: '#CCFFFF',
+                                    fontStyle: 'oblique',
+                                    fontSize: 30,
+                                },
+                                leaves: {
+                                    label: {
+                                        position: 'right',
+                                        verticalAlign: 'middle',
+                                        align: 'left',
+                                        color: '#00FF66',
+                                        fontSize: '30',
+                                    }
+                                },
+
+
+                                expandAndCollapse: true,
+                                animationDuration: 550,
+                                animationDurationUpdate: 750
+                            }
+                        ]
+                    };
+
+
+                    myChart.setOption(option);
+                });
+            }
+        },
+        mounted:function () {
+            this.getMsg();
+        }
+
+    });
+
+
+
+</script>

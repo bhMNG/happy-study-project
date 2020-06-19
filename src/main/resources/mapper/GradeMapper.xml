@@ -33,7 +33,7 @@
 	<!--模糊匹配查询成绩-->
 	<!--代码添加或修改-->
 	<select id="queryGrade" resultType="map" parameterType="java.util.Map">
-		select s_no,s_name,g_score,t_name,d_name,co_no,co_name from t_grade right JOIN t_student on t_student.s_no=t_grade.g_student_fk LEFT JOIN
+		select s_no,s_name,g_score,t_grade.id,t_name,d_name,co_no,co_name from t_grade right JOIN t_student on t_student.s_no=t_grade.g_student_fk LEFT JOIN
 		t_teacher on t_teacher.t_course_fk=t_grade.g_course_fk LEFT JOIN t_depart on t_depart.d_no=t_teacher.t_depart_fk LEFT JOIN
 		t_course ON t_course.co_no=t_grade.g_course_fk
 		<where>

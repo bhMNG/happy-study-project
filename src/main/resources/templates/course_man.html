@@ -64,7 +64,7 @@
 					<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;">{{course.co_name}}</p></td>
 					<td style="text-align: center;" v-if="course.t_name==undefined||course.t_name==null||course.t_name==''"><p v-if="course.co_status==2" style="margin-bottom: 5px;margin-top: 5px;">
 					{{course.courseTeacher}}</p>
-						<button class="btn btn-warning" v-if="course.co_status ==0||course.co_status==1" :disabled="courseQuery.isMineCourseArrayNull" @click="teacherApplyCourse(course.co_no)">
+						<button class="btn btn-warning" v-if="course.co_status ==0||course.co_status==1" :disabled="courseQuery.isMineCourseArrayNull ||property>=2" @click="teacherApplyCourse(course.co_no)">
 							<p v-show="!courseQuery.isMineCourseArrayNull" style="margin: 0px;">可申请</p>
 							<p v-show="courseQuery.isMineCourseArrayNull" style="margin: 0px;">暂无</p>
 						</button>
@@ -134,7 +134,7 @@
 				<p style="margin: 0px;">查询课程</p>
 			</button>
 			<button class="btn btn-default"  @click="checkEditModel">
-				<p style="margin: 0px;" v-show="!courseEdit.isEditModel">编辑模式</p>
+				<p style="margin: 0px;" v-show="!courseEdit.isEditModel" :disabled="property>1">编辑模式</p>
 				<p style="margin: 0px;" v-show="courseEdit.isEditModel">结束编辑</p>
 			</button>
 			</div>
@@ -308,7 +308,8 @@
 			courseCheck : {
 				isCheckAll : false,
 				checkedValues : [],
-			}
+			},
+			property : "",
 		},
 		methods : {
 			openQueryInputBox : function(){
@@ -656,6 +657,7 @@
 			this.queryCourse();
 			this.queryMyCourse();
 			//this.queryApplyingCourse();
+			this.property = $("#property").val();
 			
 		}
 

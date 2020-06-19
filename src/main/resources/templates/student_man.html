@@ -24,9 +24,9 @@
 
 <!-- 我的成绩 -->
 	<div id="myGradeTable" v-if="paneSwitch.isMyGradeShow" style="background:rgba(0,0,0,0.8); background: #fff; margin-top: 50px;
-	border: 6px solid rgba(0, 0, 0, 0.8); ">
+	border: 6px solid rgba(0, 0, 0, 0.8); padding-top: 20px;">
+	<div style="margin-left: 20px;"><h3>我的成绩</h3></div>
 	<table class="table">
-		<div><h3>我的成绩</h3></div>
 		<thead>
 			<tr>
 				<th style="text-align: center;">课程号</th>
@@ -142,12 +142,12 @@
 	
 	<div style="margin-top: 100px; margin-bottom: 10px;" id="btnBox">
 		<!-- <div style="width: 100%;"> -->
-			<button type="button" class="btn btn-success btn-lg boxBtn" data-toggle="modal" data-target="#stuModal" @click="openStuModal('add')" style="border: 2px solid rgba(0, 0, 0, 0.8);">添加学生</button>
-			<button type="button" class="btn btn-primary btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="excelImport">批量导入</button>
+			<button type="button" class="btn btn-success btn-lg boxBtn" data-toggle="modal" data-target="#stuModal" @click="openStuModal('add')" style="border: 2px solid rgba(0, 0, 0, 0.8);" :disabled="property>1">添加学生</button>
+			<button type="button" class="btn btn-primary btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="excelImport" :disabled="property>1">批量导入</button>
 		<!-- </div> -->
 		<!-- <div style="width: 100%;"> -->
-			<button type="button" class="btn btn-danger btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); " @click="deleteStuBatch">批量删除</button>
-			<button type="button" class="btn btn-warning btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="editStudentMainTable">编辑模式</button>
+			<button type="button" class="btn btn-danger btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); " @click="deleteStuBatch" :disabled="property>1">批量删除</button>
+			<button type="button" class="btn btn-warning btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="editStudentMainTable" :disabled="property>1">编辑模式</button>
 			<button type="button" class="btn btn-default btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.8);" @click="openQueryInputBox">查找学生</button>
 		<!-- </div> -->
 	</div>
@@ -225,7 +225,8 @@
 		</div>
 		<!-- right -->
 		<div style="width: 45%; background: rgba(0, 0, 0, 0.3); box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.4);
-             box-sizing: border-box; border-bottom: 1px solid;">
+             box-sizing: border-box; border-bottom: 1px solid;" id="right_model">
+
              <!-- 统计图标 -->
 		</div>
 	</div>
@@ -253,7 +254,7 @@
 					<td>{{course.co_name}}</td>
 					<td>{{course.courseTeacher}}</td>
 					<td>{{course.courseStuCount}}</td>
-					<td style="padding-top: 8px; padding-bottom: 8px;"><button class="btn btn-warning" @click="chooseCourseByStudent(course.co_no)">确认选课</button></td>
+					<td style="padding-top: 8px; padding-bottom: 8px;"><button class="btn btn-warning" @click="chooseCourseByStudent(course.co_no)" :disabled="property<2">确认选课</button></td>
 				</tr>
 			</tbody>
 		</table>
@@ -294,7 +295,7 @@
 	</div>
 	<!-- 打开已选课程按钮 -->
 	<div style="width: 60%;margin-top: 20px;">
-		<button class="btn btn-default btn-lg btn-block" @click="showChoosedCourse" id="showCourseBtn">查看已选课程</button>
+		<button class="btn btn-default btn-lg btn-block" @click="showChoosedCourse" id="showCourseBtn" :disabled="property<2">查看已选课程</button>
 	</div>
 </div>
 
@@ -304,10 +305,10 @@
 		<div class="container" style="width: 100%">
 			<div class="span6">
 				<ul class="nav navbar-nav" style="">
-					<li><a href="javascript://" @click="openMyGrade">我的成绩</a></li>
+					<li><a href="javascript://" @click="openMyGrade" >我的成绩</a></li>
                 	<li><a href="javascript://" @click="openStutable">总览列表</a></li>
                 	<li><a href="javascript://" @click="openQueryGradePane">成绩查询</a></li>
-                	<li><a href="javascript://" @click="openChooseCoursePane">学生选课</a></li>
+                	<li><a href="javascript://" @click="openChooseCoursePane" >学生选课</a></li>
                 	
 				</ul>
 			</div>
@@ -484,6 +485,7 @@
 			inputBox : {
 				inputData : "",
 			},
+			property : "",
 			
 		},
 		methods : {
@@ -674,6 +676,7 @@
 					orderWay : orderWay
 				}, response=>{
 					this.queryAllStuGrade.array = response.gradeList;
+					vue.getStudentGradeChart();
 				})
 			},
 			changeGradeTable : function(){
@@ -880,9 +883,8 @@
 						//console.log("!!!!!!!!!!!!!!!!!!!!!!"+this.queryPage.currentPage);
 						//console.log(this.queryPage.allRowCount);
 						//console.log(response);
-						
 						this.updatePageNav();
-						
+						this.getStudentGradeChart();
 					});
 				//this.updatePageNav();
 			},
@@ -926,6 +928,7 @@
 				this.initPaneSwitch();
 				this.paneSwitch.isMyGradeShow = true;
 				//myGradeTableCome.restart();
+                vue.getStudentGradeChart();
 			},
 			queryStudentCourse : function(){
 				this.updatePageNav
@@ -972,11 +975,125 @@
 				//console.log("go to page " + this.queryPage.currentPage);
 				this.queryStudent();
 			},
+            getStudentGradeChart:function(){//获取学生成绩雷达图
+                if(vue.paneSwitch.isStutableShow)
+                {
+                    var option = {
+                        title: {
+                            text: '个人成绩分布'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: []
+                        },
+                        radar: {
+                            // shape: 'circle',
+                            name: {
+                                textStyle: {
+                                    color: '#fff',
+                                    backgroundColor: '#999',
+                                    borderRadius: 3,
+                                    padding: [3, 5]
+                                },
+                            },
+                            center:['50%','60%'],
+                            indicator: [
+                                { name: '不及格', max: 5},
+                                { name: '及格', max: 5},
+                                { name: '中等', max: 5},
+                                { name: '良好', max: 5},
+                                { name: '优秀', max: 5},
+                            ]
+                        },
+                        series: [{
+                            name: '',
+                            type: 'radar',
+                            // areaStyle: {normal: {}},
+                            data: [
+                                {
+                                    value: [1, 1, 1, 1, 1],
+                                    name: '成绩分布'
+                                },
+                            ]
+                        }]
+                    };
+                    myChart.setOption(option)
+
+                }
+                else {
+                    console.log(vue.paneSwitch.isStutableShow);
+                    var myChart = echarts.init(document.getElementById("right_model"));
+                    var A=0;
+                    var B=0;
+                    var C=0;
+                    var D=0;
+                    var E=0;
+                    for (var i=0;i<vue.queryAllStuGrade.array.length;i++)
+                    {
+                        if (vue.queryAllStuGrade.array[i].g_score>=60)
+                        {
+                            if (vue.queryAllStuGrade.array[i].g_score>=70)
+                            {
+                                if (vue.queryAllStuGrade.array[i].g_score>=80) {
+                                    if (vue.queryAllStuGrade.array[i].g_score>=90)
+                                    {
+                                        A++;
+                                    }
+                                    B++;
+                                }
+                                C++;
+                            }
+                            D++;
+                        }else E++;
+                    }
+                    var option = {
+                        title: {
+                            text: '学生成绩分布'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: []
+                        },
+                        radar: {
+                            // shape: 'circle',
+                            name: {
+                                textStyle: {
+                                    color: '#fff',
+                                    backgroundColor: '#999',
+                                    borderRadius: 3,
+                                    padding: [3, 5]
+                                },
+                            },
+                            center:['50%','60%'],
+                            indicator: [
+                                { name: '不及格', max: vue.queryAllStuGrade.array.length},
+                                { name: '及格', max: vue.queryAllStuGrade.array.length},
+                                { name: '中等', max: vue.queryAllStuGrade.array.length},
+                                { name: '良好', max: vue.queryAllStuGrade.array.length},
+                                { name: '优秀', max: vue.queryAllStuGrade.array.length},
+                            ]
+                        },
+                        series: [{
+                            name: '',
+                            type: 'radar',
+                            // areaStyle: {normal: {}},
+                            data: [
+                                {
+                                    value: [E, D, C, B, A],
+                                    name: '成绩分布'
+                                },
+                            ]
+                        }]
+                    };
+                    myChart.setOption(option)
+                }
+            }
 		},
 		mounted : function(){
 			this.queryStudent();
 			this.queryStudentCourseGrade();
 			//this.queryAllStuGradeByKey();
+			this.property = $("#property").val();
 		},
 	});
 	

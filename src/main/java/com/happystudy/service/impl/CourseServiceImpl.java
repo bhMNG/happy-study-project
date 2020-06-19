@@ -56,7 +56,7 @@ public class CourseServiceImpl implements CourseService {
 	        //任课老师、报课人数
 	        for (Map<String, Object> courseMap : mapList) {
 	        	Teacher teacher = teacherMapper.findTeacherByCourse((String) courseMap.get("co_no"));
-	        	String teacherName = teacher == null ? "empty" : teacher.gettName();
+	        	String teacherName = teacher == null ? null : teacher.gettName();
 	        	courseMap.put("courseTeacher", teacherName);
 	        	//courseMap.put("courseTeacher", (teacherMapper.findTeacherByCourse((String) courseMap.get("co_no")).gettName()));
 	        	//System.out.println("----------============" + teacherMapper.findTeacherByCourse((String) courseMap.get("co_no")).gettName());

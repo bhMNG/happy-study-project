@@ -1,0 +1,26 @@
+<div style="height: 95%;width: 100%">
+    <div id="echart-pieChart" style="width: 50%;height:50%;float: left"></div>
+    <div id="echart-pieChart2" style="width: 50%;height:50%;float: right"></div>
+    <div id="echart-pieChart3" style="width: 100%;height:50%;"></div>
+</div>
+
+<script>
+    var url="${ctxPath}/happy-study/chart/getClazzMsg";
+
+    $(function (){
+        $.post(url, {}, response => {
+            this.departs = response.departs;
+            var departNames = [];
+            var studentNum = [];
+            var teacherNum = [];
+            for (var i = 0; i < response.departs.length; i++) {
+                departNames.push(response.departs[i].d_name);
+                studentNum.push({value: response.departs[i].stuCount, name: response.departs[i].d_name});
+                teacherNum.push({value: response.departs[i].teacherCount, name: response.departs[i].d_name})
+            }
+            console.log(teacherNum);
+        })
+    });
+
+
+</script>

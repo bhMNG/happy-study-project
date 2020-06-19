@@ -44,8 +44,8 @@
 				<td style="text-align: center; padding-top: 16px;"><p>{{clazz.stu_count}}</p></td>
 				<td align="center" v-show="paneSwitch.editClazzModel">
 					<div class="btn-group" role="group" aria-label="...">
-					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('update', clazz.c_no)">更新</button>
-  					<button type="button" class="btn btn-default" @click="delClazz(clazz.c_no)">删除</button>
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('update', clazz.c_no)" :disabled="property>1">更新</button>
+  					<button type="button" class="btn btn-default" @click="delClazz(clazz.c_no)" :disabled="property>1">删除</button>
 					</div>
 				</td>
 			</tr>
@@ -115,12 +115,12 @@
 <!-- 按钮空间栏 -->
 <div>
 	<div style="margin-top: 100px; margin-bottom: 10px;" id="btnBox">
-		<button type="button" class="btn btn-success btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);margin-left: 50px;margin-right: 50px;" 
-			data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('add', '')">添加班级</button>
-		<button type="button" class="btn btn-primary btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="editClazz">编辑班级</button>
+		<button type="button" class="btn btn-success btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);margin-left: 50px;margin-right: 50px;" :disabled="property>1"
+			data-toggle="modal" data-target="#editClazzModal" @click="openClazzModal('add', '')" >添加班级</button>
+		<button type="button" class="btn btn-primary btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="editClazz" :disabled="property>1">编辑班级</button>
 		<button type="button" class="btn btn-warning btn-lg boxBtn" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="findMyClazz">
 		<p v-show="!clazzQuery.showWithMyClazz" style="margin-bottom: 0px;">我的班级</p><p v-show="this.clazzQuery.showWithMyClazz" style="margin-bottom: 0px;">所有班级</p></button>
-		<button type="button" class="btn btn-danger btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="deleteClazzBatch" >删除班级</button>
+		<button type="button" class="btn btn-danger btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="deleteClazzBatch" :disabled="property>1">删除班级</button>
 		<button type="button" class="btn btn-default btn-lg boxBtn" style="border: 2px solid rgba(0, 0, 0, 0.6); margin-left: 50px;margin-right: 50px;" @click="openQueryInputBox">查询班级</button>
 		
 	</div>
@@ -233,8 +233,8 @@
 			},
 			inputBox : {
 				inputData : "",
-			}
-			
+			},
+			property : "",
 		},
 		methods : {
 			doQuery : function(){
@@ -465,6 +465,7 @@
 		},
 		mounted : function(){
 			this.queryClazz();
+			this.property = $("#property").val();
 		},
 	});
 	

@@ -176,6 +176,8 @@
 						if (response.status==0){
 							alert("请求处理成功");
 							this.queryApply();
+						}else if(response.status==33){
+							alert("该教师不能再授课了");
 						}else{
 							alert("请求处理失败, code: " + response.status);
 						}

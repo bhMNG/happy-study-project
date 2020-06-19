@@ -101,10 +101,10 @@
 
 <!-- 按钮空间栏 -->
 <div style="margin-top: 100px; margin-bottom: 10px;">
-	<button type="button" class="btn btn-success btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);" 
-		data-toggle="modal" data-target="#editDepartModal" @click="openDepartModal('add', '')">添加学院</button>
-	<button type="button" class="btn btn-primary btn-lg" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="editDepart">编辑学院</button>
-	<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="delDepartBatch">删除学院</button>
+	<button type="button" class="btn btn-success btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6); "  
+		data-toggle="modal" data-target="#editDepartModal" @click="openDepartModal('add', '')" :disabled="property>=1">添加学院</button>
+	<button type="button" class="btn btn-primary btn-lg" style="margin-left: 50px;margin-right: 50px; border: 2px solid rgba(0, 0, 0, 0.6);" @click="editDepart" :disabled="property>=1">编辑学院</button>
+	<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);" @click="delDepartBatch" :disabled="property>=1">删除学院</button>
 	<button type="button" class="btn btn-default btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.6);margin-left: 50px;margin-right: 50px;" @click="openQueryInput">查询学院</button>
 </div>
 <!-- inputBox -->
@@ -182,7 +182,8 @@
 			},
 			inputBox : {
 				inputData : "",
-			}
+			},
+			property : "",
 		},
 		methods : {
 			doQuery : function(){
@@ -369,6 +370,7 @@
 		},
 		mounted : function(){
 			this.queryDepart();
+			this.property = $("#property").val();
 		},
 	})
 	

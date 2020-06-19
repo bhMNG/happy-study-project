@@ -43,11 +43,11 @@
 				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.c_name!=null&&teacher.c_name!=''">{{teacher.c_name}}</p><button type="button" class="btn btn-warning" v-if="teacher.c_name==null||teacher.c_name==''">暂无班级</button></td>
 				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.co_name !=null&&teacher.co_name!=''">{{teacher.co_name}}</p><button type="button" class="btn btn-warning" v-if="teacher.co_name==null||teacher.co_name==''" data-toggle="modal" data-target="#chooseTeachModal" @click="chooseTeach(teacher.t_no)">暂无课程</button></td>
 				<td style="text-align: center;"><p style="margin-bottom: 5px;margin-top: 5px;" v-show="teacher.t_user_fk!=null&&teacher.t_user_fk!=''">{{teacher.t_user_fk}}</p>
-					<button type="button" class="btn btn-warning" @click="gotoRegist(teacher.t_no)" v-if="teacher.t_user_fk==null||teacher.t_user_fk==''">注册账号</button></td>
+					<button type="button" class="btn btn-warning" @click="gotoRegist(teacher.t_no)" v-if="teacher.t_user_fk==null||teacher.t_user_fk==''" :disabled="property>1">注册账号</button></td>
 				<td v-show="teacherModal.isEditModel" align="center">
 					<div class="btn-group" role="group" aria-label="...">
-					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#teacherModal" @click="openTeacherModal('update', teacher.t_no, teacher.d_name)">更新</button>
-  					<button type="button" class="btn btn-default" @click="deleteTeacher(teacher.t_no)">删除</button>
+					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#teacherModal" @click="openTeacherModal('update', teacher.t_no, teacher.d_name)" :disabled="property>1">更新</button>
+  					<button type="button" class="btn btn-default" @click="deleteTeacher(teacher.t_no)" :disabled="property>=1">删除</button>
 					</div>
 				</td>
 			</tr>
@@ -105,11 +105,11 @@
 <div>
 	<div style="margin-top: 100px; margin-bottom: 10px;">
 		<button type="button" class="btn btn-success btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8);" 
-			@click="openTeacherModal('add', '', '')" data-toggle="modal" data-target="#teacherModal"> 
+			@click="openTeacherModal('add', '', '')" data-toggle="modal" data-target="#teacherModal" :disabled="property>=1"> 
 			 添加教师</button>
 		<button type="button" class="btn btn-primary btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="dowithEditModel">
 			 编辑信息</button>
-		<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8);" @click="deleteTeacherBatch">
+		<button type="button" class="btn btn-danger btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8);" @click="deleteTeacherBatch" :disabled="property>=1">
 			 删除教师</button>
 		<button type="button" class="btn btn-default btn-lg" style="border: 2px solid rgba(0, 0, 0, 0.8); margin-left: 50px;margin-right: 50px;" @click="openQueryInputBox">
 			 查询教师</button>
@@ -173,7 +173,7 @@
     <div class="modal-content">
       <div class="modal-header">
       	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      	<h4 class="modal-title">选择授课</h4>
+      	<h4 class="modal-title">选择授课TODO</h4>
       </div>
     </div>
   </div>
@@ -227,7 +227,8 @@
 			},
 			inputBox : {
 				inputData : "",
-			}
+			},
+			property : "",
 			
 		},
 		methods : {
@@ -469,7 +470,7 @@
 		},
 		mounted : function(){
 			this.queryTeacher();
-			
+			this.property = $("#property").val();
 		},
 	})
 	

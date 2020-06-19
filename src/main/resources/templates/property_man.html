@@ -63,6 +63,10 @@
 		cursor:pointer;
 		font-size: 22px;
 	}
+	.delALabel-a:hover{
+		color: red;
+		font-size: 22px;
+	}
 	.infobox-input{
 		width: 80%;
 	}
@@ -294,8 +298,8 @@
 		<table class="table table-hover table-striped">
 			<thead>
 				<tr>
-					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">
-						<span class=""></span></p></th>
+					<th style="text-align: center; padding-top: 16px;" v-show="paneSwitch.isEditDialogModel"><p style="font-size: 18px;" >
+						清除</th>
 					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">访问URL</p>
 					</th>
 					<th style="text-align: center; padding-top: 16px;"><p style="font-size: 18px;">触发对象</p>
@@ -306,6 +310,7 @@
 			</thead>
 			<tbody v-for="dialog in dialogQuery.array">
 				<tr class="info">
+					<td style="text-align: center; margin-top: 16px;" v-show="paneSwitch.isEditDialogModel"><a href="javascript://" class="delALabel-a" @click="deleteDialog(dialog.id)"><span class="glyphicon glyphicon-remove"></span></a></td>
 					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlAction}}</p></td>
 					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlTriggerObj}}</p></td>
 					<td style="text-align: center; margin-top: 16px;"><p style="margin: 0px;">{{dialog.dlTime}}</p></td>
@@ -316,8 +321,9 @@
 	</div>
 	<div style="width: 100%; height: 20%; display: flex;flex-direction: row; border: 5px solid rgb(139,0,139); border-top: none;">
 		<div style="height: 100%; width: 50%; padding-left: 20px;" align="left">
-			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px;">返回</button>
-			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px; margin-left: 1%;">编辑</button>
+			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px;" @click="exitDialogPane">返回</button>
+			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px; 
+				margin-left: 1%;" @click="editDialog">编辑</button>
 		</div>
 		<div style="height: 100%; width: 50%; padding-right: 20px;" align="right">
 			<button class="btn btn-default" style="height: 50%; width: 35%; margin-top: 5%; font-size: 28px;">查找</button>
@@ -390,6 +396,7 @@
 				isContentShow : true,
 				isRoleEditModel : false,
 				isDialogShow : false,
+				isEditDialogModel : false,
 			},
 			roleQuery : {
 				array : [],
@@ -419,6 +426,43 @@
 			}
 		},
 		methods : {
+			exitDialogPane : function(){
+				if (this.paneSwitch.isDialogShow){
+					this.helper.count++;
+					this.isEditDialogModel = false;
+					this.paneSwitch.isDialogShow = false;
+					this.paneSwitch.isContentShow = true;
+					this.dialogQuery.array = [];
+					this.dialogQuery.keyword = [];
+					
+				}
+			},
+			deleteDialog : function(id){
+				if (id==undefined||id==null||id==''){
+					alert("删除失败");
+					return ;
+				}
+
+				$.post("${ctxPath}/dialog/deleteDialog", {id : id}, response=>{
+					if (response.status==0){
+						//this.queryDialog();  //每次都重新去查询太慢了
+						for (var i = this.dialogQuery.array.length-1; i>=0; i--){
+							if (this.dialogQuery.array[i].id==id){
+								this.dialogQuery.array.splice(i,1);
+								break;
+							}
+						}
+						return ;
+					}
+				})
+			},
+			editDialog : function(){
+				if (!this.paneSwitch.isEditDialogModel){
+					this.paneSwitch.isEditDialogModel = true;
+				}else{
+					this.paneSwitch.isEditDialogModel = false;
+				}
+			},
 			queryDialog : function(){
 				var keyword = this.dialogQuery.keyword;
 				this.dialogQuery.array = null;

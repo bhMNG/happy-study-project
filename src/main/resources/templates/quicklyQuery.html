@@ -1,4 +1,605 @@
+<style>
+	.retDoor{
+		width: 100%; 
+		height: 10%; 
+		background: rgba(0,0,0,0.3); 
+		padding-top: 55%; 
+		padding-left: 4px;
+	}
+	.retDoor:hover{
+		background: rgba(255,255,255,0.3);
+		cursor: pointer;
+	}
+	.retDoor a {
+		font-size: 22px;
+	}
+	.retDoor a:hover {
+		
+		color: #fff;
+	}
+	.mesItem{
+		width: 100%; 
+		height: 17%; 
+		background: rgba(0,0,0,0.2); 
+		display: flex; 
+		flex-direction: row; 
+		margin-bottom: 5px;
+	}
+	.mesItem:hover {
+		background: rgba(255,255,255,0.3);
+	}
+	.mesItem a {
+		color : rgb(255,165,0);
+	}
+	.mesItem a:hover {
+		color: #fff;
+		cursor: pointer;
+	}
+	.mesItem p{
+		color : black;
+	}
+	
+</style>
+<!-- quicklyQuery-content -->
+<div style="width: 80%; height: 100%;" id="quicklyQuery-content">
 
-<div>
-	quickQuery
+<div style="width: 100%; height: 70%; margin-top: 5%; background: rgba(255,255,255,0.3); display: flex;flex-direction: row;" align="left">
+	<!-- 左边功能按钮区 -->
+	<div style="width: 30%; height: 100%; background: rgba(175,238,238,0.5); display: flex;flex-direction: column;padding: 1% 1% 1% 1%; border: 10px solid rgba(255,255,255,0.3);">
+		<!-- 左上 -->
+		<div style="width: 100%; height: 50%; background: rgba(255,255,255,0.8); display: flex; flex-direction: row; padding: 2% 2% 2% 2%;">
+			<!-- 左上左 -->
+			<div style="height: 100%; width: 50%; background: rgba(0,0,0,0.8); padding: 2% 2% 2% 2%;">
+				<button style="width: 100%; height: 100%; font-size: 28px;" class="btn btn-default" @click="useStudentQuery">学生信息<p><span class="glyphicon glyphicon-education" style="font-size: 42px; margin-top: 5px;"></span></p></button>
+			</div>
+			<!-- 坐上右 内含上下 -->
+			<div style="height: 100%; width: 50%; background: rgba(0,0,0,0.8); padding: 2% 2% 2% 2%; display: flex; flex-direction: column;">
+				<div style="height: 50%; width: 100%; padding-bottom: 1%;">
+					<button style="width: 100%; height: 100%; font-size: 22px;" class="btn btn-default" @click="useDepartQuery">学院<p><span class="iconfont icon-zhaoxueyuan" style="font-size: 42px;"></span></p></button>
+				</div>
+				<div style="height: 50%; width: 100%; padding-top: 1%;">
+					<button style="width: 100%; height: 100%; font-size: 22px;" class="btn btn-default" @click="useCourseQuery">课程<p><span class="iconfont icon-kecheng" style="font-size: 42px;"></span></p></button>
+				</div>
+			</div>
+		</div>
+		<!-- 左下 -->
+		<div style="width: 100%; height: 50%; background: rgba(255,255,255,0.8); display: flex; flex-direction: row; padding: 2% 2% 2% 2%;">
+			<!-- 左下左 内含上下 -->
+			<div style="height: 100%; width: 50%; background: rgba(0,0,0,0.8);; padding: 2% 2% 2% 2%; display: flex; flex-direction: column;">
+				<div style="width: 100%; height: 50%; padding-bottom: 1%;">
+					<button style="width: 100%; height: 100%; font-size: 22px;" class="btn btn-default" @click="useClazzQuery">班级<p><span class="iconfont icon-banjiguanli" style="font-size: 42px;"></span></p></button>
+				</div>
+				<div style="width: 100%; height: 50%; padding-top: 1%;">
+					<button style="width: 100%; height: 100%; font-size: 22px;" class="btn btn-default" @click="useTeacherQuery">教师<p><span class="iconfont icon-xuexiao_jiaoshi" style="font-size: 42px;"></span></p></button>
+				</div>
+			</div>
+			<!-- 左下右 -->
+			<div style="height: 100%; width: 50%; background: rgba(0,0,0,0.8); padding: 2% 2% 2% 2%;">
+				<div style="height: 100%; width: 100%;">
+					<button style="width: 100%; height: 100%; font-size: 28px;" class="btn btn-default" @click="useGradeQuery">分数成绩<p><span class="glyphicon glyphicon-equalizer" style="font-size: 42px; margin-top: 10px;"></span></p></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 左边附属 伸缩区（伸缩功能按钮） -->
+	<div style="width: 2%; height: 100%; display: flex; flex-direction:column; justify-content: center; border: 10px solid rgba(255,255,255,0); border-left: none; border-right: none;">
+		<div class="retDoor">
+			<a href="javascript://"><span class="glyphicon glyphicon-chevron-left"></span></a>
+		</div>
+	</div>
+	<!-- 右边查询结果区 -->
+	<div style="width: 68%; height: 100%; background: rgba(32,178,170,0.5); padding: 1% 1% 1% 1%; border: 10px solid rgba(255,255,255,0.1);">
+		<div style="height: 80%; width: 100%; background: rgba(255,255,255,0.3); overflow-y: scroll; padding: 1% 1% 1% 1%; display: flex; flex-direction: column; border: 5px solid black; border-bottom: none;">
+			<!-- 每一条信息的content -->
+			<div class="mesItem" v-for="mes in inputBox.mesArray">
+				<div style="width: 30%; height: 100%; padding-left: 10px;">
+					<h3 style="margin-top: 10px;">
+						<a v-if="inputBox.queryType=='student'" 
+							@click="openInfoModal('s_no',mes.s_no)">{{mes.s_no}}</a>
+						<a v-if="inputBox.queryType=='depart'" 
+							@click="openInfoModal('d_no',mes.d_no)">{{mes.d_no}}</a>
+						<a v-if="inputBox.queryType=='course'"
+							@click="openInfoModal('co_no',mes.co_no)">{{mes.co_no}}</a>
+						<a v-if="inputBox.queryType=='clazz'" 
+							@click="openInfoModal('c_no',mes.c_no)">{{mes.c_no}}</a>
+						<a v-if="inputBox.queryType=='teacher'" 
+							@click="openInfoModal('t_no',mes.t_no)">{{mes.t_no}}</a>
+						<a v-if="inputBox.queryType=='grade'" 
+							@click="openInfoModal('id',mes.id)">{{mes.s_name}}</a>
+					</h3>
+					<h4>
+						<p v-if="inputBox.queryType=='student'">{{mes.s_name}}</p>
+						<p v-if="inputBox.queryType=='depart'">{{mes.d_name}}</p>
+						<p v-if="inputBox.queryType=='course'">{{mes.co_name}}</p>
+						<p v-if="inputBox.queryType=='clazz'">{{mes.c_name}}</p>
+						<p v-if="inputBox.queryType=='teacher'">{{mes.t_name}}</p>
+						<p v-if="inputBox.queryType=='grade'">{{mes.g_score}}</p>
+					</h4>
+				</div>
+				<div style="width: 70%; height: 100%; padding-top: 10px;">
+					<div v-if="inputBox.queryType=='student'"><p>学院: {{mes.d_name}}</p><p>班级: {{mes.c_name}} 负责老师: {{mes.t_name}}</p></div>
+					<div v-if="inputBox.queryType=='depart'"><p>学生人数: {{mes.stuCount}}</p><p>教职工人数: {{mes.teacherCount}}</p></div>
+					<div v-if="inputBox.queryType=='course'"><p>课程老师: {{mes.courseTeacher}}</p><p>{{mes.courseStuCount}}</p></div>
+					<div v-if="inputBox.queryType=='clazz'">
+						<p v-if="mes.t_name!=undefined&&mes.t_name!=null">负责老师: {{mes.t_name}}</p>
+						<p v-if="mes.t_name==undefined||mes.t_name==null">负责老师: 暂无</p>
+						<p v-if="mes.stu_count!=undefined&&mes.stu_count!=null">班级人数: {{mes.stu_count}}</p>
+						<p v-if="mes.stu_count==undefined||mes.stu_count==null">班级人数: 0</p></div>
+					<div v-if="inputBox.queryType=='teacher'">
+						<p v-if="mes.co_name!=undefined&&mes.co_name!=null">教授课程: {{mes.co_name}}</p>
+						<p v-if="mes.co_name==undefined||mes.co_name==null">教授课程: 暂无</p>
+						<p v-if="mes.c_name!=undefined&&mes.c_name!=null">负责班级: {{mes.c_name}}</p>
+						<p v-if="mes.c_name==undefined||mes.c_name==null">教授课程: 暂无</p></div>
+					<div v-if="inputBox.queryType=='grade'"><p>课程: {{mes.co_no}} {{mes.co_name}}</p><p>教师: {{mes.t_no}} {{mes.t_name}}</p></div>
+				</div>
+			</div>
+		</div>
+		<div style="height: 20%; width: 100%; background: rgba(0,191,255,0.3); padding: 1% 1% 1% 1%; display: flex; flex-direction: row; border: 5px solid black;">
+			<div style="width: 70%; height: 100%; padding: 5% 5% 5% 5%;">
+				<div class="input-group" style="border: 2px solid black;" v-if="inputBox.queryType!='grade'">
+  					<span class="input-group-addon" id="basic-addon1">{{inputBox.tag}}</span>
+  					<input type="text" class="form-control" v-model="inputBox.data" :readonly="inputBox.tag=='关键字'"
+  						:placeholder="inputBox.placeHolder" aria-describedby="basic-addon1">
+				</div>
+				<div class="row" v-if="inputBox.queryType=='grade'" style="width: 100%; height: 100%; padding-left: 15px;">
+					<div class="col-lg-6" style="width: 100%; padding: 0px; border: 2px solid black;">
+    					<div class="input-group">
+      						<div class="input-group-btn">
+        						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{inputBox.gradeQueryKeyTypePaneShow}} <span class="caret"></span></button>
+        						<ul class="dropdown-menu">
+          							<li><a href="javascript://" @click="setQradeQueryKeyType('co_no','课程')">课程号</a></li>
+          							<li><a href="javascript://" @click="setQradeQueryKeyType('c_no','班级')">班级号</a></li>
+          							<li><a href="javascript://" @click="setQradeQueryKeyType('t_no','教师')">教师号</a></li>
+          							<li><a href="javascript://" @click="setQradeQueryKeyType('d_no','学院')">学院号</a></li>
+          							<li role="separator" class="divider"></li>
+          							<li><a href="#">选择查询成绩方式</a></li>
+        						</ul>
+      						</div><!-- /btn-group -->
+      						<input type="text" class="form-control" v-model="inputBox.data" :placeholder="inputBox.placeHolder">
+    					</div><!-- /input-group -->
+  					</div><!-- /.col-lg-6 -->
+				</div>
+			<!-- ./输入框 -->	
+			</div>
+			<div style="width: 30%; height: 100%;">
+				<button style="width: 100%; height: 100%; font-size: 32px; border: 3px solid black;" 
+					class="btn btn-default" @click="doQuery">查询</button>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 详细信息模态框 -->
+	<div class="modal fade" id="infoView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalLabel">{{inputBox.tag}}</h4>
+	      </div>
+	      <!-- 学生 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='student'">
+	        <h4>学生学号</h4>
+	        	<p>{{infoModal.currentObj.s_no}}</p>
+	        <hr>
+	        <h4>学生姓名</h4>
+	        	<p>{{infoModal.currentObj.s_name}}</p>
+	        <hr>
+	        <h4>学生性别</h4>
+	        	<p>{{infoModal.currentObj.s_sex}}</p>
+	        <hr>
+	        <h4>出生日期</h4>
+	        	<p v-if="infoModal.currentObj.s_birthday!=''">{{infoModal.currentObj.s_birthday}}</p>
+	        	<p v-if="infoModal.currentObj.s_birthday=='' || infoModal.currentObj.s_birthday==null">暂无</p>
+	        <hr>
+	        <h4>入学时间</h4>
+	        	<p v-if="infoModal.currentObj.s_enter_year!=''">{{infoModal.currentObj.s_enter_year}}</p>
+	        	<p v-show="infoModal.currentObj.s_enter_year=='' || infoModal.currentObj.s_enter_year==null">暂无</p>
+	        <hr>
+	        <h4>所在班级</h4>
+	       		<p>{{infoModal.currentObj.c_name}}</p>
+	        <hr>
+	        <h4>所在学院</h4>
+	        	<p>{{infoModal.currentObj.d_name}}</p>
+	        <hr>
+	        <h4>学生评价</h4>
+	        <p>...</p>
+	      </div>
+	      
+	      <!-- 学院 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='depart'">
+	        <h4>学院编号</h4>
+	        	<p>{{infoModal.currentObj.d_no}}</p>
+	        <hr>
+	        <h4>学院名称</h4>
+	        	<p>{{infoModal.currentObj.d_name}}</p>
+	        <hr>
+	        <h4>学生人数</h4>
+	        	<p>{{infoModal.currentObj.stuCount}}</p>
+	        <hr>
+	        <h4>教师人数</h4>
+	        	<p>{{infoModal.currentObj.teacherCount}}</p>
+	        <hr>
+	        <h4>学生风采</h4>
+	        	<p>...</p>
+	      </div>
+	      
+	      <!-- 课程 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='course'">
+	        <h4>课程编号</h4>
+	        	<p>{{infoModal.currentObj.co_no}}</p>
+	        <hr>
+	        <h4>课程名称</h4>
+	        	<p>{{infoModal.currentObj.co_name}}</p>
+	        <hr>
+	        <h4>授课教师</h4>
+	        	<p>{{infoModal.currentObj.courseTeacher}}</p>
+	        <hr>
+	        <h4>选课人数</h4>
+	        	<p>{{infoModal.currentObj.courseStuCount}}</p>
+	        <hr>
+	        <h4>课程评价</h4>
+	        	<p>...</p>
+	      </div>
+	      
+	      <!-- 班级 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='clazz'">
+	        <h4>班级编号</h4>
+	        	<p>{{infoModal.currentObj.c_no}}</p>
+	        <hr>
+	        <h4>班级名称</h4>
+	        	<p>{{infoModal.currentObj.c_name}}</p>
+	        <hr>
+	        <h4>负责教师</h4>
+	        	<p>{{infoModal.currentObj.t_name}}</p>
+	        <hr>
+	        <h4>所属学院</h4>
+	        	<p>{{infoModal.currentObj.d_name}}</p>
+	        <hr>
+	        <h4>年级届数</h4>
+	        	<p>{{infoModal.currentObj.c_enter_year}}</p>
+	        <hr>
+	        <h4>班级风评</h4>
+	        	<p>...</p>
+	      </div>
+	      
+	      <!-- 教师 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='teacher'">
+	        <h4>教师编号</h4>
+	        	<p>{{infoModal.currentObj.t_no}}</p>
+	        <hr>
+	        <h4>教师姓名</h4>
+	        	<p>{{infoModal.currentObj.s_name}}</p>
+	        <hr>
+	        <h4>教师性别</h4>
+	        	<p>{{infoModal.currentObj.t_sex}}</p>
+	        <hr>
+	        <h4>所属学院</h4>
+	        	<p>{{infoModal.currentObj.d_name}}</p>
+	        <hr>
+	        <h4>所带班级</h4>
+	        	<p>{{infoModal.currentObj.c_name}}</p>
+	        <hr>
+	        <h4>现授课程</h4>
+	        	<p>{{infoModal.currentObj.co_name}}</p>
+	        <hr>
+	        <h4>教师账号</h4>
+	        	<p v-if="infoModal.currentObj.t_user_fk!=null&&infoModal.currentObj.t_user_fk!=''">{{infoModal.currentObj.t_user_fk}}</p>
+	        	<p v-if="infoModal.currentObj.t_user_fk==null||infoModal.currentObj.t_user_fk==''">暂无</p>
+	        <hr>
+	        <h4>教师考核</h4>
+	        	<p>...</p>
+	      </div>
+	      
+	      <!-- 成绩 -->
+	      <div class="modal-body" align="left" v-if="infoModal.isModalCompile&&inputBox.queryType=='grade'">
+	        <h4>学生编号</h4>
+	        	<p>{{infoModal.currentObj.s_no}}</p>
+	        <hr>
+	        <h4>学生姓名</h4>
+	        	<p>{{infoModal.currentObj.s_name}}</p>
+	        <hr>
+	        <h4>课程名称</h4>
+	        	<p>{{infoModal.currentObj.co_name}}</p>
+	        <hr>
+	        <h4>成绩分数</h4>
+	        	<p>{{infoModal.currentObj.g_score}}</p>
+	        <hr>
+	        <h4>是否合格</h4>
+	        	<p v-show="infoModal.currentObj.g_score>=60">合格</p>
+	        	<p v-show="infoModal.currentObj.g_score<60">未过</p>
+	        <hr>
+	        <h4>所属学院</h4>
+	        	<p>{{infoModal.currentObj.d_name}}</p>
+	        <hr>
+	        <h4>教师寄语</h4>
+	        	<p>...</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
 </div>
+	
+	
+	
+	
+<!-- ./quicklyQuery-content --> 
+</div>
+
+<script>
+	var vue = new Vue({
+		el : "#quicklyQuery-content",
+		data : {
+			inputBox : {
+				data : "",
+				tag : "关键字",
+				queryType : "",
+				placeHolder : "这是一个搜索框",
+				mesArray : [],
+				gradeQueryKeyType : "",
+				gradeQueryKeyTypePaneShow : "",
+			},
+			infoModal : {
+				currentObj : null,
+				isModalCompile : false,
+			}
+		},
+		methods : {
+			openInfoModal : function(key, value){
+				this.infoModal.currentObj = null;
+				var array = this.inputBox.mesArray;
+				for (var i = 0; i < array.length; i++){
+					console.log(array[i].id);
+					console.log("key: "+key);
+					console.log("value: "+value)
+					if (key=='s_no'){
+						if (array[i].s_no==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true; //编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else if(key=='d_no'){
+						if (array[i].d_no==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true;//编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else if(key=="co_no"){
+						if (array[i].co_no==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true;//编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else if(key=="c_no"){
+						if (array[i].c_no==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true;//编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else if(key=="t_no"){
+						if (array[i].t_no==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true;//编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else if(key=="id"){
+						if (array[i].id==value){
+							this.infoModal.currentObj=array[i];
+							this.infoModal.isModalCompile = true;//编译模态框
+							$("#infoView").modal("toggle"); //编译后，手动弹出模态框
+							//return ;
+							break;
+						}
+						continue;
+					}else{
+						console.log("error");
+						return ;
+					}
+					
+				}
+			},
+			queryStudent : function(keyword){
+				$.post("${ctxPath}/happy-study/student/queryStudent", {
+					keyword : keyword,
+					orderBy : "s_no",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 10,
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.studentArray;
+						console.log(this.inputBox.mesArray);
+					}
+				})
+			},
+			queryDepart : function(keyword){
+				$.post("${ctxPath}/happy-study/depart/queryDepart", {
+					keyword : keyword,
+					orderBy : "d_no",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 10,
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.departArray;
+						console.log(this.inputBox.mesArray);
+					}
+				})
+			},
+			queryCourse : function(keyword){
+				$.post("${ctxPath}/happy-study/course/queryCourse", {
+					keyword : keyword,
+					orderBy : "co_no",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 10,
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.courseArray;
+						console.log(this.inputBox.mesArray);
+					}
+				})
+			},
+			queryClazz : function(keyword){
+				$.post("${ctxPath}/happy-study/clazz/queryClazz", {
+					keyword : keyword,
+					orderBy : "c_no",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 10,
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.clazzArray;
+						console.log(this.inputBox.mesArray);
+					}
+				})
+			},
+			queryTeacher : function(keyword){
+				$.post("${ctxPath}/happy-study/teacher/queryTeacher", {
+					keyword : keyword,
+					orderBy : "t_no",
+					orderWay : "asc",
+					pageNo : 1,
+					pageSize : 10,
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.teacherArray;
+						console.log(this.inputBox.mesArray);
+					}
+				})
+			},
+			setQradeQueryKeyType : function(gradeQueryKeyType, paneShow){
+				this.inputBox.gradeQueryKeyType = gradeQueryKeyType;
+				this.inputBox.gradeQueryKeyTypePaneShow = paneShow+"号";
+			},
+			queryGrade : function(keyword){
+				var keyType = this.inputBox.gradeQueryKeyType;
+				var coNo = "";
+				var cNo = "";
+				var tNo = "";
+				var dNo = "";
+				if (keyType=="co_no"){
+					coNo=keyword;
+				}else if(keyType=="c_no"){
+					cNo=keyword;
+				}else if(keyType=="t_no"){
+					tNo=keyword;
+				}else if(keyType=="d_no"){
+					dNo=keyword;
+				}else{
+					alert("keyType error");
+					return ;
+				}
+				$.post("${ctxPath}/happy-study/grade/queryGrade", {
+					coNo : coNo,
+					cNo : cNo,
+					tNo : tNo,
+					dNo : dNo,
+					orderBy : keyType,
+					orderWay : 'asc',
+				}, response=>{
+					if (response.status==0){
+						this.inputBox.mesArray = response.gradeList;
+						console.log(this.inputBox.mesArray)
+					}
+				})
+			},
+			doQuery : function(){
+				var queryType = this.inputBox.queryType;
+				var keyword=this.inputBox.data;
+				if (queryType=="" || keyword==""){
+					return ;
+				}
+				this.inputBox.mesArray = null;
+				if (queryType=="student"){
+					this.queryStudent(keyword);
+					return ;
+				}
+				if (queryType=="depart"){
+					this.queryDepart(keyword);
+					return ;
+				}
+				if (queryType=="course"){
+					this.queryCourse(keyword);
+					return ;
+				}
+				if (queryType=="clazz"){
+					this.queryClazz(keyword);
+					return ;
+				}
+				if (queryType=="teacher"){
+					this.queryTeacher(keyword);
+					return ;
+				}
+				if (queryType=="grade"){
+					this.queryGrade(keyword);
+				}
+			},
+			useGradeQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询成绩信息";
+				this.inputBox.queryType = "grade";
+				this.inputBox.placeHolder="请输入学生号/学生名";
+				this.inputBox.mesArray = [];
+				this.inputBox.gradeQueryKeyType = "co_no";
+				this.inputBox.gradeQueryKeyTypePaneShow = "课程号";
+			},
+			useTeacherQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询教师信息";
+				this.inputBox.queryType = "teacher";
+				this.inputBox.placeHolder="请输入教师号/教师名";
+				this.inputBox.mesArray = [];
+			},
+			useClazzQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询班级信息";
+				this.inputBox.queryType = "clazz";
+				this.inputBox.placeHolder="请输入班级号/班级名";
+				this.inputBox.mesArray = [];
+			},
+			useCourseQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询课程信息";
+				this.inputBox.queryType = "course";
+				this.inputBox.placeHolder="请输入课程号/课程名";
+				this.inputBox.mesArray = [];
+			},
+			useDepartQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询学院信息";
+				this.inputBox.queryType = "depart";
+				this.inputBox.placeHolder="请输入学院号/学院名";
+				this.inputBox.mesArray = [];
+			},
+			useStudentQuery : function(){
+				this.inputBox.data="";
+				this.inputBox.tag="查询学生信息";
+				this.inputBox.queryType = "student"
+				this.inputBox.placeHolder="请输入学号/学生姓名";
+				this.inputBox.mesArray = [];
+			}
+		},
+		mounted : function(){
+			
+		}
+	})
+</script>
